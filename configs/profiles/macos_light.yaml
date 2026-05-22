@@ -1,0 +1,11 @@
+id: macos_light
+name: macOS Light Profile
+description: Lightweight macOS profile for metadata and light simulator paths.
+python: ">=3.11"
+gpu:
+  required: false
+  recommended: false
+install_policy:
+  automatic_system_packages: false
+  automatic_large_downloads: false
+  viewer_launch_default: dry-run

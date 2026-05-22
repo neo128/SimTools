@@ -1,0 +1,11 @@
+id: linux_gpu
+name: Linux GPU Profile
+description: Opt-in profile for Linux workstations with NVIDIA GPU support.
+python: ">=3.11"
+gpu:
+  required: false
+  recommended: true
+install_policy:
+  automatic_system_packages: false
+  automatic_large_downloads: false
+  viewer_launch_default: dry-run

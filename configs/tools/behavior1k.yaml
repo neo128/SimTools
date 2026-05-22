@@ -1,0 +1,62 @@
+id: behavior1k
+name: BEHAVIOR-1K
+category:
+  - embodied_ai
+  - household_tasks
+  - benchmark
+backend:
+  engine: OmniGibson
+  runtime: Dataset and task suite
+homepage: https://behavior.stanford.edu
+summary: Benchmark suite for household activities and embodied agents.
+install_level: heavy
+capabilities:
+  visualization: true
+  visualization_label: "via OmniGibson"
+  viewer_modes:
+    - omnigibson_viewer
+  tasks:
+    - household_activity
+    - long_horizon_manipulation
+    - task_planning
+  sensors:
+    - rgb
+    - depth
+    - segmentation
+    - state
+  robot_types:
+    - mobile_manipulator
+    - articulated_robot
+  supports_headless: partial
+  supports_gpu: recommended
+  large_assets_required: true
+requirements:
+  python: ">=3.10"
+  recommended_python: "3.10"
+  os:
+    - linux
+  gpu:
+    required: false
+    recommended: true
+  disk_gb_min: 100
+  notes:
+    - Requires large BEHAVIOR assets and compatible OmniGibson setup.
+install_profiles:
+  minimal:
+    manager: documentation
+    commands:
+      - simtools install-plan omnigibson
+      - Follow BEHAVIOR-1K asset setup documentation.
+commands:
+  smoke:
+    description: Dry-run BEHAVIOR-1K metadata smoke test.
+    command: python -m simtools run behavior1k --mode smoke --dry-run
+  view:
+    description: Print the BEHAVIOR-1K viewer plan.
+    command: python -m simtools view behavior1k --dry-run
+adapter:
+  module: simtools.adapters.behavior1k
+  class_name: Behavior1KAdapter
+  package_checks:
+    - bddl
+    - omnigibson

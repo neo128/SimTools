@@ -1,0 +1,11 @@
+id: local
+name: Local Metadata Profile
+description: Default profile for local metadata-only use.
+python: ">=3.11"
+gpu:
+  required: false
+  recommended: false
+install_policy:
+  automatic_system_packages: false
+  automatic_large_downloads: false
+  viewer_launch_default: dry-run

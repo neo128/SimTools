@@ -1,0 +1,62 @@
+id: robocasa365
+name: RoboCasa365
+category:
+  - embodied_ai
+  - manipulation
+  - household_tasks
+backend:
+  engine: MuJoCo
+  runtime: Python package and assets
+homepage: https://robocasa.ai
+summary: Large-scale daily kitchen and household manipulation benchmark environments.
+install_level: medium
+capabilities:
+  visualization: true
+  visualization_label: "yes"
+  viewer_modes:
+    - mujoco_viewer
+    - headless_rgb
+  tasks:
+    - kitchen_manipulation
+    - long_horizon_tasks
+    - imitation_learning
+  sensors:
+    - rgb
+    - depth
+    - robot_state
+  robot_types:
+    - manipulator
+    - mobile_manipulator
+  supports_headless: true
+  supports_gpu: optional
+  large_assets_required: true
+requirements:
+  python: ">=3.10"
+  recommended_python: "3.11"
+  os:
+    - linux
+    - macos
+  gpu:
+    required: false
+    recommended: false
+  disk_gb_min: 20
+  notes:
+    - Large assets and robosuite-compatible dependencies may be required.
+install_profiles:
+  minimal:
+    manager: documentation
+    commands:
+      - Follow RoboCasa365 installation documentation in an isolated environment.
+commands:
+  smoke:
+    description: Dry-run RoboCasa365 metadata smoke test.
+    command: python -m simtools run robocasa365 --mode smoke --dry-run
+  view:
+    description: Print the RoboCasa365 viewer plan.
+    command: python -m simtools view robocasa365 --dry-run
+adapter:
+  module: simtools.adapters.robocasa365
+  class_name: RoboCasa365Adapter
+  package_checks:
+    - robocasa
+    - robosuite

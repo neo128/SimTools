@@ -1,0 +1,61 @@
+id: molmospaces
+name: MolmoSpaces
+category:
+  - embodied_ai
+  - manipulation
+  - spatial_reasoning
+backend:
+  engine: MuJoCo
+  runtime: Python package and assets
+homepage: https://molmo.allenai.org
+summary: Embodied spatial reasoning environments associated with Molmo-style tasks.
+install_level: medium
+capabilities:
+  visualization: true
+  visualization_label: "yes"
+  viewer_modes:
+    - mujoco_viewer
+    - headless_rgb
+  tasks:
+    - spatial_reasoning
+    - manipulation
+    - visual_grounding
+  sensors:
+    - rgb
+    - depth
+    - proprioception
+  robot_types:
+    - manipulator
+  supports_headless: true
+  supports_gpu: optional
+  large_assets_required: true
+requirements:
+  python: ">=3.10"
+  recommended_python: "3.11"
+  os:
+    - linux
+    - macos
+  gpu:
+    required: false
+    recommended: false
+  disk_gb_min: 20
+  notes:
+    - Asset availability and install details should be verified before real integration.
+install_profiles:
+  minimal:
+    manager: documentation
+    commands:
+      - Follow MolmoSpaces project setup documentation.
+commands:
+  smoke:
+    description: Dry-run MolmoSpaces metadata smoke test.
+    command: python -m simtools run molmospaces --mode smoke --dry-run
+  view:
+    description: Print the MolmoSpaces viewer plan.
+    command: python -m simtools view molmospaces --dry-run
+adapter:
+  module: simtools.adapters.molmospaces
+  class_name: MolmoSpacesAdapter
+  package_checks:
+    - molmospaces
+    - mujoco

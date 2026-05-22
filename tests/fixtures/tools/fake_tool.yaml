@@ -1,0 +1,41 @@
+id: fake_tool
+name: Fake Tool
+category:
+  - test
+backend:
+  engine: FakeEngine
+  runtime: Test runtime
+homepage: https://example.com/fake
+summary: Fake manifest for tests.
+install_level: light
+capabilities:
+  visualization: false
+  viewer_modes: []
+  tasks:
+    - fake_task
+  sensors: []
+  robot_types: []
+  supports_headless: false
+  supports_gpu: false
+  large_assets_required: false
+requirements:
+  python: ">=3.11"
+  recommended_python: "3.11"
+  os:
+    - linux
+  gpu:
+    required: false
+    recommended: false
+  disk_gb_min: 0
+install_profiles:
+  minimal:
+    manager: none
+    commands: []
+commands:
+  smoke:
+    description: Fake smoke.
+    command: python -m simtools run fake_tool --mode smoke --dry-run
+adapter:
+  module: simtools.adapters.ai2thor
+  class_name: AI2ThorAdapter
+  package_checks: []

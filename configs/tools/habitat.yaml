@@ -1,0 +1,64 @@
+id: habitat
+name: Habitat
+category:
+  - embodied_ai
+  - navigation
+  - indoor_interaction
+backend:
+  engine: Habitat-Sim
+  runtime: Python package with native simulator
+homepage: https://aihabitat.org
+summary: Simulation platform for embodied AI navigation and interaction.
+install_level: medium
+capabilities:
+  visualization: true
+  visualization_label: "yes"
+  viewer_modes:
+    - headless_rgb
+    - interactive_viewer
+  tasks:
+    - point_navigation
+    - object_navigation
+    - rearrangement
+  sensors:
+    - rgb
+    - depth
+    - semantic
+  robot_types:
+    - mobile_agent
+    - articulated_agent
+  supports_headless: true
+  supports_gpu: recommended
+  large_assets_required: optional
+requirements:
+  python: ">=3.9"
+  recommended_python: "3.11"
+  os:
+    - linux
+    - macos
+  gpu:
+    required: false
+    recommended: true
+  disk_gb_min: 5
+  notes:
+    - Dataset assets are task-specific and can be large.
+install_profiles:
+  minimal:
+    manager: pip
+    commands:
+      - pip install habitat-sim habitat-lab
+    notes:
+      - Exact package source may depend on OS and CUDA.
+commands:
+  smoke:
+    description: Dry-run Habitat metadata smoke test.
+    command: python -m simtools run habitat --mode smoke --dry-run
+  view:
+    description: Print the Habitat viewer plan.
+    command: python -m simtools view habitat --dry-run
+adapter:
+  module: simtools.adapters.habitat
+  class_name: HabitatAdapter
+  package_checks:
+    - habitat
+    - habitat_sim

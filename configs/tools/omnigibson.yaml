@@ -1,0 +1,61 @@
+id: omnigibson
+name: OmniGibson
+category:
+  - embodied_ai
+  - physics
+  - household_tasks
+backend:
+  engine: Isaac Sim / NVIDIA Omniverse
+  runtime: Python package with external simulator
+homepage: https://omnigibson.stanford.edu
+summary: Interactive object-centric simulator for embodied AI household tasks.
+install_level: heavy
+capabilities:
+  visualization: true
+  visualization_label: "yes"
+  viewer_modes:
+    - omniverse_viewer
+    - headless_render
+  tasks:
+    - manipulation
+    - household_activity
+    - object_state_reasoning
+  sensors:
+    - rgb
+    - depth
+    - segmentation
+    - physics_state
+  robot_types:
+    - mobile_manipulator
+    - articulated_robot
+  supports_headless: partial
+  supports_gpu: recommended
+  large_assets_required: true
+requirements:
+  python: ">=3.10"
+  recommended_python: "3.10"
+  os:
+    - linux
+  gpu:
+    required: false
+    recommended: true
+  disk_gb_min: 50
+  notes:
+    - Isaac Sim and Omniverse dependencies are external to the base package.
+install_profiles:
+  minimal:
+    manager: documentation
+    commands:
+      - Follow OmniGibson installation documentation for your Isaac Sim version.
+commands:
+  smoke:
+    description: Dry-run OmniGibson metadata smoke test.
+    command: python -m simtools run omnigibson --mode smoke --dry-run
+  view:
+    description: Print the OmniGibson viewer plan.
+    command: python -m simtools view omnigibson --dry-run
+adapter:
+  module: simtools.adapters.omnigibson
+  class_name: OmniGibsonAdapter
+  package_checks:
+    - omnigibson

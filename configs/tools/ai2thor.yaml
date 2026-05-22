@@ -1,0 +1,74 @@
+id: ai2thor
+name: AI2-THOR
+category:
+  - embodied_ai
+  - indoor_interaction
+  - visual_navigation
+backend:
+  engine: Unity
+  runtime: Python package
+homepage: https://ai2thor.allenai.org
+summary: Interactive indoor 3D environments for embodied AI tasks.
+install_level: light
+capabilities:
+  visualization: true
+  visualization_label: "yes"
+  viewer_modes:
+    - unity_window
+    - headless_rgb
+  tasks:
+    - object_navigation
+    - interactive_qa
+    - object_state_reasoning
+    - pickup_place
+  sensors:
+    - rgb
+    - depth
+    - instance_segmentation
+    - metadata
+  robot_types:
+    - mobile_agent
+    - manipulator_variant
+  supports_headless: true
+  supports_gpu: optional
+  large_assets_required: false
+requirements:
+  python: ">=3.9"
+  recommended_python: "3.11"
+  os:
+    - linux
+    - macos
+    - windows
+  gpu:
+    required: false
+    recommended: false
+  disk_gb_min: 1
+  notes:
+    - First run may download AI2-THOR runtime assets.
+install_profiles:
+  minimal:
+    manager: pip
+    commands:
+      - pip install ai2thor
+    notes:
+      - Use an isolated environment such as simtools-ai2thor.
+  conda:
+    manager: conda
+    commands:
+      - conda create -n simtools-ai2thor python=3.11 -y
+      - conda run -n simtools-ai2thor pip install ai2thor
+commands:
+  smoke:
+    description: Launch FloorPlan1 and perform one MoveAhead action.
+    command: python -m simtools run ai2thor --mode smoke
+  smoke_dry_run:
+    description: Show the smoke plan without importing ai2thor.
+    command: python -m simtools run ai2thor --mode smoke --dry-run
+  view:
+    description: Print the viewer launch plan.
+    command: python -m simtools view ai2thor --dry-run
+adapter:
+  module: simtools.adapters.ai2thor
+  class_name: AI2ThorAdapter
+  package_checks:
+    - ai2thor

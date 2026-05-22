@@ -1,0 +1,11 @@
+id: windows_light
+name: Windows Light Profile
+description: Lightweight Windows profile for metadata and supported light tools.
+python: ">=3.11"
+gpu:
+  required: false
+  recommended: false
+install_policy:
+  automatic_system_packages: false
+  automatic_large_downloads: false
+  viewer_launch_default: dry-run

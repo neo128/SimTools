@@ -1,0 +1,31 @@
+# CLI Spec
+
+The CLI is implemented with Typer and Rich.
+
+## Commands
+
+```bash
+simtools --help
+simtools list
+simtools list --category indoor_interaction
+simtools list --installed
+simtools info ai2thor
+simtools doctor
+simtools doctor ai2thor
+simtools compare
+simtools compare --format table
+simtools compare --format markdown
+simtools run ai2thor --mode smoke
+simtools run ai2thor --mode smoke --dry-run
+simtools view ai2thor --dry-run
+simtools install-plan ai2thor
+simtools ui
+```
+
+## Rules
+
+- CLI commands read the registry and adapters.
+- CLI commands must not import real simulator packages at startup.
+- Mutating commands must support dry-run.
+- Missing tools should show valid tool ids.
+- Missing simulator packages should produce clear installation next steps.

@@ -1,0 +1,13 @@
+project:
+  name: SimTools
+  version: "0.1"
+  artifact_dir: .simtools/artifacts
+
+registry:
+  tools_dir: configs/tools
+  profiles_dir: configs/profiles
+
+defaults:
+  profile: local
+  dry_run: true
+  require_explicit_execute: true
