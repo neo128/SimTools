@@ -77,6 +77,22 @@ of failing with a traceback.
 4. Update `docs/07_TOOL_MATRIX.md`
 5. Update `docs/08_INSTALLATION_PROFILES.md`
 
+For AI-agent assisted additions, follow:
+
+```text
+prompts/superpowers/simtools-add-adapter/SKILL.md
+```
+
+## Superpowers Workflows
+
+Project-local Superpowers-style workflows live under `prompts/superpowers/`.
+They are development guides, not runtime dependencies.
+
+- Use `simtools-add-adapter` for new simulator integrations.
+- Use `simtools-review-harden` before continuing major feature work or merging.
+
+See `docs/11_SUPERPOWERS_WORKFLOW.md` for the current mapping.
+
 ## Current Status
 
 This is the v0.1 scaffold. The registry, CLI, manifests, adapter stubs, tests,

@@ -71,6 +71,7 @@ simulator installed.
 - `docs/`: architecture, constraints, adapter contract, CLI/UI specs
 - `plans/`: execution plans for AI agents
 - `prompts/`: reusable prompts for Codex and other agents
+- `prompts/superpowers/`: project-local Superpowers-style workflows
 - `src/simtools/`: Python package
 - `tests/`: unit tests that do not require real simulators
 - `scripts/`: local development helpers
@@ -137,11 +138,24 @@ A task is complete only when:
 For complex work:
 
 1. Read `AGENTS.md`.
-2. Read relevant docs in `docs/`.
-3. Create or update a plan in `plans/`.
-4. Implement the smallest useful slice.
-5. Run tests.
-6. Review the diff.
-7. Summarize changes, risks, and next steps.
+2. If a matching project workflow exists, read it under `prompts/superpowers/`.
+3. Read relevant docs in `docs/`.
+4. Create or update a plan in `plans/`.
+5. Implement the smallest useful slice.
+6. Run tests.
+7. Review the diff.
+8. Summarize changes, risks, and next steps.
 
 Prefer small, reviewable commits.
+
+## Superpowers Workflow Hooks
+
+Project-local Superpowers-style workflows live in `prompts/superpowers/`.
+They are reference workflows for AI agents; they are not runtime dependencies.
+
+- Use `prompts/superpowers/simtools-add-adapter/SKILL.md` when adding a new
+  simulator or benchmark integration.
+- Use `prompts/superpowers/simtools-review-harden/SKILL.md` when reviewing,
+  hardening, or stabilizing the scaffold.
+- Use Superpowers-style verification before completion: do not claim tests,
+  CLI commands, or scaffold checks pass unless they were freshly run and read.
