@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from simtools.adapters.ai2thor_scenes import ithor_scenes, room_type_for_scene
 from simtools.core.artifact_store import ArtifactStore
 
 
@@ -135,7 +136,14 @@ def main() -> None:
 
     with st.sidebar:
         st.header("Session")
-        scene = st.text_input("Scene", value=_default_scene())
+        scene_options = ithor_scenes()
+        default_scene = _default_scene()
+        default_index = scene_options.index(default_scene) if default_scene in scene_options else 0
+        selected_scene = st.selectbox("iTHOR scene", scene_options, index=default_index)
+        custom_scene = st.text_input("Custom scene", value="" if default_scene in scene_options else default_scene)
+        scene = custom_scene.strip() or selected_scene
+        room_type = room_type_for_scene(scene)
+        st.caption(room_type or "Custom scene")
         width = st.number_input("Width", min_value=64, max_value=4096, value=_default_width())
         height = st.number_input("Height", min_value=64, max_value=4096, value=_default_height())
         start = st.button("Start / Reset", use_container_width=True)

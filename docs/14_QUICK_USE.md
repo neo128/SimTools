@@ -38,12 +38,69 @@ Expected result:
 - `doctor ai2thor` reports `installed`
 - `validate` reports 6 tools and 4 profiles
 
+### Scenes
+
+SimTools currently targets AI2-THOR's public iTHOR scene set. iTHOR has 120
+scenes, evenly split across four room types. The public AI2-THOR scene names are
+case-sensitive and follow this pattern:
+
+| Room type | Count | Scene names |
+| --- | ---: | --- |
+| Kitchen | 30 | `FloorPlan1` ... `FloorPlan30` |
+| Living room | 30 | `FloorPlan201` ... `FloorPlan230` |
+| Bedroom | 30 | `FloorPlan301` ... `FloorPlan330` |
+| Bathroom | 30 | `FloorPlan401` ... `FloorPlan430` |
+
+For machine learning experiments, the common split is first 20 scenes for
+training, next 5 for validation, and last 5 for testing within each room type.
+For example, kitchens usually split as:
+
+| Split | Kitchen example |
+| --- | --- |
+| train | `FloorPlan1` ... `FloorPlan20` |
+| validation | `FloorPlan21` ... `FloorPlan25` |
+| test | `FloorPlan26` ... `FloorPlan30` |
+
+The same split pattern applies to living rooms, bedrooms, and bathrooms.
+
+AI2-THOR's Python package may internally normalize public scene names such as
+`FloorPlan1` to physics scene names such as `FloorPlan1_physics`; in SimTools
+commands, use the public names like `FloorPlan1`.
+
+Source: <https://ai2thor.allenai.org/ithor/documentation/scenes/>
+
+### Switch Scene
+
+All AI2-THOR launchers use the scene name. For terminal viewer, close the
+current viewer with `quit`, then relaunch with another scene:
+
+```bash
+./scripts/view_ai2thor.sh FloorPlan201
+```
+
+For direct CLI usage, pass `--scene`:
+
+```bash
+.venv-ai2thor/bin/python -m simtools view ai2thor --execute --scene FloorPlan301
+```
+
+For the mouse UI, use the `iTHOR scene` dropdown in the sidebar and click
+`Start / Reset` to load the selected scene.
+
 ### Validate Viewer Launch
 
 Use launch-and-close mode when you only want to confirm that Unity can start:
 
 ```bash
 ./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768 --max-actions 0
+```
+
+Replace `FloorPlan1` with any scene name:
+
+```bash
+./scripts/view_ai2thor.sh FloorPlan201 --width 1024 --height 768 --max-actions 0
+./scripts/view_ai2thor.sh FloorPlan301 --width 1024 --height 768 --max-actions 0
+./scripts/view_ai2thor.sh FloorPlan401 --width 1024 --height 768 --max-actions 0
 ```
 
 Expected output:
@@ -64,6 +121,7 @@ Terminal-controlled Unity viewer:
 
 ```bash
 ./scripts/view_ai2thor.sh FloorPlan1
+./scripts/view_ai2thor.sh FloorPlan201
 ```
 
 With a specific window size:
@@ -104,6 +162,12 @@ Launch:
 ./scripts/view_ai2thor_ui.sh FloorPlan1 --width 1024 --height 768 --port 8502
 ```
 
+You can also start directly in another scene:
+
+```bash
+./scripts/view_ai2thor_ui.sh FloorPlan201 --width 1024 --height 768 --port 8502
+```
+
 Equivalent direct command:
 
 ```bash
@@ -119,12 +183,14 @@ http://localhost:8502
 In the page:
 
 1. Click `Start / Reset`.
-2. Use the movement and camera buttons.
-3. Select a visible object from the object panel.
-4. Click object actions such as `Pick up`, `Open`, `Toggle on`, or
+2. Use the `iTHOR scene` dropdown in the sidebar to choose another scene.
+3. Click `Start / Reset` again to switch scenes.
+4. Use the movement and camera buttons.
+5. Select a visible object from the object panel.
+6. Click object actions such as `Pick up`, `Open`, `Toggle on`, or
    `Put held object`.
-5. Click `Save screenshot` to write a PPM artifact.
-6. Click `Stop` when finished.
+7. Click `Save screenshot` to write a PPM artifact.
+8. Click `Stop` when finished.
 
 ### Controls
 
