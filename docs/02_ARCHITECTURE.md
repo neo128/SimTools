@@ -21,6 +21,8 @@ SimTools uses a layered architecture:
 - `artifact_store`: keeps outputs under `.simtools/artifacts/`.
 - `capability_matrix`: converts manifests into comparison rows and markdown.
 - `status`: aggregates adapter diagnostics into local status views.
+- `readiness`: reports whether each registered tool has verified local smoke
+  and visualization.
 - `validation`: checks manifest/profile/adapter wiring without heavy imports.
 
 ## Extension Mechanism
@@ -33,6 +35,8 @@ To add a simulator:
 4. Add or update contract tests.
 5. Update `docs/07_TOOL_MATRIX.md` and `docs/08_INSTALLATION_PROFILES.md`.
 6. Add a dry-run smoke command and sample manual commands.
+7. Add readiness metadata that truthfully marks planned, package-smoke, or
+   real-viewer status.
 
 ## Local Run Modes
 
@@ -40,6 +44,7 @@ To add a simulator:
 - Smoke mode: run a minimal non-destructive test when a simulator is installed.
 - Full install mode: future opt-in workflow that executes an install profile.
 - Viewer mode: future opt-in GUI launch, dry-run by default.
+- Real readiness mode: strict release gate for local smoke and visualization.
 - Benchmark mode: future structured task execution and artifact capture.
 
 ## Risks

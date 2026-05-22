@@ -24,6 +24,8 @@ def test_load_initial_tool_manifests():
         "molmospaces",
         "robocasa365",
     }
+    assert all(manifest.readiness.stage for manifest in manifests)
+    assert any(manifest.id == "ai2thor" and manifest.readiness.visualization_verified for manifest in manifests)
 
 
 def test_load_global_config_and_profiles():
@@ -48,6 +50,7 @@ def test_load_fake_manifest_fixture():
     manifest = load_tool_manifest(path)
     assert manifest.id == "fake_tool"
     assert manifest.backend.engine == "FakeEngine"
+    assert manifest.readiness.blockers == ["Fake fixture is not a real simulator."]
 
 
 def test_manifest_id_must_match_filename(tmp_path):

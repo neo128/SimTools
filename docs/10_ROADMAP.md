@@ -37,6 +37,10 @@ Status: complete for safe planning and package-level validation. Next real work
 is choosing one opt-in rendered viewer path after confirming local GPU/display
 requirements.
 
+Hard gate: neither tool is complete under the real-local requirement until
+`python -m simtools real-status --strict` can pass with both marked
+`real_viewer`.
+
 ## v0.4 RoboCasa365
 
 - RoboCasa365 manifest with minimal and asset profiles
@@ -45,6 +49,9 @@ requirements.
 
 Status: complete for dry-run planning. A real adapter should first check
 `robocasa` and `robosuite` imports, then add a no-download smoke.
+
+Hard gate: not complete under the real-local requirement until code install,
+asset policy, smoke, and MuJoCo viewer are locally verified.
 
 ## v0.5 MolmoSpaces
 
@@ -55,6 +62,9 @@ Status: complete for dry-run planning. A real adapter should first check
 Status: complete for dry-run planning. A real adapter should first validate
 `molmo_spaces` and `mujoco` imports, then add cache-directory checks.
 
+Hard gate: not complete under the real-local requirement until cache policy,
+smoke, and MuJoCo debug viewer are locally verified.
+
 ## v0.6 OmniGibson and BEHAVIOR-1K
 
 - OmniGibson and BEHAVIOR-1K manifests with source/headless plans
@@ -64,6 +74,9 @@ Status: complete for dry-run planning. A real adapter should first validate
 Status: complete for dry-run planning. Real execution remains intentionally
 deferred until local hardware, Isaac Sim, license, and asset policies are
 confirmed.
+
+Hard gate: not complete under the real-local requirement until Isaac/Omniverse,
+assets, smoke, and viewer commands are locally verified.
 
 ## Later
 

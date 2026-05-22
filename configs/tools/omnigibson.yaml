@@ -79,3 +79,19 @@ adapter:
   class_name: OmniGibsonAdapter
   package_checks:
     - omnigibson
+readiness:
+  stage: planned
+  local_environment: not-created
+  local_runnable: false
+  smoke_verified: false
+  visualization_verified: false
+  validation_command: python -m simtools run omnigibson --mode smoke
+  viewer_command: python -m omnigibson.examples.scenes.scene_selector
+  artifact_examples: []
+  blockers:
+    - OmniGibson is not installed in a dedicated local environment.
+    - Real execution depends on Isaac Sim / Omniverse, NVIDIA driver, display or headless mode, and assets.
+    - SimTools needs a safe opt-in Isaac startup check before running viewer commands.
+  last_verified: null
+  notes:
+    - Do not import Omniverse/Isaac dependencies in base tests.

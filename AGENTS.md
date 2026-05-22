@@ -36,6 +36,8 @@ simulator installed.
 - The core registry must work even when no simulator is installed.
 - CLI and UI must read from the same registry and config models.
 - No simulator-specific logic should be hardcoded into CLI commands.
+- A simulator is not fully integrated until its manifest `readiness.stage` is
+  `real_viewer` and `python -m simtools real-status --strict` passes.
 - Adding a new simulator should require:
   1. one manifest
   2. one adapter
@@ -85,6 +87,7 @@ Use these commands after implementation:
 python -m simtools --help
 python -m simtools list
 python -m simtools status
+python -m simtools real-status
 python -m simtools compare
 python -m simtools doctor
 python -m simtools validate
@@ -134,7 +137,9 @@ A task is complete only when:
 4. `pytest` passes.
 5. CLI still starts.
 6. No heavy simulator is imported in base tests.
-7. The change is summarized with risks and follow-up tasks.
+7. `python -m simtools real-status` truthfully reports real local run and
+   visualization readiness.
+8. The change is summarized with risks and follow-up tasks.
 
 ## AI Agent Workflow
 

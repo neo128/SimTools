@@ -8,12 +8,13 @@ inspection.
 1. Overview: tool counts, categories, installation difficulty, visualization
    support, GPU requirements, and large asset flags.
 2. Tool Matrix: the same comparison matrix used by the CLI.
-3. Tool Detail: manifest summary, sample commands, install profiles, viewer
+3. Real Readiness: local runnable and visualization verification gate.
+4. Tool Detail: manifest summary, sample commands, install profiles, viewer
    modes, and smoke command.
-4. Doctor Preview: local system info and adapter status.
-5. Artifacts: repository-local screenshots, videos, logs, and smoke reports
+5. Doctor Preview: local system info and adapter status.
+6. Artifacts: repository-local screenshots, videos, logs, and smoke reports
    when present.
-6. Profiles: local, linux_gpu, macos_light, and windows_light profile metadata.
+7. Profiles: local, linux_gpu, macos_light, and windows_light profile metadata.
 
 ## Rules
 

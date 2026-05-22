@@ -16,6 +16,7 @@ from simtools.core.artifact_store import ArtifactStore
 from simtools.core.capability_matrix import matrix_rows
 from simtools.core.config_loader import load_profiles
 from simtools.core.environment import collect_system_info
+from simtools.core.readiness import readiness_summary
 from simtools.core.registry import ToolRegistry
 
 
@@ -39,6 +40,7 @@ def load_dashboard_data() -> dict[str, Any]:
         "profiles": [profile.model_dump(mode="json") for profile in load_profiles()],
         "artifacts": artifacts,
         "artifact_summary": summarize_artifacts(artifacts),
+        "readiness": readiness_summary(registry),
     }
 
 
@@ -72,10 +74,11 @@ def main() -> None:
     st.set_page_config(page_title="SimTools", layout="wide")
     st.title("SimTools")
 
-    overview, matrix, detail, doctor, artifacts, profiles = st.tabs(
+    overview, matrix, readiness, detail, doctor, artifacts, profiles = st.tabs(
         [
             "Overview",
             "Tool Matrix",
+            "Real Readiness",
             "Tool Detail",
             "Doctor Preview",
             "Artifacts",
@@ -97,6 +100,14 @@ def main() -> None:
 
     with matrix:
         st.dataframe(data["matrix"], use_container_width=True)
+
+    with readiness:
+        summary = data["readiness"]
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Ready", summary["ready_count"])
+        col2.metric("Not Ready", summary["not_ready_count"])
+        col3.metric("Total", summary["tool_count"])
+        st.dataframe(summary["tools"], use_container_width=True)
 
     with detail:
         tool_names = {tool["name"]: tool for tool in data["tools"]}

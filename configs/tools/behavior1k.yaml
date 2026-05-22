@@ -85,3 +85,19 @@ adapter:
   package_checks:
     - bddl
     - omnigibson
+readiness:
+  stage: planned
+  local_environment: not-created
+  local_runnable: false
+  smoke_verified: false
+  visualization_verified: false
+  validation_command: python -m simtools run behavior1k --mode smoke
+  viewer_command: python -m omnigibson.examples.robots.robot_control_example --quickstart
+  artifact_examples: []
+  blockers:
+    - BEHAVIOR-1K is not installed in a dedicated local environment.
+    - Real usage depends on OmniGibson, Isaac Sim, BEHAVIOR assets, and license acceptance.
+    - SimTools needs asset-presence checks before dataset-backed task/viewer execution.
+  last_verified: null
+  notes:
+    - Treat BEHAVIOR-1K as blocked until the OmniGibson real viewer gate passes.

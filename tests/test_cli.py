@@ -9,6 +9,7 @@ runner = CliRunner()
 def test_cli_status_profiles_validate_and_artifacts():
     for args in (
         ["status"],
+        ["real-status"],
         ["profiles"],
         ["validate"],
         ["artifacts"],
@@ -105,3 +106,17 @@ def test_cli_install_plan_preserves_extras_markup():
     result = runner.invoke(app, ["install-plan", "molmospaces", "--profile", "conda"])
     assert result.exit_code == 0, result.output
     assert 'pip install -e ".[mujoco]"' in result.output
+
+
+def test_cli_real_status_strict_fails_until_all_viewers_verified():
+    result = runner.invoke(app, ["real-status", "--strict"])
+    assert result.exit_code == 2, result.output
+    assert "Not ready" in result.output
+
+
+def test_cli_real_status_json_reports_ai2_ready():
+    result = runner.invoke(app, ["real-status", "--json"])
+    assert result.exit_code == 0, result.output
+    assert '"ready_tools": [' in result.output
+    assert '"ai2thor"' in result.output
+    assert '"not_ready_count": 6' in result.output

@@ -76,3 +76,18 @@ adapter:
   class_name: AI2ThorAdapter
   package_checks:
     - ai2thor
+readiness:
+  stage: real_viewer
+  local_environment: .venv-ai2thor
+  local_runnable: true
+  smoke_verified: true
+  visualization_verified: true
+  validation_command: ./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768 --max-actions 0
+  viewer_command: ./scripts/view_ai2thor_ui.sh FloorPlan1 --width 1024 --height 768 --port 8502
+  artifact_examples:
+    - .simtools/artifacts/ai2thor/smoke_20260522T092610Z.ppm
+  blockers: []
+  last_verified: "2026-05-22"
+  notes:
+    - Terminal Unity viewer and mouse-driven Streamlit UI have both been wired.
+    - First run may download the AI2-THOR Unity runtime.

@@ -39,3 +39,16 @@ adapter:
   module: simtools.adapters.ai2thor
   class_name: AI2ThorAdapter
   package_checks: []
+readiness:
+  stage: planned
+  local_environment: not-created
+  local_runnable: false
+  smoke_verified: false
+  visualization_verified: false
+  validation_command: python -m simtools run fake_tool --mode smoke --dry-run
+  viewer_command: python -m simtools view fake_tool --dry-run
+  artifact_examples: []
+  blockers:
+    - Fake fixture is not a real simulator.
+  last_verified: null
+  notes: []

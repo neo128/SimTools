@@ -12,6 +12,8 @@ simtools list --installed
 simtools info ai2thor
 simtools info maniskill
 simtools status
+simtools real-status
+simtools real-status --strict
 simtools profiles
 simtools doctor
 simtools doctor ai2thor
@@ -50,3 +52,7 @@ simtools ui
 - `run` stores non-dry-run reports under `.simtools/artifacts/<tool_id>/`.
 - `view` is dry-run by default and requires `--execute` for GUI behavior.
 - `view --ui` starts a mouse-driven local UI when the adapter supports it.
+- `real-status` reports whether each registered tool is truly locally runnable
+  and visually verified.
+- `real-status --strict` exits non-zero until every registered tool reaches the
+  `real_viewer` readiness stage.

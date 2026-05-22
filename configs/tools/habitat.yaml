@@ -84,3 +84,19 @@ adapter:
   package_checks:
     - habitat
     - habitat_sim
+readiness:
+  stage: package_smoke
+  local_environment: not-created
+  local_runnable: false
+  smoke_verified: false
+  visualization_verified: false
+  validation_command: python -m simtools run habitat --mode smoke
+  viewer_command: python -m simtools view habitat --dry-run
+  artifact_examples: []
+  blockers:
+    - Habitat and Habitat-Sim are not installed in a dedicated local environment.
+    - A real viewer adapter must be wired to an official Habitat viewer/example.
+    - Dataset-backed scenes must be selected without adding large downloads to base tests.
+  last_verified: null
+  notes:
+    - Current adapter supports package checks and import-only smoke only.

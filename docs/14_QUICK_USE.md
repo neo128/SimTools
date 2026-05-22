@@ -14,6 +14,19 @@ MolmoSpaces, OmniGibson, BEHAVIOR-1K, and later tools.
 - Do not install real simulator packages into the base SimTools environment.
 - GUI viewers are opt-in and must be started explicitly.
 - Tests and CI must not launch real GUI viewers.
+- A tool is not fully integrated until `python -m simtools real-status` reports
+  `stage=real_viewer`, local run is `yes`, smoke is `yes`, and visual is `yes`.
+
+Check the current truth:
+
+```bash
+python -m simtools real-status
+python -m simtools real-status --strict
+```
+
+The strict command is expected to fail until every registered tool has a real
+local smoke and visualization proof. See
+`docs/15_REAL_LOCAL_RUN_REQUIREMENTS.md`.
 
 ## AI2-THOR
 

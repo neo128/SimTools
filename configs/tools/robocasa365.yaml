@@ -81,3 +81,19 @@ adapter:
   package_checks:
     - robocasa
     - robosuite
+readiness:
+  stage: planned
+  local_environment: not-created
+  local_runnable: false
+  smoke_verified: false
+  visualization_verified: false
+  validation_command: python -m simtools run robocasa365 --mode smoke
+  viewer_command: python -m robocasa.demos.demo_random_action
+  artifact_examples: []
+  blockers:
+    - RoboCasa365 and robosuite are not installed in a dedicated local environment.
+    - Kitchen assets are an explicit download step and are around 10GB in official docs.
+    - A no-download smoke and an opt-in MuJoCo viewer adapter must be implemented.
+  last_verified: null
+  notes:
+    - Keep the asset profile separate from the code installation profile.

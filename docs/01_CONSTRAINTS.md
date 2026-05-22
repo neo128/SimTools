@@ -15,6 +15,10 @@ These constraints are part of the architecture, not suggestions.
 9. Provide dry-run behavior for commands that would start processes, launch
    viewers, run smoke tests, or install dependencies.
 10. Failures must include practical next steps for the user.
+11. Do not claim a simulator is fully integrated until `readiness.stage` is
+    `real_viewer` and the local smoke plus visualization commands are verified.
+12. Planned adapters may stay in the registry, but `real-status --strict` must
+    fail until every registered tool is locally runnable and visually verified.
 
 ## Base Environment
 

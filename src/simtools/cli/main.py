@@ -19,6 +19,7 @@ from simtools.cli.commands_doctor import build_manifest_table, build_system_tabl
 from simtools.cli.commands_info import build_info_panel, build_install_table
 from simtools.cli.commands_list import build_list_table
 from simtools.cli.commands_profiles import build_profiles_table
+from simtools.cli.commands_readiness import build_readiness_table
 from simtools.cli.commands_run import run_tool
 from simtools.cli.commands_status import build_status_table
 from simtools.cli.commands_view import view_tool
@@ -27,6 +28,7 @@ from simtools.core.capability_matrix import matrix_markdown
 from simtools.core.config_loader import load_profiles, repo_root
 from simtools.core.errors import ConfigError, ToolNotFoundError
 from simtools.core.registry import ToolRegistry
+from simtools.core.readiness import readiness_summary
 from simtools.core.status import tool_status_rows
 from simtools.core.validation import validate_repository
 
@@ -104,6 +106,35 @@ def status(
         console.print_json(data={"tools": tool_status_rows(registry)})
     else:
         console.print(build_status_table(registry))
+
+
+@app.command("real-status")
+def real_status(
+    strict: bool = typer.Option(
+        False,
+        "--strict",
+        help="Exit non-zero unless every registered tool is real-run and visual verified.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print JSON instead of a table."),
+) -> None:
+    """Show real local runnable and visualization readiness."""
+
+    registry = registry_or_exit()
+    summary = readiness_summary(registry)
+    if json_output:
+        console.print_json(data=summary)
+    else:
+        console.print(build_readiness_table(registry))
+        console.print(
+            f"Real-ready tools: {summary['ready_count']}/{summary['tool_count']}"
+        )
+        if summary["not_ready_tools"]:
+            console.print(
+                "Not ready: " + ", ".join(summary["not_ready_tools"]),
+                style="yellow",
+            )
+    if strict and summary["status"] != "passed":
+        raise typer.Exit(code=2)
 
 
 @app.command()

@@ -5,6 +5,7 @@ pytest
 python -m simtools --help >/dev/null
 python -m simtools list
 python -m simtools status
+python -m simtools real-status
 python -m simtools profiles
 python -m simtools compare
 python -m simtools doctor

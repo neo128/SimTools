@@ -22,4 +22,5 @@ All notable changes to SimTools will be documented here.
 - Added ManiSkill manifest, adapter, install-plan, and package-only smoke path.
 - Added planned dry-run adapters for RoboCasa365, MolmoSpaces, OmniGibson, and
   BEHAVIOR-1K.
+- Added real local run readiness metadata and `simtools real-status` gate.
 - Improved dashboard artifact previews.

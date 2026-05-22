@@ -5,6 +5,7 @@ def test_dashboard_data_loads_from_registry():
     data = load_dashboard_data()
     assert data["tool_count"] == 7
     assert "matrix" in data
+    assert data["readiness"]["ready_tools"] == ["ai2thor"]
     assert any(row["id"] == "ai2thor" for row in data["matrix"])
 
 

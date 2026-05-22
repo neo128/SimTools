@@ -10,6 +10,7 @@ It provides:
 - install profiles
 - adapter-based launchers
 - smoke tests
+- real local run readiness gates
 - local dashboard
 - comparison matrix
 - artifact/log management
@@ -49,6 +50,7 @@ source .venv/bin/activate
 pip install -e ".[dev,dashboard]"
 python -m simtools list
 python -m simtools status
+python -m simtools real-status
 python -m simtools compare
 python -m simtools doctor
 python -m simtools validate
@@ -108,6 +110,7 @@ and troubleshooting. Future simulator quick-use notes should be added there.
 python -m simtools list
 python -m simtools info ai2thor
 python -m simtools status
+python -m simtools real-status
 python -m simtools profiles
 python -m simtools compare
 python -m simtools doctor
@@ -125,6 +128,8 @@ python -m simtools validate
 ```
 
 `run` writes non-dry-run reports under `.simtools/artifacts/<tool_id>/`.
+`real-status --strict` exits non-zero until every registered simulator has a
+verified local smoke path and real visualization path.
 
 To run the local verification suite:
 
@@ -163,4 +168,6 @@ stubs, tests, artifact listing, profile listing, validation, and dashboard MVP
 are present. AI2-THOR has the first opt-in real adapter path. Habitat and
 ManiSkill have package-only preparation paths. RoboCasa365, MolmoSpaces,
 OmniGibson, and BEHAVIOR-1K have dry-run install, smoke, and viewer plans.
-SimTools does not automatically install any real simulator.
+`python -m simtools real-status --strict` is the hard gate for the user's new
+requirement that every registered tool must be locally runnable and visually
+verified. SimTools does not automatically install any real simulator.

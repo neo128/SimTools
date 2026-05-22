@@ -17,6 +17,7 @@ Pydantic models in `src/simtools/core/models.py`.
 - `install_profiles`: named install plans
 - `commands`: dry-run command descriptions
 - `adapter`: adapter module/class metadata
+- `readiness`: real local runnable and visualization verification status
 
 ## Example
 
@@ -61,7 +62,33 @@ adapter:
   module: simtools.adapters.ai2thor
   class_name: AI2ThorAdapter
   package_checks: [ai2thor]
+readiness:
+  stage: real_viewer
+  local_environment: .venv-ai2thor
+  local_runnable: true
+  smoke_verified: true
+  visualization_verified: true
+  validation_command: ./scripts/view_ai2thor.sh FloorPlan1 --max-actions 0
+  viewer_command: ./scripts/view_ai2thor_ui.sh FloorPlan1 --port 8502
+  artifact_examples:
+    - .simtools/artifacts/ai2thor/smoke_20260522T092610Z.ppm
+  blockers: []
+  last_verified: "2026-05-22"
+  notes:
+    - Terminal Unity viewer and mouse UI are wired.
 ```
+
+## Readiness Stages
+
+- `real_viewer`: package smoke and local visualization were verified.
+- `package_smoke`: package/import checks exist, but real visualization is not
+  verified yet.
+- `planned`: manifest, install plan, and adapter plan exist, but the tool is
+  not locally runnable through SimTools yet.
+
+Use `python -m simtools real-status` to inspect this field. Use
+`python -m simtools real-status --strict` as a release gate when every
+registered tool must be locally runnable and visualized.
 
 ## Profile Files
 

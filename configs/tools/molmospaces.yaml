@@ -82,3 +82,19 @@ adapter:
   package_checks:
     - molmo_spaces
     - mujoco
+readiness:
+  stage: planned
+  local_environment: not-created
+  local_runnable: false
+  smoke_verified: false
+  visualization_verified: false
+  validation_command: python -m simtools run molmospaces --mode smoke
+  viewer_command: python scripts/datagen/run_pipeline.py --viewer --seed 3
+  artifact_examples: []
+  blockers:
+    - MolmoSpaces is not installed in a dedicated local checkout/environment.
+    - Official debug viewer commands can auto-download assets.
+    - SimTools needs explicit cache and artifact policies before real viewer execution.
+  last_verified: null
+  notes:
+    - Prefer validating package imports before running data generation or benchmark jobs.

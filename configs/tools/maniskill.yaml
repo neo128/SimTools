@@ -85,6 +85,22 @@ adapter:
   class_name: ManiSkillAdapter
   package_checks:
     - mani_skill
+readiness:
+  stage: package_smoke
+  local_environment: not-created
+  local_runnable: false
+  smoke_verified: false
+  visualization_verified: false
+  validation_command: python -m simtools run maniskill --mode smoke
+  viewer_command: python -m mani_skill.examples.demo_random_action -e PickCube-v1
+  artifact_examples: []
+  blockers:
+    - ManiSkill is not installed in a dedicated local environment.
+    - Rendering needs Vulkan-compatible local drivers before viewer verification.
+    - SimTools still needs an opt-in rendered viewer path for artifact capture.
+  last_verified: null
+  notes:
+    - State-based package smoke can be implemented before rendered viewer validation.
 notes:
   - "Official installation docs: https://maniskill.readthedocs.io/en/v3.0.0b20/user_guide/getting_started/installation.html"
   - Official install docs recommend pip installing mani_skill and matching PyTorch separately.

@@ -61,6 +61,20 @@ class AdapterSpec(StrictModel):
     package_checks: list[str] = Field(default_factory=list)
 
 
+class RuntimeReadinessSpec(StrictModel):
+    stage: str
+    local_environment: str | None = None
+    local_runnable: bool = False
+    smoke_verified: bool = False
+    visualization_verified: bool = False
+    validation_command: str | None = None
+    viewer_command: str | None = None
+    artifact_examples: list[str] = Field(default_factory=list)
+    blockers: list[str] = Field(default_factory=list)
+    last_verified: str | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
 class ToolManifest(StrictModel):
     id: str
     name: str
@@ -74,6 +88,7 @@ class ToolManifest(StrictModel):
     install_profiles: dict[str, InstallProfile] = Field(default_factory=dict)
     commands: dict[str, CommandSpec] = Field(default_factory=dict)
     adapter: AdapterSpec
+    readiness: RuntimeReadinessSpec
     notes: list[str] = Field(default_factory=list)
     source_path: str | None = None
 
