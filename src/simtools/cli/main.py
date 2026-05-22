@@ -154,12 +154,30 @@ def view_command(
     tool_id: str = typer.Argument(...),
     dry_run: bool = typer.Option(True, "--dry-run/--no-dry-run"),
     execute: bool = typer.Option(False, "--execute", help="Opt in to viewer execution."),
+    scene: str = typer.Option("FloorPlan1", "--scene", help="Simulator scene to open."),
+    width: int = typer.Option(800, "--width", min=64, help="Viewer render width."),
+    height: int = typer.Option(600, "--height", min=64, help="Viewer render height."),
+    max_actions: Optional[int] = typer.Option(
+        None,
+        "--max-actions",
+        min=0,
+        help="Stop after N terminal actions; 0 validates launch then closes.",
+    ),
 ) -> None:
     """Launch or plan a simulator viewer."""
 
     registry = registry_or_exit()
     try:
-        result = view_tool(registry, tool_id, dry_run=dry_run and not execute, execute=execute)
+        result = view_tool(
+            registry,
+            tool_id,
+            dry_run=dry_run and not execute,
+            execute=execute,
+            scene=scene,
+            width=width,
+            height=height,
+            max_actions=max_actions,
+        )
     except ToolNotFoundError as exc:
         handle_tool_error(exc)
         raise typer.Exit(code=2) from exc

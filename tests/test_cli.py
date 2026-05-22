@@ -26,6 +26,28 @@ def test_cli_run_smoke_dry_run_and_no_save_report():
     assert "planned" in result.output
 
 
+def test_cli_view_ai2thor_dry_run_with_scene_options():
+    result = runner.invoke(
+        app,
+        [
+            "view",
+            "ai2thor",
+            "--dry-run",
+            "--scene",
+            "FloorPlan1",
+            "--width",
+            "300",
+            "--height",
+            "300",
+            "--max-actions",
+            "0",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert "--execute" in result.output
+    assert "--max-actions 0" in result.output
+
+
 def test_cli_install_plan_all_tools():
     result = runner.invoke(app, ["install-plan"])
     assert result.exit_code == 0, result.output

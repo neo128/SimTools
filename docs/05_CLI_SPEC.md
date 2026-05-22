@@ -22,6 +22,8 @@ simtools install-plan ai2thor
 simtools run ai2thor --mode smoke
 simtools run ai2thor --mode smoke --dry-run
 simtools view ai2thor --dry-run
+simtools view ai2thor --execute --scene FloorPlan1
+simtools view ai2thor --execute --scene FloorPlan1 --max-actions 0
 simtools artifacts
 simtools artifacts ai2thor
 simtools validate
@@ -37,3 +39,4 @@ simtools ui
 - Missing simulator packages should produce clear installation next steps.
 - `install-plan` prints commands only and never executes installers.
 - `run` stores non-dry-run reports under `.simtools/artifacts/<tool_id>/`.
+- `view` is dry-run by default and requires `--execute` for GUI behavior.

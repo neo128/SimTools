@@ -46,6 +46,16 @@ class SimToolAdapter(ABC):
 - Heavy simulator packages may be imported only inside an explicit execution
   method such as `smoke(execute=True)` or an opt-in viewer launch.
 
+## Viewer Rules
+
+- Viewer launch must be dry-run by default.
+- Real viewer execution must require an explicit `--execute` path.
+- Tests must never launch a GUI viewer.
+- Viewer adapters may accept options such as `scene`, `width`, `height`, and
+  `max_actions`.
+- Automation can use `--max-actions 0` to validate launch-and-close behavior
+  without entering an interactive loop.
+
 ## Smoke Test Rules
 
 - If the simulator is not installed, return `status: skipped` with next steps.

@@ -19,10 +19,11 @@ Status: complete for the local metamanager MVP.
 - Opt-in AI2-THOR smoke test
 - Artifact capture under `.simtools/artifacts/ai2thor/`
 - Better headless guidance
-- Optional viewer execution path
+- Terminal-controlled Unity viewer execution path
 
-Status: isolated Python 3.11 validation passed and produced screenshot/report
-artifacts. See `docs/13_AI2THOR_VALIDATION.md`.
+Status: isolated Python 3.11 validation passed, terminal-controlled Unity
+viewer is available, and screenshot/report artifacts are produced. See
+`docs/13_AI2THOR_VALIDATION.md`.
 
 ## v0.3 RoboCasa365 and Habitat
 

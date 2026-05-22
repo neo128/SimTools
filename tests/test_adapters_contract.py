@@ -59,6 +59,45 @@ def test_ai2thor_smoke_skips_when_not_installed(monkeypatch):
     assert "install-plan ai2thor" in " ".join(result["next_steps"])
 
 
+def test_ai2thor_viewer_execute_skips_when_not_installed(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("ai2thor"))
+    original_find_spec = importlib.util.find_spec
+
+    def fake_find_spec(name):
+        if name == "ai2thor":
+            return None
+        return original_find_spec(name)
+
+    monkeypatch.setattr(importlib.util, "find_spec", fake_find_spec)
+    result = adapter.launch_viewer(
+        dry_run=False,
+        execute=True,
+        scene="FloorPlan1",
+        width=300,
+        height=300,
+        max_actions=0,
+    )
+    assert result["status"] == "skipped"
+    assert "install-plan ai2thor" in " ".join(result["next_steps"])
+
+
+def test_ai2thor_viewer_dry_run_includes_execute_command():
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("ai2thor"))
+    result = adapter.launch_viewer(
+        dry_run=True,
+        execute=False,
+        scene="FloorPlan1",
+        width=300,
+        height=300,
+        max_actions=0,
+    )
+    assert result["status"] == "planned"
+    assert "--execute" in result["commands"][0]
+    assert "--max-actions 0" in result["commands"][0]
+
+
 def test_habitat_smoke_skips_when_not_installed(monkeypatch):
     registry = ToolRegistry.from_configs()
     adapter = get_adapter(registry.get("habitat"))

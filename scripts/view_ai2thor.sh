@@ -2,6 +2,10 @@
 set -euo pipefail
 
 PYTHON_BIN="${SIMTOOLS_AI2THOR_PYTHON:-.venv-ai2thor/bin/python}"
+SCENE="${1:-FloorPlan1}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
 
 if [[ ! -x "$PYTHON_BIN" ]]; then
   echo "AI2-THOR validation Python not found: $PYTHON_BIN" >&2
@@ -11,9 +15,4 @@ if [[ ! -x "$PYTHON_BIN" ]]; then
   exit 2
 fi
 
-"$PYTHON_BIN" -m simtools doctor ai2thor
-"$PYTHON_BIN" -m simtools validate
-"$PYTHON_BIN" -m simtools run ai2thor --mode smoke --dry-run
-"$PYTHON_BIN" -m simtools view ai2thor --execute --scene FloorPlan1 --width 300 --height 300 --max-actions 0
-"$PYTHON_BIN" -m simtools run ai2thor --mode smoke
-"$PYTHON_BIN" -m simtools artifacts ai2thor
+"$PYTHON_BIN" -m simtools view ai2thor --execute --scene "$SCENE" "$@"

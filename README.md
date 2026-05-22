@@ -84,6 +84,28 @@ conda create -p ./.venv-ai2thor python=3.11 pip -y
 
 See `docs/13_AI2THOR_VALIDATION.md` for the latest local result.
 
+## AI2-THOR Viewer
+
+After the isolated AI2-THOR environment exists, launch the terminal-controlled
+Unity viewer with:
+
+```bash
+./scripts/view_ai2thor.sh FloorPlan1
+```
+
+Equivalent direct command:
+
+```bash
+.venv-ai2thor/bin/python -m simtools view ai2thor --execute --scene FloorPlan1
+```
+
+Controls are printed in the terminal. The Unity window stays open until you type
+`quit`. Extra CLI options are forwarded by the script, for example:
+
+```bash
+./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768
+```
+
 ## Core Commands
 
 ```bash
@@ -98,6 +120,7 @@ python -m simtools install-plan
 python -m simtools install-plan ai2thor
 python -m simtools run ai2thor --mode smoke --dry-run
 python -m simtools view ai2thor --dry-run
+python -m simtools view ai2thor --execute --scene FloorPlan1 --max-actions 0
 python -m simtools artifacts
 python -m simtools validate
 ```

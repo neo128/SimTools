@@ -17,5 +17,6 @@ All notable changes to SimTools will be documented here.
 - Added GitHub Actions test workflow.
 - Added project contribution and release docs.
 - Added AI2-THOR isolated validation docs and script.
+- Added AI2-THOR terminal-controlled Unity viewer execution path.
 - Hardened Habitat as the second real-tool path with import-only smoke.
-- Improve dashboard artifact previews.
+- Improved dashboard artifact previews.

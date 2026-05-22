@@ -39,6 +39,7 @@ class SimToolAdapter(ABC):
         *,
         dry_run: bool = True,
         execute: bool = False,
+        **options: Any,
     ) -> dict[str, Any]:
         """Launch or plan a viewer."""
 
@@ -106,6 +107,7 @@ class ManifestOnlyAdapter(SimToolAdapter):
         *,
         dry_run: bool = True,
         execute: bool = False,
+        **options: Any,
     ) -> dict[str, Any]:
         return {
             "tool_id": self.tool_id,

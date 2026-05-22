@@ -65,8 +65,8 @@ commands:
     description: Show the smoke plan without importing ai2thor.
     command: python -m simtools run ai2thor --mode smoke --dry-run
   view:
-    description: Print the viewer launch plan.
-    command: python -m simtools view ai2thor --dry-run
+    description: Open the terminal-controlled Unity viewer when executed explicitly.
+    command: python -m simtools view ai2thor --execute --scene FloorPlan1
 adapter:
   module: simtools.adapters.ai2thor
   class_name: AI2ThorAdapter

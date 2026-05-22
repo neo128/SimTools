@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -106,25 +107,187 @@ class AI2ThorAdapter(ManifestOnlyAdapter):
         *,
         dry_run: bool = True,
         execute: bool = False,
+        **options: Any,
     ) -> dict[str, Any]:
-        command = "python -m simtools run ai2thor --mode smoke"
+        scene = str(options.get("scene") or "FloorPlan1")
+        width = int(options.get("width") or 800)
+        height = int(options.get("height") or 600)
+        max_actions = options.get("max_actions")
+        command = (
+            "python -m simtools view ai2thor --execute "
+            f"--scene {scene} --width {width} --height {height}"
+        )
+        if max_actions is not None:
+            command = f"{command} --max-actions {int(max_actions)}"
         if dry_run or not execute:
             return {
                 "tool_id": self.tool_id,
                 "status": "planned",
-                "message": "Viewer launch is dry-run by default.",
+                "message": "AI2-THOR Unity viewer launch is dry-run by default.",
                 "commands": [command],
                 "next_steps": [
                     "Install AI2-THOR in an isolated environment.",
-                    "Use an explicit future --execute path to launch GUI behavior.",
+                    "Run with --execute to open a Unity window and control it from the terminal.",
                 ],
             }
-        return {
-            "tool_id": self.tool_id,
-            "status": "skipped",
-            "message": "Direct AI2-THOR viewer execution is not implemented yet.",
-            "commands": [command],
+        if not self.check_installed():
+            return {
+                "tool_id": self.tool_id,
+                "status": "skipped",
+                "message": "AI2-THOR is not installed.",
+                "commands": [command],
+                "next_steps": [
+                    "Run: python -m simtools install-plan ai2thor",
+                    "Install AI2-THOR in an isolated environment.",
+                ],
+            }
+        if max_actions is None and not sys.stdin.isatty():
+            return {
+                "tool_id": self.tool_id,
+                "status": "skipped",
+                "message": "Interactive viewer execution requires a TTY.",
+                "commands": [command],
+                "next_steps": [
+                    "Run the command from a local terminal.",
+                    "Use --max-actions 0 for launch-and-close validation.",
+                ],
+            }
+
+        return self._run_interactive_viewer(
+            scene=scene,
+            width=width,
+            height=height,
+            max_actions=max_actions,
+        )
+
+    def _run_interactive_viewer(
+        self,
+        *,
+        scene: str,
+        width: int,
+        height: int,
+        max_actions: Any,
+    ) -> dict[str, Any]:
+        controller = None
+        actions_run = 0
+        latest_frame: Path | None = None
+        action_limit = None if max_actions is None else int(max_actions)
+
+        try:
+            from ai2thor.controller import Controller
+
+            controller = Controller(scene=scene, width=width, height=height)
+            if action_limit == 0:
+                return {
+                    "tool_id": self.tool_id,
+                    "status": "passed",
+                    "message": "AI2-THOR Unity viewer launched and closed.",
+                    "scene": scene,
+                    "actions_run": actions_run,
+                }
+
+            print(self._viewer_help(scene, width, height))
+            while True:
+                if action_limit is not None and actions_run >= action_limit:
+                    break
+                user_input = input("ai2thor> ").strip()
+                if not user_input:
+                    continue
+                if user_input in {"q", "quit", "exit"}:
+                    break
+                if user_input in {"h", "help", "?"}:
+                    print(self._viewer_help(scene, width, height))
+                    continue
+                if user_input in {"shot", "screenshot"}:
+                    latest_frame = self._save_viewer_frame(controller.last_event.frame)
+                    print(f"saved {latest_frame}")
+                    continue
+
+                action = self._viewer_action(user_input)
+                if action is None:
+                    print(f"unknown command: {user_input}")
+                    print("type 'help' for controls")
+                    continue
+                event = controller.step(action=action)
+                actions_run += 1
+                success = event.metadata.get("lastActionSuccess", False)
+                error = event.metadata.get("errorMessage") or ""
+                status = "ok" if success else "failed"
+                print(f"{action}: {status} {error}".strip())
+
+            if getattr(controller, "last_event", None) is not None:
+                latest_frame = self._save_viewer_frame(controller.last_event.frame)
+            return {
+                "tool_id": self.tool_id,
+                "status": "closed",
+                "message": "AI2-THOR Unity viewer closed.",
+                "scene": scene,
+                "actions_run": actions_run,
+                "artifact": str(latest_frame) if latest_frame else None,
+            }
+        except KeyboardInterrupt:
+            return {
+                "tool_id": self.tool_id,
+                "status": "closed",
+                "message": "AI2-THOR Unity viewer interrupted and closed.",
+                "scene": scene,
+                "actions_run": actions_run,
+                "artifact": str(latest_frame) if latest_frame else None,
+            }
+        except Exception as exc:
+            return {
+                "tool_id": self.tool_id,
+                "status": "failed",
+                "message": f"AI2-THOR Unity viewer failed: {exc}",
+                "scene": scene,
+                "next_steps": [
+                    "Confirm the AI2-THOR runtime can launch on this OS/display setup.",
+                    "Try: python -m simtools view ai2thor --execute --max-actions 0",
+                ],
+            }
+        finally:
+            if controller is not None:
+                try:
+                    controller.stop()
+                except Exception:
+                    pass
+
+    def _viewer_action(self, command: str) -> str | None:
+        aliases = {
+            "w": "MoveAhead",
+            "forward": "MoveAhead",
+            "back": "MoveBack",
+            "s": "MoveBack",
+            "a": "RotateLeft",
+            "left": "RotateLeft",
+            "d": "RotateRight",
+            "right": "RotateRight",
+            "u": "LookUp",
+            "up": "LookUp",
+            "j": "LookDown",
+            "down": "LookDown",
         }
+        if command in aliases:
+            return aliases[command]
+        if command[:1].isupper():
+            return command
+        return None
+
+    def _viewer_help(self, scene: str, width: int, height: int) -> str:
+        return (
+            f"AI2-THOR Unity viewer: scene={scene}, size={width}x{height}\n"
+            "Controls: w=MoveAhead, s=MoveBack, a=RotateLeft, d=RotateRight, "
+            "u=LookUp, j=LookDown\n"
+            "Other commands: shot, help, quit\n"
+            "You may also type a raw AI2-THOR action name such as RotateRight."
+        )
+
+    def _save_viewer_frame(self, frame: Any) -> Path:
+        artifact_dir = ArtifactStore().tool_dir(self.tool_id)
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        frame_path = artifact_dir / f"viewer_{timestamp}.ppm"
+        self._write_frame(frame, frame_path)
+        return frame_path
 
     def _write_frame(self, frame: Any, path: Path) -> None:
         """Write an RGB frame as PPM without adding image dependencies."""

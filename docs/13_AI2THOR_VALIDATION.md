@@ -20,6 +20,7 @@ conda create -p ./.venv-ai2thor python=3.11 pip -y
 .venv-ai2thor/bin/python -m simtools doctor ai2thor
 .venv-ai2thor/bin/python -m simtools validate
 .venv-ai2thor/bin/python -m simtools run ai2thor --mode smoke --dry-run
+.venv-ai2thor/bin/python -m simtools view ai2thor --execute --scene FloorPlan1 --width 300 --height 300 --max-actions 0
 .venv-ai2thor/bin/python -m simtools run ai2thor --mode smoke
 .venv-ai2thor/bin/python -m simtools artifacts ai2thor
 ```
@@ -31,9 +32,10 @@ Validated on 2026-05-22:
 - `doctor ai2thor`: installed
 - `validate`: passed, 6 tools and 4 profiles
 - dry-run smoke: planned
+- viewer launch-and-close validation: passed
 - real smoke: passed
-- artifact screenshot: `.simtools/artifacts/ai2thor/smoke_20260522T090748Z.ppm`
-- artifact report: `.simtools/artifacts/ai2thor/smoke_report_20260522T090749Z.json`
+- artifact screenshot: `.simtools/artifacts/ai2thor/smoke_20260522T092610Z.ppm`
+- artifact report: `.simtools/artifacts/ai2thor/smoke_report_20260522T092611Z.json`
 
 The screenshot was written as a PPM file to avoid adding image-writing
 dependencies to SimTools.
@@ -43,3 +45,23 @@ dependencies to SimTools.
 - This validation may download AI2-THOR runtime assets on first use.
 - Do not run this in CI by default.
 - Do not install AI2-THOR into the base SimTools environment.
+
+## Interactive Viewer
+
+Launch:
+
+```bash
+./scripts/view_ai2thor.sh FloorPlan1
+./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768
+```
+
+Controls:
+
+- `w`: MoveAhead
+- `s`: MoveBack
+- `a`: RotateLeft
+- `d`: RotateRight
+- `u`: LookUp
+- `j`: LookDown
+- `shot`: save a PPM frame under `.simtools/artifacts/ai2thor/`
+- `quit`: close the viewer
