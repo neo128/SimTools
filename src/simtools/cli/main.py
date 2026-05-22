@@ -154,9 +154,11 @@ def view_command(
     tool_id: str = typer.Argument(...),
     dry_run: bool = typer.Option(True, "--dry-run/--no-dry-run"),
     execute: bool = typer.Option(False, "--execute", help="Opt in to viewer execution."),
+    ui: bool = typer.Option(False, "--ui", help="Launch a mouse-driven UI where supported."),
     scene: str = typer.Option("FloorPlan1", "--scene", help="Simulator scene to open."),
     width: int = typer.Option(800, "--width", min=64, help="Viewer render width."),
     height: int = typer.Option(600, "--height", min=64, help="Viewer render height."),
+    port: int = typer.Option(8502, "--port", min=1, max=65535, help="UI server port."),
     max_actions: Optional[int] = typer.Option(
         None,
         "--max-actions",
@@ -173,9 +175,11 @@ def view_command(
             tool_id,
             dry_run=dry_run and not execute,
             execute=execute,
+            ui=ui,
             scene=scene,
             width=width,
             height=height,
+            port=port,
             max_actions=max_actions,
         )
     except ToolNotFoundError as exc:

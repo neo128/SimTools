@@ -24,6 +24,7 @@ simtools run ai2thor --mode smoke --dry-run
 simtools view ai2thor --dry-run
 simtools view ai2thor --execute --scene FloorPlan1
 simtools view ai2thor --execute --scene FloorPlan1 --max-actions 0
+simtools view ai2thor --ui --execute --scene FloorPlan1 --port 8502
 simtools artifacts
 simtools artifacts ai2thor
 simtools validate
@@ -40,3 +41,4 @@ simtools ui
 - `install-plan` prints commands only and never executes installers.
 - `run` stores non-dry-run reports under `.simtools/artifacts/<tool_id>/`.
 - `view` is dry-run by default and requires `--execute` for GUI behavior.
+- `view --ui` starts a mouse-driven local UI when the adapter supports it.

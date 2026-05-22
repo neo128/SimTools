@@ -92,6 +92,12 @@ AI2-THOR has a terminal-controlled Unity viewer path:
 ./scripts/view_ai2thor.sh FloorPlan1
 ```
 
+It also has a mouse-driven browser UI:
+
+```bash
+./scripts/view_ai2thor_ui.sh FloorPlan1 --port 8502
+```
+
 See `docs/14_QUICK_USE.md` for setup, launch commands, controls, artifacts,
 and troubleshooting. Future simulator quick-use notes should be added there.
 

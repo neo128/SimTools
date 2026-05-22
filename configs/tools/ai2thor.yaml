@@ -16,6 +16,7 @@ capabilities:
   viewer_modes:
     - unity_window
     - headless_rgb
+    - streamlit_mouse_ui
   tasks:
     - object_navigation
     - interactive_qa
@@ -67,6 +68,9 @@ commands:
   view:
     description: Open the terminal-controlled Unity viewer when executed explicitly.
     command: python -m simtools view ai2thor --execute --scene FloorPlan1
+  view_ui:
+    description: Open the mouse-driven Streamlit control UI when executed explicitly.
+    command: python -m simtools view ai2thor --ui --execute --scene FloorPlan1
 adapter:
   module: simtools.adapters.ai2thor
   class_name: AI2ThorAdapter

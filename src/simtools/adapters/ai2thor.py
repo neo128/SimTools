@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,6 +12,7 @@ from typing import Any
 
 from simtools.adapters.base import ManifestOnlyAdapter
 from simtools.core.artifact_store import ArtifactStore
+from simtools.core.config_loader import repo_root
 
 
 class AI2ThorAdapter(ManifestOnlyAdapter):
@@ -112,7 +115,18 @@ class AI2ThorAdapter(ManifestOnlyAdapter):
         scene = str(options.get("scene") or "FloorPlan1")
         width = int(options.get("width") or 800)
         height = int(options.get("height") or 600)
+        ui = bool(options.get("ui"))
+        port = int(options.get("port") or 8502)
         max_actions = options.get("max_actions")
+        if ui:
+            return self._launch_mouse_ui(
+                dry_run=dry_run,
+                execute=execute,
+                scene=scene,
+                width=width,
+                height=height,
+                port=port,
+            )
         command = (
             "python -m simtools view ai2thor --execute "
             f"--scene {scene} --width {width} --height {height}"
@@ -159,6 +173,106 @@ class AI2ThorAdapter(ManifestOnlyAdapter):
             height=height,
             max_actions=max_actions,
         )
+
+    def _launch_mouse_ui(
+        self,
+        *,
+        dry_run: bool,
+        execute: bool,
+        scene: str,
+        width: int,
+        height: int,
+        port: int,
+    ) -> dict[str, Any]:
+        command = (
+            "python -m simtools view ai2thor --ui --execute "
+            f"--scene {scene} --width {width} --height {height} --port {port}"
+        )
+        if dry_run or not execute:
+            return {
+                "tool_id": self.tool_id,
+                "status": "planned",
+                "message": "AI2-THOR mouse UI launch is dry-run by default.",
+                "commands": [command],
+                "next_steps": [
+                    "Install AI2-THOR and Streamlit in the isolated environment.",
+                    "Run with --ui --execute to open the browser-based control panel.",
+                ],
+            }
+        if not self.check_installed():
+            return {
+                "tool_id": self.tool_id,
+                "status": "skipped",
+                "message": "AI2-THOR is not installed.",
+                "commands": [command],
+                "next_steps": [
+                    "Run: python -m simtools install-plan ai2thor",
+                    "Install AI2-THOR in an isolated environment.",
+                ],
+            }
+        if importlib.util.find_spec("streamlit") is None:
+            return {
+                "tool_id": self.tool_id,
+                "status": "skipped",
+                "message": "Streamlit is not installed in this environment.",
+                "commands": [command],
+                "next_steps": [
+                    "Install the dashboard extra in the isolated AI2-THOR environment.",
+                    "Example: .venv-ai2thor/bin/python -m pip install streamlit",
+                ],
+            }
+
+        app_path = repo_root() / "src" / "simtools" / "ui" / "ai2thor_app.py"
+        env = os.environ.copy()
+        env.update(
+            {
+                "SIMTOOLS_AI2THOR_SCENE": scene,
+                "SIMTOOLS_AI2THOR_WIDTH": str(width),
+                "SIMTOOLS_AI2THOR_HEIGHT": str(height),
+                "STREAMLIT_BROWSER_GATHER_USAGE_STATS": "false",
+                "STREAMLIT_SERVER_HEADLESS": "true",
+                "STREAMLIT_SERVER_SHOW_EMAIL_PROMPT": "false",
+            }
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "streamlit",
+                "run",
+                str(app_path),
+                "--server.port",
+                str(port),
+                "--server.headless",
+                "true",
+                "--server.showEmailPrompt",
+                "false",
+                "--browser.gatherUsageStats",
+                "false",
+            ],
+            check=False,
+            env=env,
+        )
+        status = "closed" if completed.returncode == 0 else "failed"
+        message = (
+            "AI2-THOR mouse UI process exited."
+            if completed.returncode == 0
+            else "AI2-THOR mouse UI failed to start or exited with an error."
+        )
+        result: dict[str, Any] = {
+            "tool_id": self.tool_id,
+            "status": status,
+            "message": message,
+            "scene": scene,
+            "port": port,
+            "return_code": completed.returncode,
+        }
+        if completed.returncode != 0:
+            result["next_steps"] = [
+                "Check whether the selected Streamlit port is already in use.",
+                f"Try: python -m simtools view ai2thor --ui --execute --scene {scene} --port {port + 1}",
+            ]
+        return result
 
     def _run_interactive_viewer(
         self,

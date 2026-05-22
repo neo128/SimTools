@@ -20,10 +20,12 @@ Status: complete for the local metamanager MVP.
 - Artifact capture under `.simtools/artifacts/ai2thor/`
 - Better headless guidance
 - Terminal-controlled Unity viewer execution path
+- Mouse-driven Streamlit control UI
 
 Status: isolated Python 3.11 validation passed, terminal-controlled Unity
-viewer is available, and screenshot/report artifacts are produced. See
-`docs/13_AI2THOR_VALIDATION.md`.
+viewer is available, mouse UI support is documented, and screenshot/report
+artifacts are produced. See `docs/13_AI2THOR_VALIDATION.md` and
+`docs/14_QUICK_USE.md`.
 
 ## v0.3 RoboCasa365 and Habitat
 

@@ -60,6 +60,8 @@ Expected output:
 
 ### Start Interactive Viewer
 
+Terminal-controlled Unity viewer:
+
 ```bash
 ./scripts/view_ai2thor.sh FloorPlan1
 ```
@@ -86,7 +88,47 @@ ai2thor>
 At that point the Unity window should be open and the terminal is waiting for
 control commands.
 
+### Start Mouse UI
+
+Use the mouse-driven Streamlit UI when you want on-page buttons instead of
+typing terminal commands. Install Streamlit in the isolated AI2-THOR environment
+first if it is not already present:
+
+```bash
+.venv-ai2thor/bin/python -m pip install streamlit
+```
+
+Launch:
+
+```bash
+./scripts/view_ai2thor_ui.sh FloorPlan1 --width 1024 --height 768 --port 8502
+```
+
+Equivalent direct command:
+
+```bash
+.venv-ai2thor/bin/python -m simtools view ai2thor --ui --execute --scene FloorPlan1 --width 1024 --height 768 --port 8502
+```
+
+Open the URL printed by Streamlit, usually:
+
+```text
+http://localhost:8502
+```
+
+In the page:
+
+1. Click `Start / Reset`.
+2. Use the movement and camera buttons.
+3. Select a visible object from the object panel.
+4. Click object actions such as `Pick up`, `Open`, `Toggle on`, or
+   `Put held object`.
+5. Click `Save screenshot` to write a PPM artifact.
+6. Click `Stop` when finished.
+
 ### Controls
+
+Terminal controls:
 
 | Command | Action |
 | --- | --- |
@@ -101,6 +143,23 @@ control commands.
 | `quit` | Close the viewer |
 
 You can also type a raw AI2-THOR action name such as `RotateRight`.
+
+Mouse UI controls:
+
+| UI Control | Action |
+| --- | --- |
+| `Forward` | MoveAhead |
+| `Back` | MoveBack |
+| `Left` | RotateLeft |
+| `Right` | RotateRight |
+| `Look up` | LookUp |
+| `Look down` | LookDown |
+| Visible object select box | Choose an object from AI2-THOR metadata |
+| `Pick up` | PickupObject |
+| `Open` / `Close` | OpenObject / CloseObject |
+| `Toggle on` / `Toggle off` | ToggleObjectOn / ToggleObjectOff |
+| `Put held object` | PutObject |
+| `Save screenshot` | Save the current RGB frame as a PPM artifact |
 
 ### Artifacts
 
@@ -120,6 +179,12 @@ Interactive screenshots created with `shot` are named like:
 
 ```text
 viewer_YYYYMMDDTHHMMSSZ.ppm
+```
+
+Mouse UI screenshots are named like:
+
+```text
+viewer_ui_YYYYMMDDTHHMMSSZ.ppm
 ```
 
 Smoke screenshots are named like:
@@ -169,6 +234,21 @@ To inspect running AI2-THOR processes:
 
 ```bash
 ps -ef | rg "(simtools view ai2thor|thor-Linux64|view_ai2thor.sh)"
+```
+
+If the mouse UI does not start:
+
+- Confirm Streamlit is installed in `.venv-ai2thor`.
+- Run a dry-run plan first:
+
+```bash
+.venv-ai2thor/bin/python -m simtools view ai2thor --ui --dry-run --scene FloorPlan1
+```
+
+- Start the UI on a different port if `8502` is already in use:
+
+```bash
+./scripts/view_ai2thor_ui.sh FloorPlan1 --port 8503
 ```
 
 ## Habitat

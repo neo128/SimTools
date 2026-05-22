@@ -98,6 +98,23 @@ def test_ai2thor_viewer_dry_run_includes_execute_command():
     assert "--max-actions 0" in result["commands"][0]
 
 
+def test_ai2thor_mouse_ui_dry_run_includes_ui_command():
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("ai2thor"))
+    result = adapter.launch_viewer(
+        dry_run=True,
+        execute=False,
+        ui=True,
+        scene="FloorPlan1",
+        width=300,
+        height=300,
+        port=8502,
+    )
+    assert result["status"] == "planned"
+    assert "--ui --execute" in result["commands"][0]
+    assert "--port 8502" in result["commands"][0]
+
+
 def test_habitat_smoke_skips_when_not_installed(monkeypatch):
     registry = ToolRegistry.from_configs()
     adapter = get_adapter(registry.get("habitat"))

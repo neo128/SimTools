@@ -12,17 +12,21 @@ def view_tool(
     *,
     dry_run: bool,
     execute: bool,
+    ui: bool,
     scene: str,
     width: int,
     height: int,
+    port: int,
     max_actions: int | None,
 ) -> dict[str, object]:
     adapter = get_adapter_for_tool(registry, tool_id)
     return adapter.launch_viewer(
         dry_run=dry_run,
         execute=execute,
+        ui=ui,
         scene=scene,
         width=width,
         height=height,
+        port=port,
         max_actions=max_actions,
     )
