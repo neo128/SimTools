@@ -106,6 +106,14 @@ Controls are printed in the terminal. The Unity window stays open until you type
 ./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768
 ```
 
+If the command appears to hang, check whether the Unity window is already open
+and the terminal is waiting at the `ai2thor>` prompt. Type `help` for controls
+or `quit` to close it. To validate launch without entering interactive mode:
+
+```bash
+./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768 --max-actions 0
+```
+
 ## Core Commands
 
 ```bash

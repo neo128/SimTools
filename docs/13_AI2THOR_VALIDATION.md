@@ -53,6 +53,7 @@ Launch:
 ```bash
 ./scripts/view_ai2thor.sh FloorPlan1
 ./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768
+./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768 --max-actions 0
 ```
 
 Controls:
@@ -65,3 +66,7 @@ Controls:
 - `j`: LookDown
 - `shot`: save a PPM frame under `.simtools/artifacts/ai2thor/`
 - `quit`: close the viewer
+
+If the command appears idle, check the terminal for the `ai2thor>` prompt and
+the desktop for the Unity window. The normal interactive path stays open until
+`quit` or `Ctrl+C`.

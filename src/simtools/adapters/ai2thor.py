@@ -176,6 +176,16 @@ class AI2ThorAdapter(ManifestOnlyAdapter):
         try:
             from ai2thor.controller import Controller
 
+            if action_limit is None:
+                print(
+                    (
+                        "Starting AI2-THOR Unity viewer "
+                        f"(scene={scene}, size={width}x{height}). "
+                        "This can take a few seconds; first launch may take longer."
+                    ),
+                    file=sys.stderr,
+                    flush=True,
+                )
             controller = Controller(scene=scene, width=width, height=height)
             if action_limit == 0:
                 return {
@@ -186,7 +196,8 @@ class AI2ThorAdapter(ManifestOnlyAdapter):
                     "actions_run": actions_run,
                 }
 
-            print(self._viewer_help(scene, width, height))
+            print("AI2-THOR Unity viewer is ready.", file=sys.stderr, flush=True)
+            print(self._viewer_help(scene, width, height), flush=True)
             while True:
                 if action_limit is not None and actions_run >= action_limit:
                     break
