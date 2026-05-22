@@ -2,7 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from simtools.core.config_loader import load_tool_manifest, load_tool_manifests
+from simtools.core.config_loader import (
+    load_global_config,
+    load_profile,
+    load_profiles,
+    load_tool_manifest,
+    load_tool_manifests,
+)
 from simtools.core.errors import ConfigError
 
 
@@ -16,6 +22,23 @@ def test_load_initial_tool_manifests():
         "omnigibson",
         "molmospaces",
         "robocasa365",
+    }
+
+
+def test_load_global_config_and_profiles():
+    config = load_global_config()
+    assert config["project"]["name"] == "SimTools"
+
+    local = load_profile("local")
+    assert local.id == "local"
+    assert local.install_policy.automatic_large_downloads is False
+
+    profiles = load_profiles()
+    assert {profile.id for profile in profiles} == {
+        "local",
+        "linux_gpu",
+        "macos_light",
+        "windows_light",
     }
 
 

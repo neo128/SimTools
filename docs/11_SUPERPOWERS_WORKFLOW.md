@@ -21,6 +21,15 @@ Superpowers-style workflows live under `prompts/superpowers/`.
 6. Run the workflow's verification commands.
 7. Summarize only claims backed by fresh verification output.
 
+For whole-project hardening, include:
+
+```bash
+python -m simtools status
+python -m simtools profiles
+python -m simtools artifacts
+python -m simtools validate
+```
+
 ## Superpowers Fit
 
 - Use `brainstorming` before vague design work.

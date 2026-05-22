@@ -83,8 +83,10 @@ Use these commands after implementation:
 ```bash
 python -m simtools --help
 python -m simtools list
+python -m simtools status
 python -m simtools compare
 python -m simtools doctor
+python -m simtools validate
 pytest
 ```
 

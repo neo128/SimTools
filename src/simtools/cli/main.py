@@ -5,7 +5,6 @@ from __future__ import annotations
 import importlib.util
 import subprocess
 import sys
-from pathlib import Path
 from typing import Optional
 
 import typer
@@ -13,16 +12,22 @@ from rich.console import Console
 from rich.panel import Panel
 
 from simtools.adapters import get_adapter_for_tool
+from simtools.cli.commands_artifacts import build_artifacts_table
 from simtools.cli.commands_compare import build_compare_table
 from simtools.cli.commands_doctor import build_manifest_table, build_system_table
 from simtools.cli.commands_info import build_info_panel, build_install_table
 from simtools.cli.commands_list import build_list_table
+from simtools.cli.commands_profiles import build_profiles_table
 from simtools.cli.commands_run import run_tool
+from simtools.cli.commands_status import build_status_table
 from simtools.cli.commands_view import view_tool
+from simtools.core.artifact_store import ArtifactStore
 from simtools.core.capability_matrix import matrix_markdown
+from simtools.core.config_loader import load_profiles, repo_root
 from simtools.core.errors import ConfigError, ToolNotFoundError
 from simtools.core.registry import ToolRegistry
-from simtools.core.config_loader import repo_root
+from simtools.core.status import tool_status_rows
+from simtools.core.validation import validate_repository
 
 console = Console()
 app = typer.Typer(no_args_is_help=True, help="SimTools simulator management CLI.")
@@ -88,6 +93,19 @@ def compare(
 
 
 @app.command()
+def status(
+    json_output: bool = typer.Option(False, "--json", help="Print JSON instead of a table."),
+) -> None:
+    """Show install and package-check status for all registered tools."""
+
+    registry = registry_or_exit()
+    if json_output:
+        console.print_json(data={"tools": tool_status_rows(registry)})
+    else:
+        console.print(build_status_table(registry))
+
+
+@app.command()
 def doctor(
     tool_id: Optional[str] = typer.Argument(None, help="Optional tool id."),
 ) -> None:
@@ -111,6 +129,11 @@ def run_command(
     tool_id: str = typer.Argument(...),
     mode: str = typer.Option("smoke", "--mode", "-m"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Plan without executing."),
+    save_report: bool = typer.Option(
+        True,
+        "--save-report/--no-save-report",
+        help="Write non-dry-run results under .simtools/artifacts.",
+    ),
 ) -> None:
     """Run a tool action such as a smoke test."""
 
@@ -120,6 +143,9 @@ def run_command(
     except ToolNotFoundError as exc:
         handle_tool_error(exc)
         raise typer.Exit(code=2) from exc
+    if save_report and not dry_run:
+        report_path = ArtifactStore().write_json_report(tool_id, f"{mode}_report", result)
+        result = {**result, "report": str(report_path)}
     console.print_json(data=result)
 
 
@@ -142,12 +168,22 @@ def view_command(
 
 @app.command("install-plan")
 def install_plan(
-    tool_id: str = typer.Argument(...),
+    tool_id: Optional[str] = typer.Argument(None),
     profile: str = typer.Option("minimal", "--profile", "-p"),
 ) -> None:
     """Print an installation plan without executing it."""
 
     registry = registry_or_exit()
+    if tool_id is None:
+        for manifest in registry.all():
+            console.print(f"[bold cyan]{manifest.id}[/bold cyan]: {manifest.name}")
+            if profile in manifest.install_profiles:
+                for command in manifest.install_profiles[profile].commands:
+                    console.print(f"  {command}")
+            else:
+                console.print(f"  No '{profile}' profile declared.")
+        console.print("[yellow]Dry-run only: no commands were executed.[/yellow]")
+        return
     try:
         manifest = registry.get(tool_id)
     except ToolNotFoundError as exc:
@@ -168,6 +204,76 @@ def install_plan(
         for note in install_profile.notes:
             console.print(f"- {note}")
     console.print("[yellow]Dry-run only: no commands were executed.[/yellow]")
+
+
+@app.command()
+def profiles(
+    json_output: bool = typer.Option(False, "--json", help="Print JSON instead of a table."),
+) -> None:
+    """List local environment profiles."""
+
+    try:
+        loaded_profiles = load_profiles()
+    except ConfigError as exc:
+        console.print(f"[red]Config error:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
+    if json_output:
+        console.print_json(
+            data={
+                "profiles": [
+                    profile.model_dump(mode="json")
+                    for profile in loaded_profiles
+                ]
+            }
+        )
+    else:
+        console.print(build_profiles_table(loaded_profiles))
+
+
+@app.command()
+def artifacts(
+    tool_id: Optional[str] = typer.Argument(None, help="Optional tool id."),
+    json_output: bool = typer.Option(False, "--json", help="Print JSON instead of a table."),
+) -> None:
+    """List repository-local artifacts."""
+
+    store = ArtifactStore()
+    rows = store.list_artifacts(tool_id)
+    if json_output:
+        console.print_json(data={"artifacts": rows})
+        return
+    if not rows:
+        target = f" for {tool_id}" if tool_id else ""
+        console.print(f"No artifacts found{target}.")
+        return
+    console.print(build_artifacts_table(rows))
+
+
+@app.command()
+def validate(
+    json_output: bool = typer.Option(False, "--json", help="Print JSON instead of text."),
+) -> None:
+    """Validate manifests, profiles, adapters, and registry wiring."""
+
+    registry = registry_or_exit()
+    try:
+        result = validate_repository(registry)
+    except ConfigError as exc:
+        console.print(f"[red]Config error:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
+    if json_output:
+        console.print_json(data=result)
+    else:
+        if result["status"] == "passed":
+            console.print(
+                f"[green]Validation passed[/green]: {result['tool_count']} tools, "
+                f"{result['profile_count']} profiles."
+            )
+        else:
+            console.print("[red]Validation failed[/red]")
+            console.print_json(data=result)
+    if result["status"] != "passed":
+        raise typer.Exit(code=2)
 
 
 @app.command()

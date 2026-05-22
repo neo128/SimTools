@@ -91,3 +91,42 @@ class ToolManifest(StrictModel):
 
     def as_metadata(self) -> dict[str, Any]:
         return self.model_dump(mode="json")
+
+
+class InstallPolicy(StrictModel):
+    automatic_system_packages: bool = False
+    automatic_large_downloads: bool = False
+    viewer_launch_default: str = "dry-run"
+
+
+class ProfileConfig(StrictModel):
+    id: str
+    name: str
+    description: str = ""
+    python: str
+    gpu: GpuRequirement = Field(default_factory=GpuRequirement)
+    install_policy: InstallPolicy = Field(default_factory=InstallPolicy)
+    source_path: str | None = None
+
+
+class ProjectInfo(StrictModel):
+    name: str
+    version: str
+    artifact_dir: str = ".simtools/artifacts"
+
+
+class RegistryConfig(StrictModel):
+    tools_dir: str = "configs/tools"
+    profiles_dir: str = "configs/profiles"
+
+
+class DefaultConfig(StrictModel):
+    profile: str = "local"
+    dry_run: bool = True
+    require_explicit_execute: bool = True
+
+
+class SimToolsConfig(StrictModel):
+    project: ProjectInfo
+    registry: RegistryConfig = Field(default_factory=RegistryConfig)
+    defaults: DefaultConfig = Field(default_factory=DefaultConfig)

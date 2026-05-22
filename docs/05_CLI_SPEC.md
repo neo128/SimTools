@@ -10,15 +10,21 @@ simtools list
 simtools list --category indoor_interaction
 simtools list --installed
 simtools info ai2thor
+simtools status
+simtools profiles
 simtools doctor
 simtools doctor ai2thor
 simtools compare
 simtools compare --format table
 simtools compare --format markdown
+simtools install-plan
+simtools install-plan ai2thor
 simtools run ai2thor --mode smoke
 simtools run ai2thor --mode smoke --dry-run
 simtools view ai2thor --dry-run
-simtools install-plan ai2thor
+simtools artifacts
+simtools artifacts ai2thor
+simtools validate
 simtools ui
 ```
 
@@ -29,3 +35,5 @@ simtools ui
 - Mutating commands must support dry-run.
 - Missing tools should show valid tool ids.
 - Missing simulator packages should produce clear installation next steps.
+- `install-plan` prints commands only and never executes installers.
+- `run` stores non-dry-run reports under `.simtools/artifacts/<tool_id>/`.

@@ -19,7 +19,7 @@ profile.
 
 ## v0.1 Goal
 
-Build a reproducible scaffold:
+Build a reproducible local metamanager MVP:
 
 - project documentation and constraints
 - typed manifest schema
@@ -27,6 +27,7 @@ Build a reproducible scaffold:
 - lightweight CLI
 - adapter stubs
 - dashboard MVP
+- status, profile, artifact, install-plan, and validation views
 - tests that pass without real simulators installed
 
 ## Non-goals

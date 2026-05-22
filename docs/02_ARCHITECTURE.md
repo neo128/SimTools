@@ -2,8 +2,8 @@
 
 SimTools uses a layered architecture:
 
-1. CLI layer: Typer commands for list, info, compare, doctor, run, view, ui, and
-   install-plan.
+1. CLI layer: Typer commands for list, info, status, profiles, compare, doctor,
+   run, view, artifacts, validate, ui, and install-plan.
 2. UI layer: Streamlit dashboard that reads the same registry as the CLI.
 3. Core service layer: registry, config loading, environment inspection,
    process planning, artifact storage, and capability matrix generation.
@@ -20,6 +20,8 @@ SimTools uses a layered architecture:
 - `process_runner`: provides dry-run and subprocess execution helpers.
 - `artifact_store`: keeps outputs under `.simtools/artifacts/`.
 - `capability_matrix`: converts manifests into comparison rows and markdown.
+- `status`: aggregates adapter diagnostics into local status views.
+- `validation`: checks manifest/profile/adapter wiring without heavy imports.
 
 ## Extension Mechanism
 

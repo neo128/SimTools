@@ -47,8 +47,10 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev,dashboard]"
 python -m simtools list
+python -m simtools status
 python -m simtools compare
 python -m simtools doctor
+python -m simtools validate
 ```
 
 For local development without installing the package, use:
@@ -68,6 +70,32 @@ simtools ui
 
 If Streamlit is not installed, the command prints an installation hint instead
 of failing with a traceback.
+
+## Core Commands
+
+```bash
+python -m simtools list
+python -m simtools info ai2thor
+python -m simtools status
+python -m simtools profiles
+python -m simtools compare
+python -m simtools doctor
+python -m simtools doctor ai2thor
+python -m simtools install-plan
+python -m simtools install-plan ai2thor
+python -m simtools run ai2thor --mode smoke --dry-run
+python -m simtools view ai2thor --dry-run
+python -m simtools artifacts
+python -m simtools validate
+```
+
+`run` writes non-dry-run reports under `.simtools/artifacts/<tool_id>/`.
+
+To run the local verification suite:
+
+```bash
+./scripts/validate_project.sh
+```
 
 ## Add a New Tool
 
@@ -95,6 +123,7 @@ See `docs/11_SUPERPOWERS_WORKFLOW.md` for the current mapping.
 
 ## Current Status
 
-This is the v0.1 scaffold. The registry, CLI, manifests, adapter stubs, tests,
-and dashboard skeleton are present. AI2-THOR has the first opt-in real adapter
-path, but SimTools does not automatically install it.
+This is a complete local metamanager MVP. The registry, CLI, manifests, adapter
+stubs, tests, artifact listing, profile listing, validation, and dashboard MVP
+are present. AI2-THOR has the first opt-in real adapter path, but SimTools does
+not automatically install it.

@@ -5,10 +5,14 @@
 - Docs-first project constraints
 - Manifest schema and six initial manifests
 - Registry and capability matrix
-- CLI list/info/compare/doctor/run/view/install-plan/ui
+- CLI list/info/status/profiles/compare/doctor/run/view/artifacts/validate/install-plan/ui
 - Adapter stubs
 - Dashboard MVP
 - Tests that pass with no real simulators installed
+- Artifact report path under `.simtools/artifacts/`
+- Project-local Superpowers workflows
+
+Status: complete for the local metamanager MVP.
 
 ## v0.2 AI2-THOR
 

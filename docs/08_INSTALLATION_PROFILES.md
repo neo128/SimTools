@@ -26,6 +26,12 @@ pip install ai2thor
 
 It does not execute the command automatically.
 
+All current minimal install plans can be displayed together:
+
+```bash
+simtools install-plan
+```
+
 ## Heavy Tools
 
 BEHAVIOR-1K, OmniGibson, MolmoSpaces, and RoboCasa365 often need large assets,

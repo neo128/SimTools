@@ -10,7 +10,7 @@ import yaml
 from pydantic import ValidationError
 
 from simtools.core.errors import ConfigError
-from simtools.core.models import ToolManifest
+from simtools.core.models import ProfileConfig, SimToolsConfig, ToolManifest
 
 
 def repo_root() -> Path:
@@ -72,9 +72,40 @@ def load_tool_manifests(tools_dir: Path | None = None) -> list[ToolManifest]:
 
 
 def load_global_config(path: Path | None = None) -> dict[str, Any]:
-    return load_yaml(path or repo_root() / "configs" / "simtools.yaml")
+    data = load_yaml(path or repo_root() / "configs" / "simtools.yaml")
+    try:
+        return SimToolsConfig.model_validate(data).model_dump(mode="json")
+    except ValidationError as exc:
+        raise ConfigError(f"Invalid global config: {exc}") from exc
 
 
-def load_profile(profile_id: str = "local", profiles_dir: Path | None = None) -> dict[str, Any]:
+def load_profile(
+    profile_id: str = "local",
+    profiles_dir: Path | None = None,
+) -> ProfileConfig:
     directory = profiles_dir or default_profiles_dir()
-    return load_yaml(directory / f"{profile_id}.yaml")
+    path = directory / f"{profile_id}.yaml"
+    data = load_yaml(path)
+    data["source_path"] = str(path)
+    try:
+        profile = ProfileConfig.model_validate(data)
+    except ValidationError as exc:
+        raise ConfigError(f"Invalid profile {path}: {exc}") from exc
+    if profile.id != profile_id:
+        raise ConfigError(
+            f"Profile id '{profile.id}' must match filename stem '{profile_id}'"
+        )
+    return profile
+
+
+def load_profiles(profiles_dir: Path | None = None) -> list[ProfileConfig]:
+    directory = profiles_dir or default_profiles_dir()
+    if not directory.exists():
+        raise ConfigError(f"Profiles directory does not exist: {directory}")
+    profiles = [
+        load_profile(path.stem, directory)
+        for path in sorted(directory.glob("*.yaml"))
+    ]
+    if not profiles:
+        raise ConfigError(f"No profiles found in {directory}")
+    return profiles

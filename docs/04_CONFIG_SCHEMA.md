@@ -62,3 +62,24 @@ adapter:
   class_name: AI2ThorAdapter
   package_checks: [ai2thor]
 ```
+
+## Profile Files
+
+Environment profiles live under `configs/profiles/`.
+
+```yaml
+id: local
+name: Local Metadata Profile
+description: Default profile for local metadata-only use.
+python: ">=3.11"
+gpu:
+  required: false
+  recommended: false
+install_policy:
+  automatic_system_packages: false
+  automatic_large_downloads: false
+  viewer_launch_default: dry-run
+```
+
+Profiles document local assumptions and guardrails. They do not create
+environments by themselves.

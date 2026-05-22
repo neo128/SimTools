@@ -11,7 +11,8 @@ inspection.
 3. Tool Detail: manifest summary, sample commands, install profiles, viewer
    modes, and smoke command.
 4. Doctor Preview: local system info and adapter status.
-5. Artifacts Placeholder: future screenshots, videos, logs, and smoke reports.
+5. Artifacts: repository-local screenshots, videos, logs, and smoke reports
+   when present.
 6. Profiles: local, linux_gpu, macos_light, and windows_light profile metadata.
 
 ## Rules

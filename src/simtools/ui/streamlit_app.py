@@ -10,7 +10,9 @@ from collections import Counter
 from typing import Any
 
 from simtools.adapters import iter_adapters
+from simtools.core.artifact_store import ArtifactStore
 from simtools.core.capability_matrix import matrix_rows
+from simtools.core.config_loader import load_profiles
 from simtools.core.environment import collect_system_info
 from simtools.core.registry import ToolRegistry
 
@@ -31,6 +33,8 @@ def load_dashboard_data() -> dict[str, Any]:
         "tools": [manifest.as_metadata() for manifest in registry.all()],
         "doctor": [adapter.doctor() for adapter in iter_adapters(registry)],
         "system": collect_system_info(),
+        "profiles": [profile.model_dump(mode="json") for profile in load_profiles()],
+        "artifacts": ArtifactStore().list_artifacts(),
     }
 
 
@@ -41,8 +45,15 @@ def main() -> None:
     st.set_page_config(page_title="SimTools", layout="wide")
     st.title("SimTools")
 
-    overview, matrix, detail, doctor, artifacts = st.tabs(
-        ["Overview", "Tool Matrix", "Tool Detail", "Doctor Preview", "Artifacts"]
+    overview, matrix, detail, doctor, artifacts, profiles = st.tabs(
+        [
+            "Overview",
+            "Tool Matrix",
+            "Tool Detail",
+            "Doctor Preview",
+            "Artifacts",
+            "Profiles",
+        ]
     )
 
     with overview:
@@ -81,7 +92,13 @@ def main() -> None:
         st.json(data["doctor"])
 
     with artifacts:
-        st.info("Artifacts will appear under .simtools/artifacts after opt-in smoke tests.")
+        if data["artifacts"]:
+            st.dataframe(data["artifacts"], use_container_width=True)
+        else:
+            st.info("Artifacts will appear under .simtools/artifacts after opt-in smoke tests.")
+
+    with profiles:
+        st.dataframe(data["profiles"], use_container_width=True)
 
 
 if __name__ == "__main__":
