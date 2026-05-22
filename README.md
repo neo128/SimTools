@@ -86,33 +86,14 @@ See `docs/13_AI2THOR_VALIDATION.md` for the latest local result.
 
 ## AI2-THOR Viewer
 
-After the isolated AI2-THOR environment exists, launch the terminal-controlled
-Unity viewer with:
+AI2-THOR has a terminal-controlled Unity viewer path:
 
 ```bash
 ./scripts/view_ai2thor.sh FloorPlan1
 ```
 
-Equivalent direct command:
-
-```bash
-.venv-ai2thor/bin/python -m simtools view ai2thor --execute --scene FloorPlan1
-```
-
-Controls are printed in the terminal. The Unity window stays open until you type
-`quit`. Extra CLI options are forwarded by the script, for example:
-
-```bash
-./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768
-```
-
-If the command appears to hang, check whether the Unity window is already open
-and the terminal is waiting at the `ai2thor>` prompt. Type `help` for controls
-or `quit` to close it. To validate launch without entering interactive mode:
-
-```bash
-./scripts/view_ai2thor.sh FloorPlan1 --width 1024 --height 768 --max-actions 0
-```
+See `docs/14_QUICK_USE.md` for setup, launch commands, controls, artifacts,
+and troubleshooting. Future simulator quick-use notes should be added there.
 
 ## Core Commands
 

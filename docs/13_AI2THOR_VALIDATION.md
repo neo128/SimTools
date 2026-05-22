@@ -2,6 +2,9 @@
 
 This document records the first isolated AI2-THOR validation path.
 
+For day-to-day launch commands, viewer controls, artifact usage, and
+troubleshooting, see `docs/14_QUICK_USE.md`.
+
 ## Environment
 
 The base SimTools environment is not used for AI2-THOR. Validation uses a
