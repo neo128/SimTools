@@ -71,6 +71,19 @@ simtools ui
 If Streamlit is not installed, the command prints an installation hint instead
 of failing with a traceback.
 
+## AI2-THOR Validation
+
+AI2-THOR is validated in an isolated environment, not in the base SimTools
+environment:
+
+```bash
+conda create -p ./.venv-ai2thor python=3.11 pip -y
+.venv-ai2thor/bin/python -m pip install -e . ai2thor
+./scripts/validate_ai2thor.sh
+```
+
+See `docs/13_AI2THOR_VALIDATION.md` for the latest local result.
+
 ## Core Commands
 
 ```bash

@@ -49,9 +49,20 @@ install_profiles:
       - pip install habitat-sim habitat-lab
     notes:
       - Exact package source may depend on OS and CUDA.
+      - Prefer the official Habitat install selector for CUDA-specific wheels.
+  conda:
+    manager: conda
+    commands:
+      - conda create -n simtools-habitat python=3.11 -y
+      - conda run -n simtools-habitat pip install habitat-sim habitat-lab
+    notes:
+      - Treat this as a planning template; verify wheel availability for your platform.
 commands:
   smoke:
-    description: Dry-run Habitat metadata smoke test.
+    description: Import-only smoke test for habitat and habitat_sim.
+    command: python -m simtools run habitat --mode smoke
+  smoke_dry_run:
+    description: Show the Habitat import-only smoke plan.
     command: python -m simtools run habitat --mode smoke --dry-run
   view:
     description: Print the Habitat viewer plan.

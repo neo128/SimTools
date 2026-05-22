@@ -21,11 +21,17 @@ Status: complete for the local metamanager MVP.
 - Better headless guidance
 - Optional viewer execution path
 
+Status: isolated Python 3.11 validation passed and produced screenshot/report
+artifacts. See `docs/13_AI2THOR_VALIDATION.md`.
+
 ## v0.3 RoboCasa365 and Habitat
 
 - Real installation profile validation
 - Smoke tests that stay skipped by default
 - Artifact normalization
+
+Status: Habitat has an import-only opt-in smoke path; RoboCasa365 remains a
+dry-run adapter.
 
 ## v0.4 Heavy Tools
 

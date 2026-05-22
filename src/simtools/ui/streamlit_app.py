@@ -6,7 +6,9 @@ can be imported in base tests without the dashboard extra installed.
 
 from __future__ import annotations
 
+import json
 from collections import Counter
+from pathlib import Path
 from typing import Any
 
 from simtools.adapters import iter_adapters
@@ -20,6 +22,7 @@ from simtools.core.registry import ToolRegistry
 def load_dashboard_data() -> dict[str, Any]:
     registry = ToolRegistry.from_configs()
     rows = matrix_rows(registry)
+    artifacts = ArtifactStore().list_artifacts()
     category_counts: Counter[str] = Counter()
     install_counts: Counter[str] = Counter()
     for manifest in registry.all():
@@ -34,8 +37,32 @@ def load_dashboard_data() -> dict[str, Any]:
         "doctor": [adapter.doctor() for adapter in iter_adapters(registry)],
         "system": collect_system_info(),
         "profiles": [profile.model_dump(mode="json") for profile in load_profiles()],
-        "artifacts": ArtifactStore().list_artifacts(),
+        "artifacts": artifacts,
+        "artifact_summary": summarize_artifacts(artifacts),
     }
+
+
+def summarize_artifacts(artifacts: list[dict[str, Any]]) -> dict[str, int]:
+    counts: Counter[str] = Counter()
+    for artifact in artifacts:
+        counts[str(artifact["tool_id"])] += 1
+    return dict(sorted(counts.items()))
+
+
+def artifact_preview(path: str) -> dict[str, Any]:
+    artifact_path = Path(path)
+    suffix = artifact_path.suffix.lower()
+    if suffix == ".json":
+        with artifact_path.open("r", encoding="utf-8") as handle:
+            return {"kind": "json", "content": json.load(handle)}
+    if suffix in {".png", ".jpg", ".jpeg", ".ppm"}:
+        return {"kind": "image", "content": str(artifact_path)}
+    if suffix in {".txt", ".log", ".md"}:
+        return {
+            "kind": "text",
+            "content": artifact_path.read_text(encoding="utf-8", errors="replace")[:8000],
+        }
+    return {"kind": "file", "content": str(artifact_path)}
 
 
 def main() -> None:
@@ -65,6 +92,8 @@ def main() -> None:
         st.json(data["categories"])
         st.subheader("Install Levels")
         st.json(data["install_levels"])
+        st.subheader("Artifacts")
+        st.json(data["artifact_summary"])
 
     with matrix:
         st.dataframe(data["matrix"], use_container_width=True)
@@ -93,7 +122,24 @@ def main() -> None:
 
     with artifacts:
         if data["artifacts"]:
-            st.dataframe(data["artifacts"], use_container_width=True)
+            tool_options = ["all"] + sorted({item["tool_id"] for item in data["artifacts"]})
+            selected_tool = st.selectbox("Tool filter", tool_options)
+            rows = data["artifacts"]
+            if selected_tool != "all":
+                rows = [item for item in rows if item["tool_id"] == selected_tool]
+            st.dataframe(rows, use_container_width=True)
+            labels = [item["relative_path"] for item in rows]
+            selected_artifact = st.selectbox("Artifact", labels)
+            artifact = next(item for item in rows if item["relative_path"] == selected_artifact)
+            preview = artifact_preview(artifact["path"])
+            if preview["kind"] == "json":
+                st.json(preview["content"])
+            elif preview["kind"] == "image":
+                st.image(preview["content"])
+            elif preview["kind"] == "text":
+                st.code(preview["content"])
+            else:
+                st.write(preview["content"])
         else:
             st.info("Artifacts will appear under .simtools/artifacts after opt-in smoke tests.")
 

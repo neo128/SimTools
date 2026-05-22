@@ -57,3 +57,19 @@ def test_ai2thor_smoke_skips_when_not_installed(monkeypatch):
     result = adapter.smoke()
     assert result["status"] == "skipped"
     assert "install-plan ai2thor" in " ".join(result["next_steps"])
+
+
+def test_habitat_smoke_skips_when_not_installed(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("habitat"))
+    original_find_spec = importlib.util.find_spec
+
+    def fake_find_spec(name):
+        if name in {"habitat", "habitat_sim"}:
+            return None
+        return original_find_spec(name)
+
+    monkeypatch.setattr(importlib.util, "find_spec", fake_find_spec)
+    result = adapter.smoke()
+    assert result["status"] == "skipped"
+    assert "install-plan habitat" in " ".join(result["next_steps"])

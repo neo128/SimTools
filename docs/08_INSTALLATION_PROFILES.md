@@ -37,3 +37,16 @@ simtools install-plan
 BEHAVIOR-1K, OmniGibson, MolmoSpaces, and RoboCasa365 often need large assets,
 external runtimes, or GPU/display setup. Their profiles are documentation-grade
 until a dedicated opt-in adapter path is added.
+
+## Habitat Path
+
+Habitat now has a second real-tool preparation path:
+
+```bash
+simtools install-plan habitat
+simtools doctor habitat
+simtools run habitat --mode smoke --dry-run
+```
+
+The current Habitat smoke is import-only when Habitat is installed. It does not
+launch a simulator, open a GUI, or load dataset-backed scenes.
