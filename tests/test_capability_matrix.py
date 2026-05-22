@@ -7,6 +7,7 @@ def test_matrix_rows_include_initial_tools():
     rows = matrix_rows(registry)
     ids = {row["id"] for row in rows}
     assert "ai2thor" in ids
+    assert "maniskill" in ids
     assert "robocasa365" in ids
 
 

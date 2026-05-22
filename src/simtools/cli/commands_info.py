@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
 
 from simtools.core.models import ToolManifest
 
@@ -26,5 +27,5 @@ def build_install_table(manifest: ToolManifest) -> Table:
     table.add_column("Manager")
     table.add_column("Commands")
     for name, profile in manifest.install_profiles.items():
-        table.add_row(name, profile.manager, "\n".join(profile.commands))
+        table.add_row(name, profile.manager, Text("\n".join(profile.commands)))
     return table

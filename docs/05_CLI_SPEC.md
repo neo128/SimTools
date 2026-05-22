@@ -10,21 +10,29 @@ simtools list
 simtools list --category indoor_interaction
 simtools list --installed
 simtools info ai2thor
+simtools info maniskill
 simtools status
 simtools profiles
 simtools doctor
 simtools doctor ai2thor
+simtools doctor maniskill
 simtools compare
 simtools compare --format table
 simtools compare --format markdown
 simtools install-plan
 simtools install-plan ai2thor
+simtools install-plan maniskill
+simtools install-plan robocasa365 --profile assets
 simtools run ai2thor --mode smoke
 simtools run ai2thor --mode smoke --dry-run
+simtools run maniskill --mode smoke --dry-run
+simtools run robocasa365 --mode smoke --dry-run
 simtools view ai2thor --dry-run
 simtools view ai2thor --execute --scene FloorPlan1
 simtools view ai2thor --execute --scene FloorPlan1 --max-actions 0
 simtools view ai2thor --ui --execute --scene FloorPlan1 --port 8502
+simtools view maniskill --dry-run
+simtools view omnigibson --dry-run
 simtools artifacts
 simtools artifacts ai2thor
 simtools validate

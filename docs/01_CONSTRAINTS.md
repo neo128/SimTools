@@ -20,8 +20,8 @@ These constraints are part of the architecture, not suggestions.
 
 The base SimTools environment may include lightweight libraries such as Typer,
 Rich, Pydantic, PyYAML, pytest, and optionally Streamlit. It must not include
-AI2-THOR, Habitat, OmniGibson, BEHAVIOR-1K, MolmoSpaces, RoboCasa365, MuJoCo, or
-Isaac Sim as required dependencies.
+AI2-THOR, Habitat, ManiSkill, OmniGibson, BEHAVIOR-1K, MolmoSpaces, RoboCasa365,
+MuJoCo, or Isaac Sim as required dependencies.
 
 ## Testing Boundary
 

@@ -9,6 +9,7 @@ The project manages tools such as:
 
 - Habitat
 - AI2-THOR
+- ManiSkill
 - BEHAVIOR-1K
 - OmniGibson
 - MolmoSpaces
@@ -102,8 +103,8 @@ make typecheck
 
 - Write unit tests for config loading, registry, capability matrix, and adapter
   contracts.
-- Tests must pass without AI2-THOR, Habitat, OmniGibson, MolmoSpaces,
-  RoboCasa365, or BEHAVIOR-1K installed.
+- Tests must pass without AI2-THOR, Habitat, ManiSkill, OmniGibson,
+  MolmoSpaces, RoboCasa365, or BEHAVIOR-1K installed.
 - Use fake manifests and fake adapters for contract tests.
 - Real simulator smoke tests must be opt-in and skipped by default when the
   simulator is not installed.

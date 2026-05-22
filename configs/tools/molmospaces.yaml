@@ -41,14 +41,37 @@ requirements:
   disk_gb_min: 20
   notes:
     - Asset availability and install details should be verified before real integration.
+    - "Official code and setup docs: https://github.com/allenai/molmospaces"
 install_profiles:
   minimal:
-    manager: documentation
+    manager: source
     commands:
-      - Follow MolmoSpaces project setup documentation.
+      - git clone https://github.com/allenai/molmospaces.git
+      - cd molmospaces
+      - uv venv --python 3.11 .venv
+      - source .venv/bin/activate
+      - uv pip install -e ".[mujoco]"
+    notes:
+      - Plan only. SimTools does not execute these commands.
+      - Official docs also support a conda path.
+      - Some runs can auto-download assets; choose cache directories first.
+  conda:
+    manager: conda
+    commands:
+      - git clone https://github.com/allenai/molmospaces.git
+      - cd molmospaces
+      - conda create -n mlspaces python=3.11 -y
+      - conda activate mlspaces
+      - pip install -e ".[mujoco]"
+    notes:
+      - Use conda or Homebrew Python on macOS if using the MuJoCo debug viewer.
+      - The optional Filament renderer and cuRobo paths are intentionally omitted from the base plan.
 commands:
   smoke:
     description: Dry-run MolmoSpaces metadata smoke test.
+    command: python -m simtools run molmospaces --mode smoke --dry-run
+  smoke_dry_run:
+    description: Show the MolmoSpaces smoke plan without importing molmo_spaces.
     command: python -m simtools run molmospaces --mode smoke --dry-run
   view:
     description: Print the MolmoSpaces viewer plan.
@@ -57,5 +80,5 @@ adapter:
   module: simtools.adapters.molmospaces
   class_name: MolmoSpacesAdapter
   package_checks:
-    - molmospaces
+    - molmo_spaces
     - mujoco

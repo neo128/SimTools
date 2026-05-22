@@ -1,52 +1,139 @@
 # Installation Profiles
 
 Installation profiles are declarative command lists in tool manifests. SimTools
-prints plans; it does not execute them by default.
+prints plans; it does not execute installers, download assets, accept licenses,
+or mutate global environments by default.
 
-## Profiles
+## Profile Types
 
-- `minimal`: smallest useful Python-level setup.
+- `minimal`: smallest useful setup plan.
 - `conda`: isolated conda or mamba environment plan.
-- `docker`: future container-oriented setup plan.
-- `source`: future source checkout plan.
+- `source`: source checkout or editable install plan.
+- `assets`: explicit asset download/setup plan.
+- `headless`: explicit automated/headless setup plan.
 
-## Current First-Class Path
-
-AI2-THOR is the first real adapter target because it is comparatively light:
-
-```bash
-simtools install-plan ai2thor
-```
-
-This prints:
+## Show Plans
 
 ```bash
-pip install ai2thor
+python -m simtools install-plan
+python -m simtools install-plan ai2thor
+python -m simtools install-plan maniskill
+python -m simtools install-plan robocasa365 --profile assets
 ```
 
-It does not execute the command automatically.
+Every `install-plan` command is a dry-run printout.
 
-All current minimal install plans can be displayed together:
+## AI2-THOR
+
+AI2-THOR is the first real adapter path:
 
 ```bash
-simtools install-plan
+python -m simtools install-plan ai2thor
+python -m simtools doctor ai2thor
+python -m simtools run ai2thor --mode smoke --dry-run
 ```
 
-## Heavy Tools
+The real smoke is opt-in and runs only if `ai2thor` is already installed in the
+active environment.
 
-BEHAVIOR-1K, OmniGibson, MolmoSpaces, and RoboCasa365 often need large assets,
-external runtimes, or GPU/display setup. Their profiles are documentation-grade
-until a dedicated opt-in adapter path is added.
+## Habitat
 
-## Habitat Path
-
-Habitat now has a second real-tool preparation path:
+Habitat has an import-only preparation path:
 
 ```bash
-simtools install-plan habitat
-simtools doctor habitat
-simtools run habitat --mode smoke --dry-run
+python -m simtools install-plan habitat
+python -m simtools doctor habitat
+python -m simtools run habitat --mode smoke --dry-run
+python -m simtools view habitat --dry-run
 ```
 
-The current Habitat smoke is import-only when Habitat is installed. It does not
-launch a simulator, open a GUI, or load dataset-backed scenes.
+The current Habitat smoke checks package imports only. It does not launch
+Habitat-Sim, open a GUI, or load dataset-backed scenes.
+
+Source: <https://aihabitat.org/docs/habitat-lab/quickstart>
+
+## ManiSkill
+
+ManiSkill is the first planned expansion after AI2-THOR and Habitat:
+
+```bash
+python -m simtools install-plan maniskill
+python -m simtools doctor maniskill
+python -m simtools run maniskill --mode smoke --dry-run
+python -m simtools view maniskill --dry-run
+```
+
+The non-dry-run smoke is package-only and lazy imports `mani_skill` if it is
+already installed. Rendering and real viewer checks remain opt-in because they
+can depend on Vulkan and GPU driver setup.
+
+Source: <https://maniskill.readthedocs.io/en/v3.0.0b20/user_guide/getting_started/installation.html>
+
+## RoboCasa365
+
+RoboCasa365 is represented by a dry-run planned adapter:
+
+```bash
+python -m simtools install-plan robocasa365
+python -m simtools install-plan robocasa365 --profile assets
+python -m simtools doctor robocasa365
+python -m simtools run robocasa365 --mode smoke --dry-run
+python -m simtools view robocasa365 --dry-run
+```
+
+The `assets` profile is separate because official setup includes kitchen asset
+downloads around 10GB. SimTools never starts that download automatically.
+
+Source: <https://robocasa.ai/docs/build/html/introduction/installation.html>
+
+## MolmoSpaces
+
+MolmoSpaces is represented by a dry-run planned adapter:
+
+```bash
+python -m simtools install-plan molmospaces
+python -m simtools install-plan molmospaces --profile conda
+python -m simtools doctor molmospaces
+python -m simtools run molmospaces --mode smoke --dry-run
+python -m simtools view molmospaces --dry-run
+```
+
+Official debug/data-generation commands can auto-download assets, so SimTools
+keeps them as manual viewer guidance until cache and artifact policies are
+implemented.
+
+Source: <https://github.com/allenai/molmospaces>
+
+## OmniGibson
+
+OmniGibson is represented by a dry-run planned adapter:
+
+```bash
+python -m simtools install-plan omnigibson
+python -m simtools install-plan omnigibson --profile source
+python -m simtools doctor omnigibson
+python -m simtools run omnigibson --mode smoke --dry-run
+python -m simtools view omnigibson --dry-run
+```
+
+Real execution depends on Isaac Sim / Omniverse, NVIDIA driver compatibility,
+display or headless rendering mode, and asset locations.
+
+Source: <https://behavior.stanford.edu/getting_started/installation.html>
+
+## BEHAVIOR-1K
+
+BEHAVIOR-1K is represented by a dry-run planned adapter:
+
+```bash
+python -m simtools install-plan behavior1k
+python -m simtools install-plan behavior1k --profile source
+python -m simtools doctor behavior1k
+python -m simtools run behavior1k --mode smoke --dry-run
+python -m simtools view behavior1k --dry-run
+```
+
+The default profile avoids dataset download flags. Dataset-backed setup must
+remain explicit because it can accept licenses and download large assets.
+
+Source: <https://behavior.stanford.edu/getting_started/installation.html>

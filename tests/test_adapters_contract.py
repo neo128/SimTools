@@ -10,7 +10,10 @@ HEAVY_MODULES = {
     "ai2thor",
     "habitat",
     "habitat_sim",
+    "mani_skill",
+    "molmo_spaces",
     "omnigibson",
+    "sapien",
     "mujoco",
     "robocasa",
     "robosuite",
@@ -129,3 +132,30 @@ def test_habitat_smoke_skips_when_not_installed(monkeypatch):
     result = adapter.smoke()
     assert result["status"] == "skipped"
     assert "install-plan habitat" in " ".join(result["next_steps"])
+
+
+def test_maniskill_smoke_skips_when_not_installed(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("maniskill"))
+    original_find_spec = importlib.util.find_spec
+
+    def fake_find_spec(name):
+        if name == "mani_skill":
+            return None
+        return original_find_spec(name)
+
+    monkeypatch.setattr(importlib.util, "find_spec", fake_find_spec)
+    result = adapter.smoke()
+    assert result["status"] == "skipped"
+    assert "install-plan maniskill" in " ".join(result["next_steps"])
+
+
+def test_planned_heavy_adapters_stay_dry_run():
+    registry = ToolRegistry.from_configs()
+    for tool_id in {"behavior1k", "molmospaces", "omnigibson", "robocasa365"}:
+        adapter = get_adapter(registry.get(tool_id))
+        smoke = adapter.smoke(dry_run=True)
+        viewer = adapter.launch_viewer(dry_run=True)
+        assert smoke["status"] == "planned"
+        assert viewer["status"] == "planned"
+        assert viewer["commands"]

@@ -9,7 +9,7 @@ capability matrix, and CLI commands.
 
 1. Add `pyproject.toml`.
 2. Add package files under `src/simtools/`.
-3. Add global config, profiles, and six tool manifests.
+3. Add global config, profiles, and tool manifests.
 4. Implement list, info, compare, and doctor.
 5. Add tests for loader, registry, and matrix generation.
 

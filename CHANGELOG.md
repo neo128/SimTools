@@ -19,4 +19,7 @@ All notable changes to SimTools will be documented here.
 - Added AI2-THOR isolated validation docs and script.
 - Added AI2-THOR terminal-controlled Unity viewer execution path.
 - Hardened Habitat as the second real-tool path with import-only smoke.
+- Added ManiSkill manifest, adapter, install-plan, and package-only smoke path.
+- Added planned dry-run adapters for RoboCasa365, MolmoSpaces, OmniGibson, and
+  BEHAVIOR-1K.
 - Improved dashboard artifact previews.

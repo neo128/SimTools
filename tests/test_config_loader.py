@@ -19,6 +19,7 @@ def test_load_initial_tool_manifests():
         "ai2thor",
         "habitat",
         "behavior1k",
+        "maniskill",
         "omnigibson",
         "molmospaces",
         "robocasa365",

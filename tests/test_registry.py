@@ -6,7 +6,7 @@ from simtools.core.registry import ToolRegistry
 
 def test_registry_loads_all_tools():
     registry = ToolRegistry.from_configs()
-    assert len(registry) == 6
+    assert len(registry) == 7
     assert registry.ids()[0] == "ai2thor"
     assert registry.get("ai2thor").name == "AI2-THOR"
 

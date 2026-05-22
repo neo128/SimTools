@@ -42,6 +42,7 @@ requirements:
   disk_gb_min: 5
   notes:
     - Dataset assets are task-specific and can be large.
+    - "Official quickstart: https://aihabitat.org/docs/habitat-lab/quickstart"
 install_profiles:
   minimal:
     manager: pip
@@ -57,6 +58,13 @@ install_profiles:
       - conda run -n simtools-habitat pip install habitat-sim habitat-lab
     notes:
       - Treat this as a planning template; verify wheel availability for your platform.
+  source:
+    manager: documentation
+    commands:
+      - Follow the official Habitat-Sim and Habitat-Lab installation instructions for your OS and CUDA target.
+    notes:
+      - Use this profile when pip wheels are unavailable or when native builds are required.
+      - Download dataset assets only for the task you intend to run.
 commands:
   smoke:
     description: Import-only smoke test for habitat and habitat_sim.
@@ -66,6 +74,9 @@ commands:
     command: python -m simtools run habitat --mode smoke --dry-run
   view:
     description: Print the Habitat viewer plan.
+    command: python -m simtools view habitat --dry-run
+  view_dry_run:
+    description: Show manual Habitat viewer examples without launching GUI.
     command: python -m simtools view habitat --dry-run
 adapter:
   module: simtools.adapters.habitat

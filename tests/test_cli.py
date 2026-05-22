@@ -76,3 +76,32 @@ def test_cli_install_plan_all_tools():
     assert result.exit_code == 0, result.output
     assert "ai2thor" in result.output
     assert "Dry-run only" in result.output
+
+
+def test_cli_maniskill_plan_doctor_smoke_and_view():
+    cases = (
+        ["install-plan", "maniskill"],
+        ["doctor", "maniskill"],
+        ["run", "maniskill", "--mode", "smoke", "--dry-run", "--no-save-report"],
+        ["view", "maniskill", "--dry-run"],
+    )
+    for args in cases:
+        result = runner.invoke(app, args)
+        assert result.exit_code == 0, result.output
+        assert "maniskill" in result.output.lower()
+
+
+def test_cli_planned_heavy_tool_dry_runs():
+    for tool_id in ("behavior1k", "molmospaces", "omnigibson", "robocasa365"):
+        result = runner.invoke(
+            app,
+            ["run", tool_id, "--mode", "smoke", "--dry-run", "--no-save-report"],
+        )
+        assert result.exit_code == 0, result.output
+        assert "planned" in result.output
+
+
+def test_cli_install_plan_preserves_extras_markup():
+    result = runner.invoke(app, ["install-plan", "molmospaces", "--profile", "conda"])
+    assert result.exit_code == 0, result.output
+    assert 'pip install -e ".[mujoco]"' in result.output

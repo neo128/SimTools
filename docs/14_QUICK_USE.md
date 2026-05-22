@@ -3,9 +3,9 @@
 This document collects hands-on commands for launching, viewing, and interacting
 with simulators through SimTools.
 
-It starts with AI2-THOR because it is the first real integration path. Future
-sections should use the same structure for Habitat, RoboCasa365, OmniGibson,
-BEHAVIOR-1K, MolmoSpaces, and later tools.
+It starts with AI2-THOR because it is the first real integration path. Other
+sections use the same structure for Habitat, ManiSkill, RoboCasa365,
+MolmoSpaces, OmniGibson, BEHAVIOR-1K, and later tools.
 
 ## Rules
 
@@ -36,7 +36,7 @@ The `.venv-ai2thor/` directory is ignored by git.
 Expected result:
 
 - `doctor ai2thor` reports `installed`
-- `validate` reports 6 tools and 4 profiles
+- `validate` reports 7 tools and 4 profiles
 
 ### Scenes
 
@@ -319,28 +319,191 @@ If the mouse UI does not start:
 
 ## Habitat
 
-Status: planned quick-use section. The current Habitat adapter has an opt-in
-import-only smoke path and does not launch a real viewer yet.
+Status: package-level preparation path. The current Habitat adapter can check
+imports and print viewer guidance, but it does not launch Habitat-Sim yet.
+
+### Check Setup
+
+```bash
+python -m simtools install-plan habitat
+python -m simtools doctor habitat
+python -m simtools run habitat --mode smoke --dry-run
+```
+
+If Habitat and Habitat-Sim are installed in the active isolated environment, a
+non-dry-run smoke lazy imports those packages only:
+
+```bash
+python -m simtools run habitat --mode smoke
+```
+
+### Viewer Plan
+
+```bash
+python -m simtools view habitat --dry-run
+```
+
+Use official Habitat examples manually until SimTools gets a dedicated opt-in
+viewer. Dataset-backed scenes must be downloaded outside base tests.
+
+Source: <https://aihabitat.org/docs/habitat-lab/quickstart>
+
+## ManiSkill
+
+Status: package-level preparation path. ManiSkill is useful as the next real
+viewer candidate because it is lighter than Isaac/Omniverse stacks but still
+gives manipulation tasks.
+
+### Check Setup
+
+```bash
+python -m simtools install-plan maniskill
+python -m simtools doctor maniskill
+python -m simtools run maniskill --mode smoke --dry-run
+```
+
+If ManiSkill is installed in the active isolated environment, a non-dry-run
+smoke lazy imports `mani_skill` only:
+
+```bash
+python -m simtools run maniskill --mode smoke
+```
+
+### Viewer Plan
+
+```bash
+python -m simtools view maniskill --dry-run
+```
+
+Manual official validation command after installation:
+
+```bash
+python -m mani_skill.examples.demo_random_action -e PickCube-v1
+```
+
+Rendering may require Vulkan and compatible GPU drivers. Keep rendered viewer
+tests opt-in and outside base pytest.
+
+Source: <https://maniskill.readthedocs.io/en/v3.0.0b20/user_guide/getting_started/installation.html>
 
 ## RoboCasa365
 
-Status: planned quick-use section. Keep RoboCasa365 in its own environment and
-avoid downloading assets by default.
+Status: dry-run planning. Keep RoboCasa365 in its own environment and avoid
+downloading kitchen assets by default.
 
-## OmniGibson
+### Check Setup
 
-Status: planned quick-use section. Real viewer support will require explicit
-Isaac Sim / Omniverse environment guidance.
+```bash
+python -m simtools install-plan robocasa365
+python -m simtools doctor robocasa365
+python -m simtools run robocasa365 --mode smoke --dry-run
+```
 
-## BEHAVIOR-1K
+### Asset Plan
 
-Status: planned quick-use section. Real usage depends on OmniGibson and large
-assets, so it must remain opt-in.
+```bash
+python -m simtools install-plan robocasa365 --profile assets
+```
+
+This profile is separated because official docs note kitchen assets are around
+10GB. SimTools only prints the plan.
+
+### Viewer Plan
+
+```bash
+python -m simtools view robocasa365 --dry-run
+```
+
+Source: <https://robocasa.ai/docs/build/html/introduction/installation.html>
 
 ## MolmoSpaces
 
-Status: planned quick-use section. Real usage should document MuJoCo/runtime
-requirements and asset handling.
+Status: dry-run planning. MolmoSpaces can use MuJoCo and provides assets usable
+across MuJoCo, Isaac, and ManiSkill, but official debug commands can trigger
+asset downloads.
+
+### Check Setup
+
+```bash
+python -m simtools install-plan molmospaces
+python -m simtools install-plan molmospaces --profile conda
+python -m simtools doctor molmospaces
+python -m simtools run molmospaces --mode smoke --dry-run
+```
+
+### Viewer Plan
+
+```bash
+python -m simtools view molmospaces --dry-run
+```
+
+Manual official debug viewer commands after installation:
+
+```bash
+python scripts/datagen/run_pipeline.py --viewer --seed 3
+mjpython scripts/datagen/run_pipeline.py --viewer --seed 3
+```
+
+Set asset/cache locations before running commands that can download assets.
+
+Source: <https://github.com/allenai/molmospaces>
+
+## OmniGibson
+
+Status: dry-run planning. Real viewer support requires explicit Isaac Sim /
+Omniverse environment guidance.
+
+### Check Setup
+
+```bash
+python -m simtools install-plan omnigibson
+python -m simtools install-plan omnigibson --profile source
+python -m simtools doctor omnigibson
+python -m simtools run omnigibson --mode smoke --dry-run
+```
+
+### Viewer Plan
+
+```bash
+python -m simtools view omnigibson --dry-run
+```
+
+Manual official examples after installation:
+
+```bash
+python -m omnigibson.examples.robots.robot_control_example --quickstart
+python -m omnigibson.examples.scenes.scene_selector
+```
+
+Confirm NVIDIA driver, Isaac Sim, display/headless mode, and asset locations
+before executing.
+
+Source: <https://behavior.stanford.edu/getting_started/installation.html>
+
+## BEHAVIOR-1K
+
+Status: dry-run planning. Real usage depends on OmniGibson and large assets, so
+it must remain opt-in.
+
+### Check Setup
+
+```bash
+python -m simtools install-plan behavior1k
+python -m simtools install-plan behavior1k --profile source
+python -m simtools doctor behavior1k
+python -m simtools run behavior1k --mode smoke --dry-run
+```
+
+### Viewer Plan
+
+```bash
+python -m simtools view behavior1k --dry-run
+```
+
+Dataset-backed setup must remain explicit because it can accept licenses,
+download Isaac Sim, and download BEHAVIOR datasets.
+
+Source: <https://behavior.stanford.edu/getting_started/installation.html>
 
 ## New Tool Section Template
 

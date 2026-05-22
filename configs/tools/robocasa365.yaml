@@ -42,14 +42,35 @@ requirements:
   disk_gb_min: 20
   notes:
     - Large assets and robosuite-compatible dependencies may be required.
+    - "Official installation docs: https://robocasa.ai/docs/build/html/introduction/installation.html"
 install_profiles:
   minimal:
     manager: documentation
     commands:
-      - Follow RoboCasa365 installation documentation in an isolated environment.
+      - conda create -c conda-forge -n robocasa python=3.11
+      - conda activate robocasa
+      - git clone https://github.com/ARISE-Initiative/robosuite
+      - cd robosuite && pip install -e .
+      - cd .. && git clone https://github.com/robocasa/robocasa
+      - cd robocasa && pip install -e .
+    notes:
+      - Plan only. SimTools does not execute these commands.
+      - Official docs currently install robosuite from the master branch.
+      - Kitchen assets are a separate opt-in download.
+  assets:
+    manager: documentation
+    commands:
+      - python -m robocasa.scripts.setup_macros
+      - python -m robocasa.scripts.download_kitchen_assets
+    notes:
+      - Opt-in only. Official docs note kitchen assets are around 10GB.
+      - Confirm asset storage location before running.
 commands:
   smoke:
     description: Dry-run RoboCasa365 metadata smoke test.
+    command: python -m simtools run robocasa365 --mode smoke --dry-run
+  smoke_dry_run:
+    description: Show the RoboCasa365 smoke plan without importing robocasa.
     command: python -m simtools run robocasa365 --mode smoke --dry-run
   view:
     description: Print the RoboCasa365 viewer plan.

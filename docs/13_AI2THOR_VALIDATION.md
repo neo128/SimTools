@@ -33,7 +33,8 @@ conda create -p ./.venv-ai2thor python=3.11 pip -y
 Validated on 2026-05-22:
 
 - `doctor ai2thor`: installed
-- `validate`: passed, 6 tools and 4 profiles
+- `validate`: passed for the then-current registry; current scaffold validation
+  should report 7 tools and 4 profiles after the ManiSkill manifest addition.
 - dry-run smoke: planned
 - viewer launch-and-close validation: passed
 - real smoke: passed

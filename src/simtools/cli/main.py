@@ -10,6 +10,7 @@ from typing import Optional
 import typer
 from rich.console import Console
 from rich.panel import Panel
+from rich.text import Text
 
 from simtools.adapters import get_adapter_for_tool
 from simtools.cli.commands_artifacts import build_artifacts_table
@@ -201,7 +202,7 @@ def install_plan(
             console.print(f"[bold cyan]{manifest.id}[/bold cyan]: {manifest.name}")
             if profile in manifest.install_profiles:
                 for command in manifest.install_profiles[profile].commands:
-                    console.print(f"  {command}")
+                    console.print(Text(f"  {command}"))
             else:
                 console.print(f"  No '{profile}' profile declared.")
         console.print("[yellow]Dry-run only: no commands were executed.[/yellow]")
@@ -217,7 +218,7 @@ def install_plan(
         console.print(f"[red]Unknown profile '{profile}'. Valid profiles: {valid}[/red]")
         raise typer.Exit(code=2)
     console.print(Panel.fit(
-        "\n".join(install_profile.commands) or "No commands declared.",
+        Text("\n".join(install_profile.commands) or "No commands declared."),
         title=f"{manifest.name} install plan: {profile}",
         border_style="cyan",
     ))

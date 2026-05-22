@@ -16,10 +16,11 @@ It provides:
 
 ## Supported Tools
 
-Initial registry:
+Current registry:
 
 - AI2-THOR
 - Habitat
+- ManiSkill
 - BEHAVIOR-1K
 - OmniGibson
 - MolmoSpaces
@@ -113,9 +114,12 @@ python -m simtools doctor
 python -m simtools doctor ai2thor
 python -m simtools install-plan
 python -m simtools install-plan ai2thor
+python -m simtools install-plan maniskill
 python -m simtools run ai2thor --mode smoke --dry-run
+python -m simtools run maniskill --mode smoke --dry-run
 python -m simtools view ai2thor --dry-run
 python -m simtools view ai2thor --execute --scene FloorPlan1 --max-actions 0
+python -m simtools view maniskill --dry-run
 python -m simtools artifacts
 python -m simtools validate
 ```
@@ -156,5 +160,7 @@ See `docs/11_SUPERPOWERS_WORKFLOW.md` for the current mapping.
 
 This is a complete local metamanager MVP. The registry, CLI, manifests, adapter
 stubs, tests, artifact listing, profile listing, validation, and dashboard MVP
-are present. AI2-THOR has the first opt-in real adapter path, but SimTools does
-not automatically install it.
+are present. AI2-THOR has the first opt-in real adapter path. Habitat and
+ManiSkill have package-only preparation paths. RoboCasa365, MolmoSpaces,
+OmniGibson, and BEHAVIOR-1K have dry-run install, smoke, and viewer plans.
+SimTools does not automatically install any real simulator.

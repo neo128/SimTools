@@ -1,0 +1,91 @@
+id: maniskill
+name: ManiSkill
+category:
+  - embodied_ai
+  - manipulation
+  - benchmark
+  - physics
+backend:
+  engine: SAPIEN / PhysX
+  runtime: Python package
+homepage: https://www.maniskill.ai
+summary: Unified benchmark and simulator for generalizable robotic manipulation skills.
+install_level: medium
+capabilities:
+  visualization: true
+  visualization_label: "yes"
+  viewer_modes:
+    - sapien_viewer
+    - headless_state
+    - rendered_rgb
+  tasks:
+    - manipulation
+    - rigid_body_tasks
+    - robot_learning
+    - benchmarking
+  sensors:
+    - rgb
+    - depth
+    - segmentation
+    - robot_state
+  robot_types:
+    - manipulator
+    - mobile_manipulator
+    - humanoid
+    - quadruped
+  supports_headless: true
+  supports_gpu: optional
+  large_assets_required: optional
+requirements:
+  python: ">=3.10"
+  recommended_python: "3.11"
+  os:
+    - linux
+    - macos
+  gpu:
+    required: false
+    recommended: true
+  disk_gb_min: 5
+  notes:
+    - Rendering may require Vulkan drivers, especially on Linux.
+    - Assets and demonstrations are not downloaded by default.
+install_profiles:
+  minimal:
+    manager: pip
+    commands:
+      - pip install --upgrade mani_skill
+      - pip install torch torchvision torchaudio
+    notes:
+      - Install a PyTorch build that matches your CPU/GPU setup.
+      - State-based simulation can run without additional assets.
+  conda:
+    manager: conda
+    commands:
+      - conda create -n simtools-maniskill python=3.11 -y
+      - conda run -n simtools-maniskill pip install --upgrade mani_skill
+      - conda run -n simtools-maniskill pip install torch torchvision torchaudio
+    notes:
+      - Prefer an isolated environment for ManiSkill.
+  source:
+    manager: pip
+    commands:
+      - pip install --upgrade git+https://github.com/haosulab/ManiSkill.git
+commands:
+  smoke:
+    description: Import-only ManiSkill smoke test.
+    command: python -m simtools run maniskill --mode smoke
+  smoke_dry_run:
+    description: Show the ManiSkill smoke plan without importing mani_skill.
+    command: python -m simtools run maniskill --mode smoke --dry-run
+  view:
+    description: Print the ManiSkill viewer plan.
+    command: python -m simtools view maniskill --dry-run
+adapter:
+  module: simtools.adapters.maniskill
+  class_name: ManiSkillAdapter
+  package_checks:
+    - mani_skill
+notes:
+  - "Official installation docs: https://maniskill.readthedocs.io/en/v3.0.0b20/user_guide/getting_started/installation.html"
+  - Official install docs recommend pip installing mani_skill and matching PyTorch separately.
+  - GUI rendering may require Vulkan; keep real viewer execution opt-in.

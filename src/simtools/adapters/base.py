@@ -123,4 +123,6 @@ class ManifestOnlyAdapter(SimToolAdapter):
         }
 
     def sample_commands(self) -> list[str]:
-        return [spec.command for spec in self.manifest.commands.values()]
+        return list(dict.fromkeys(
+            spec.command for spec in self.manifest.commands.values()
+        ))

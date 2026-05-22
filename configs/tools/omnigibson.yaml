@@ -7,7 +7,7 @@ category:
 backend:
   engine: Isaac Sim / NVIDIA Omniverse
   runtime: Python package with external simulator
-homepage: https://omnigibson.stanford.edu
+homepage: https://behavior.stanford.edu/omnigibson/overview.html
 summary: Interactive object-centric simulator for embodied AI household tasks.
 install_level: heavy
 capabilities:
@@ -42,14 +42,34 @@ requirements:
   disk_gb_min: 50
   notes:
     - Isaac Sim and Omniverse dependencies are external to the base package.
+    - "Official BEHAVIOR setup docs: https://behavior.stanford.edu/getting_started/installation.html"
 install_profiles:
   minimal:
     manager: documentation
     commands:
-      - Follow OmniGibson installation documentation for your Isaac Sim version.
+      - git clone -b v3.7.2 https://github.com/StanfordVL/BEHAVIOR-1K.git
+      - cd BEHAVIOR-1K
+      - ./setup.sh --new-env --omnigibson
+      - conda activate behavior
+    notes:
+      - Plan only. SimTools does not execute these commands.
+      - Confirm Isaac Sim, NVIDIA driver, and license requirements first.
+      - Add --bddl or --dataset only when you explicitly need BEHAVIOR components.
+  source:
+    manager: documentation
+    commands:
+      - git clone https://github.com/StanfordVL/BEHAVIOR-1K.git
+      - cd BEHAVIOR-1K
+      - ./setup.sh --new-env --omnigibson --bddl
+    notes:
+      - This source path follows the BEHAVIOR monorepo setup flow.
+      - Avoid --dataset until large asset downloads are approved.
 commands:
   smoke:
     description: Dry-run OmniGibson metadata smoke test.
+    command: python -m simtools run omnigibson --mode smoke --dry-run
+  smoke_dry_run:
+    description: Show the OmniGibson smoke plan without importing omnigibson.
     command: python -m simtools run omnigibson --mode smoke --dry-run
   view:
     description: Print the OmniGibson viewer plan.

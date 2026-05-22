@@ -41,15 +41,40 @@ requirements:
   disk_gb_min: 100
   notes:
     - Requires large BEHAVIOR assets and compatible OmniGibson setup.
+    - "Official installation docs: https://behavior.stanford.edu/getting_started/installation.html"
 install_profiles:
   minimal:
     manager: documentation
     commands:
-      - simtools install-plan omnigibson
-      - Follow BEHAVIOR-1K asset setup documentation.
+      - git clone -b v3.7.2 https://github.com/StanfordVL/BEHAVIOR-1K.git
+      - cd BEHAVIOR-1K
+      - ./setup.sh --new-env --omnigibson --bddl
+      - conda activate behavior
+    notes:
+      - Plan only. This avoids --dataset by default.
+      - Add dataset flags only after accepting the dataset terms and choosing storage.
+  source:
+    manager: documentation
+    commands:
+      - git clone -b v3.7.2 https://github.com/StanfordVL/BEHAVIOR-1K.git
+      - cd BEHAVIOR-1K
+      - ./setup.sh --new-env --omnigibson --bddl --dataset
+      - conda activate behavior
+    notes:
+      - Opt-in only. This may download Isaac Sim and BEHAVIOR datasets.
+      - Review EULA and dataset license prompts before running.
+  headless:
+    manager: documentation
+    commands:
+      - ./setup.sh --new-env --omnigibson --bddl --dataset --accept-conda-tos --accept-nvidia-eula --accept-dataset-tos
+    notes:
+      - Use only when license acceptance is deliberate and documented.
 commands:
   smoke:
     description: Dry-run BEHAVIOR-1K metadata smoke test.
+    command: python -m simtools run behavior1k --mode smoke --dry-run
+  smoke_dry_run:
+    description: Show the BEHAVIOR-1K smoke plan without importing bddl or omnigibson.
     command: python -m simtools run behavior1k --mode smoke --dry-run
   view:
     description: Print the BEHAVIOR-1K viewer plan.

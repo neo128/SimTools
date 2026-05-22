@@ -4,10 +4,11 @@ SimTools is a local, config-driven management layer for embodied AI simulation
 tools. It manages metadata, installation profiles, launch plans, smoke tests,
 viewer commands, artifacts, and comparison matrices across multiple simulators.
 
-Initial tools:
+Current tools:
 
 - Habitat
 - AI2-THOR
+- ManiSkill
 - BEHAVIOR-1K
 - OmniGibson
 - MolmoSpaces

@@ -92,3 +92,42 @@ class HabitatAdapter(ManifestOnlyAdapter):
                     "Run: python -m simtools doctor habitat",
                 ],
             }
+
+    def launch_viewer(
+        self,
+        *,
+        dry_run: bool = True,
+        execute: bool = False,
+        **options: Any,
+    ) -> dict[str, Any]:
+        commands = [
+            "python -m simtools view habitat --dry-run",
+            "python -m habitat_sim.utils.viewer --help",
+            "python examples/tutorials/nb_python/habitat-sim-demo.py",
+        ]
+        if dry_run or not execute:
+            return {
+                "tool_id": self.tool_id,
+                "status": "planned",
+                "message": (
+                    "Habitat viewer execution is planned but not wired into "
+                    "SimTools yet. Use official Habitat examples manually in "
+                    "an isolated environment."
+                ),
+                "commands": commands,
+                "next_steps": [
+                    "Run: python -m simtools install-plan habitat",
+                    "Install Habitat and Habitat-Sim in an isolated environment.",
+                    "Verify dataset paths before launching viewer examples.",
+                ],
+            }
+        return {
+            "tool_id": self.tool_id,
+            "status": "skipped",
+            "message": "Habitat viewer execution is not implemented in SimTools yet.",
+            "commands": commands,
+            "next_steps": [
+                "Run with --dry-run to inspect the current viewer plan.",
+                "Keep GUI and dataset-backed Habitat examples outside base tests.",
+            ],
+        }
