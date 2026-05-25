@@ -360,6 +360,10 @@ def ui(
             str(app_path),
             "--server.port",
             str(port),
+            "--server.headless",
+            "true",
+            "--browser.gatherUsageStats",
+            "false",
         ],
         check=False,
     )
