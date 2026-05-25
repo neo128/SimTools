@@ -8,13 +8,18 @@ from simtools.core.errors import ConfigError
 from simtools.core.experiments import (
     ExperimentSpec,
     RunStore,
+    compare_runs,
     get_experiment,
     load_experiment,
     load_experiments,
     run_experiment,
 )
 from simtools.core.registry import ToolRegistry
-from simtools.ui.streamlit_app import load_experiment_library, load_run_history
+from simtools.ui.streamlit_app import (
+    load_experiment_library,
+    load_run_comparison,
+    load_run_history,
+)
 
 
 runner = CliRunner()
@@ -147,6 +152,13 @@ def test_dry_run_experiment_creates_required_run_files(tmp_path):
         "python -m simtools experiments run "
         "ai2thor_floorplan1_navigation_smoke --dry-run"
     )
+    assert report["metrics"]["schema_version"] == "simtools.metrics.v1"
+    assert report["metrics"]["duration_seconds"] == report["duration_seconds"]
+    assert report["metrics"]["artifact_count"] == 0
+    assert report["metrics"]["stdout_bytes"] == 0
+    assert report["metrics"]["stderr_bytes"] == 0
+    assert report["metrics"]["dry_run"] is True
+    assert report["metrics"]["success"] is False
 
 
 def test_run_store_lists_and_loads_reports(tmp_path):
@@ -160,6 +172,37 @@ def test_run_store_lists_and_loads_reports(tmp_path):
     assert runs[0]["experiment_id"] == experiment.id
     assert runs[0]["status"] == "planned"
     assert store.load_report(first["run_id"])["experiment_id"] == experiment.id
+
+
+def test_run_store_comparison_summarizes_and_filters_runs(tmp_path):
+    store = RunStore(root=tmp_path / "runs")
+    ai2thor = get_experiment("ai2thor_floorplan1_navigation_smoke")
+    maniskill = get_experiment("maniskill_pickcube_visual_rollout")
+    run_experiment(ai2thor, run_store=store, dry_run=True)
+    run_experiment(maniskill, run_store=store, dry_run=True)
+
+    comparison = compare_runs(store)
+
+    assert comparison["schema_version"] == "simtools.run_comparison.v1"
+    assert comparison["summary"]["run_count"] == 2
+    assert comparison["summary"]["experiment_count"] == 2
+    assert comparison["summary"]["tool_count"] == 2
+    assert comparison["summary"]["status_counts"] == {"planned": 2}
+    assert comparison["summary"]["dry_run_count"] == 2
+    assert comparison["summary"]["success_count"] == 0
+    assert comparison["summary"]["total_artifacts"] == 0
+    assert comparison["summary"]["average_duration_seconds"] >= 0
+    assert {row["experiment_id"] for row in comparison["runs"]} == {
+        ai2thor.id,
+        maniskill.id,
+    }
+    assert all(row["metrics"]["schema_version"] == "simtools.metrics.v1" for row in comparison["runs"])
+
+    filtered = compare_runs(store, tool_id="ai2thor")
+
+    assert filtered["filters"]["tool_id"] == "ai2thor"
+    assert filtered["summary"]["run_count"] == 1
+    assert filtered["runs"][0]["experiment_id"] == ai2thor.id
 
 
 def test_experiment_dry_run_does_not_call_real_adapter_paths(tmp_path, monkeypatch):
@@ -250,6 +293,12 @@ def test_cli_experiments_and_runs_dry_run(tmp_path, monkeypatch):
     assert report_result.exit_code == 0, report_result.output
     assert "ai2thor_floorplan1_navigation_smoke" in report_result.output
 
+    compare_result = runner.invoke(app, ["runs", "compare", "--json"])
+    assert compare_result.exit_code == 0, compare_result.output
+    compare_payload = json.loads(compare_result.output)
+    assert compare_payload["summary"]["run_count"] == 1
+    assert compare_payload["runs"][0]["metrics"]["schema_version"] == "simtools.metrics.v1"
+
 
 def test_cli_experiment_run_defaults_to_dry_run_for_safety(tmp_path, monkeypatch):
     monkeypatch.setenv("SIMTOOLS_RUNS_DIR", str(tmp_path / "runs"))
@@ -294,3 +343,23 @@ def test_dashboard_helpers_read_experiments_and_runs(tmp_path):
     ]
     assert len(runs) == 1
     assert runs[0]["experiment_id"] == "ai2thor_floorplan1_navigation_smoke"
+
+
+def test_dashboard_helper_reads_filtered_run_comparison(tmp_path):
+    store = RunStore(root=tmp_path / "runs")
+    run_experiment(
+        get_experiment("ai2thor_floorplan1_navigation_smoke"),
+        run_store=store,
+        dry_run=True,
+    )
+    run_experiment(
+        get_experiment("maniskill_pickcube_visual_rollout"),
+        run_store=store,
+        dry_run=True,
+    )
+
+    comparison = load_run_comparison(tmp_path / "runs", tool_id="maniskill")
+
+    assert comparison["summary"]["run_count"] == 1
+    assert comparison["runs"][0]["tool_id"] == "maniskill"
+    assert comparison["runs"][0]["metrics"]["artifact_count"] == 0

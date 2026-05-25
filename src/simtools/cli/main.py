@@ -30,6 +30,7 @@ from simtools.core.config_loader import load_profiles, repo_root
 from simtools.core.errors import ConfigError, ToolNotFoundError
 from simtools.core.experiments import (
     RunStore,
+    compare_runs,
     get_experiment,
     load_experiments,
     run_experiment,
@@ -95,6 +96,32 @@ def build_runs_table(runs: list[dict[str, object]]) -> Table:
             str(run["status"]),
             str(run["dry_run"]),
             str(run["started_at"]),
+        )
+    return table
+
+
+def build_run_comparison_table(comparison: dict[str, object]) -> Table:
+    table = Table(title="Run Comparison")
+    table.add_column("Run ID", style="cyan", no_wrap=True)
+    table.add_column("Experiment")
+    table.add_column("Tool")
+    table.add_column("Status")
+    table.add_column("Dry")
+    table.add_column("Duration", justify="right")
+    table.add_column("Artifacts", justify="right")
+    table.add_column("Success")
+    for run in comparison.get("runs", []):
+        if not isinstance(run, dict):
+            continue
+        table.add_row(
+            str(run["run_id"]),
+            str(run["experiment_id"]),
+            str(run["tool_id"]),
+            str(run["status"]),
+            str(run["dry_run"]),
+            f"{float(run['duration_seconds']):.3f}",
+            str(run["artifact_count"]),
+            str(run["success"]),
         )
     return table
 
@@ -440,6 +467,37 @@ def runs_list(
         console.print("No experiment runs found.")
         return
     console.print(build_runs_table(runs))
+
+
+@runs_app.command("compare")
+def runs_compare(
+    experiment_id: Optional[str] = typer.Option(None, "--experiment", help="Filter by experiment id."),
+    tool_id: Optional[str] = typer.Option(None, "--tool", help="Filter by tool id."),
+    status: Optional[str] = typer.Option(None, "--status", help="Filter by run status."),
+    dry_run: Optional[bool] = typer.Option(
+        None,
+        "--dry-run/--no-dry-run",
+        help="Filter by dry-run flag.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print JSON instead of a table."),
+) -> None:
+    """Compare recorded experiment runs and summarize standard metrics."""
+
+    comparison = compare_runs(
+        RunStore(),
+        experiment_id=experiment_id,
+        tool_id=tool_id,
+        status=status,
+        dry_run=dry_run,
+    )
+    if json_output:
+        console.print_json(data=comparison)
+        return
+    if comparison["summary"]["run_count"] == 0:
+        console.print("No experiment runs matched the filters.")
+        return
+    console.print(build_run_comparison_table(comparison))
+    console.print_json(data=comparison["summary"])
 
 
 @app.command()

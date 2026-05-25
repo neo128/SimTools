@@ -78,6 +78,7 @@ python -m simtools experiments list
 python -m simtools experiments info ai2thor_floorplan1_navigation_smoke
 python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 python -m simtools runs list
+python -m simtools runs compare --json
 ```
 
 启动 SimTools dashboard：
@@ -114,8 +115,17 @@ Dashboard 包含 Experiment Library、Run History 和 Run Detail，可读取
 
 其中 `report.json` 至少包含 `run_id`、`experiment_id`、`tool_id`、
 `scene`、`task`、`dry_run`、`status`、`started_at`、`finished_at`、
-`duration_seconds`、`artifacts`、`command` 和 `message`。Dashboard 的
-Run Detail 会显示 run 目录、report 路径和 artifact 目录。
+`duration_seconds`、`artifacts`、`command`、`message` 和 `metrics`。
+Dashboard 的 Run Detail 会显示 run 目录、report 路径和 artifact 目录。
+
+v0.3 的 `metrics` 使用 `simtools.metrics.v1`，包含 duration、artifact
+count、stdout/stderr bytes、max steps、dry-run 和 success 标记。比较 run：
+
+```bash
+python -m simtools runs compare
+python -m simtools runs compare --tool ai2thor --json
+python -m simtools runs compare --status planned --dry-run
+```
 
 安全 dry-run：
 
@@ -123,6 +133,7 @@ Run Detail 会显示 run 目录、report 路径和 artifact 目录。
 python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 python -m simtools experiments report <run_id>
 python -m simtools runs list
+python -m simtools runs compare --json
 ```
 
 Workbench v0.2 默认 dry-run。真实 run 需要显式使用 `--no-dry-run`，
@@ -444,6 +455,7 @@ python -m simtools real-status --strict
 python -m simtools experiments list
 python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 python -m simtools runs list
+python -m simtools runs compare --json
 git diff --check
 ```
 

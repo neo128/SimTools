@@ -133,6 +133,7 @@ python -m simtools artifacts
 python -m simtools experiments list
 python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 python -m simtools runs list
+python -m simtools runs compare --json
 python -m simtools validate
 ```
 
@@ -165,6 +166,17 @@ experiment dry-run and metadata reports first. See
 `docs/17_EXPERIMENT_WORKBENCH.md` for the schema and run directory contract.
 The dashboard exposes the same data through Experiment Library, Run History,
 and Run Detail tabs.
+
+Experiment Metrics v0.3 adds a standard `metrics` block to each new
+`report.json` and a run comparison command:
+
+```bash
+python -m simtools runs compare
+python -m simtools runs compare --tool ai2thor --json
+```
+
+See `docs/18_EXPERIMENT_METRICS.md` for the metrics schema and comparison
+payload.
 
 To run the local verification suite:
 

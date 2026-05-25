@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -17,6 +18,10 @@ from simtools.core.environment import collect_system_info
 from simtools.core.errors import ConfigError, ToolNotFoundError
 from simtools.core.models import ToolManifest
 from simtools.core.registry import ToolRegistry
+
+METRICS_SCHEMA_VERSION = "simtools.metrics.v1"
+RUN_COMPARISON_SCHEMA_VERSION = "simtools.run_comparison.v1"
+SUCCESS_STATUSES = {"passed", "success", "completed"}
 
 
 class ExperimentSpec(BaseModel):
@@ -88,6 +93,7 @@ class RunStore:
             raise ConfigError(f"Run report does not exist: {report_path}")
         with report_path.open("r", encoding="utf-8") as handle:
             report = json.load(handle)
+        report = _report_with_metrics(report, run_dir)
         return {
             **report,
             "run_id": run_id,
@@ -119,12 +125,17 @@ class RunStore:
                 "finished_at": str(
                     report.get("finished_at") or run_meta.get("finished_at") or ""
                 ),
+                "duration_seconds": _coerce_float(
+                    report.get("duration_seconds", run_meta.get("duration_seconds", 0.0))
+                ),
+                "command": str(report.get("command") or run_meta.get("command") or ""),
                 "run_dir": str(run_dir),
                 "report_path": str(run_dir / "report.json"),
                 "artifacts": list(report.get("artifacts") or []),
+                "metrics": _report_metrics(report, run_dir),
             }
             if include_report:
-                row["report"] = report
+                row["report"] = _report_with_metrics(report, run_dir)
             rows.append(row)
         return rows
 
@@ -244,6 +255,15 @@ def run_experiment(
 
     artifacts = _artifact_references(adapter_result)
     status = str(adapter_result.get("status") or ("planned" if dry_run else "unknown"))
+    metrics = _build_metrics(
+        status=status,
+        dry_run=dry_run,
+        duration_seconds=duration_seconds,
+        artifacts=artifacts,
+        stdout=stdout,
+        stderr=stderr,
+        max_steps=spec.max_steps,
+    )
     report: dict[str, Any] = {
         "run_id": run_dir.name,
         "experiment_id": spec.id,
@@ -259,6 +279,7 @@ def run_experiment(
         "finished_at": finished_at,
         "duration_seconds": duration_seconds,
         "command": _experiment_cli_command(spec, dry_run=dry_run),
+        "metrics": metrics,
         "run_dir": str(run_dir),
         "artifacts_dir": str(run_dir / "artifacts"),
         "artifacts": artifacts,
@@ -278,6 +299,7 @@ def run_experiment(
         "finished_at": finished_at,
         "duration_seconds": duration_seconds,
         "command": report["command"],
+        "metrics": metrics,
         "experiment": spec.model_dump(mode="json"),
         "files": {
             "manifest_snapshot": "manifest_snapshot.yaml",
@@ -300,6 +322,98 @@ def run_experiment(
         "command": report["command"],
         "report_path": str(run_dir / "report.json"),
         "artifacts": artifacts,
+        "metrics": metrics,
+    }
+
+
+def compare_runs(
+    run_store: RunStore | None = None,
+    *,
+    experiment_id: str | None = None,
+    tool_id: str | None = None,
+    status: str | None = None,
+    dry_run: bool | None = None,
+) -> dict[str, Any]:
+    """Return a filterable comparison payload for recorded runs."""
+
+    store = run_store or RunStore()
+    rows = [
+        _comparison_row(row)
+        for row in store.list_runs(include_report=True)
+        if _run_matches_filters(
+            row,
+            experiment_id=experiment_id,
+            tool_id=tool_id,
+            status=status,
+            dry_run=dry_run,
+        )
+    ]
+    return {
+        "schema_version": RUN_COMPARISON_SCHEMA_VERSION,
+        "filters": {
+            "experiment_id": experiment_id,
+            "tool_id": tool_id,
+            "status": status,
+            "dry_run": dry_run,
+        },
+        "summary": _comparison_summary(rows),
+        "runs": rows,
+    }
+
+
+def _run_matches_filters(
+    row: dict[str, Any],
+    *,
+    experiment_id: str | None,
+    tool_id: str | None,
+    status: str | None,
+    dry_run: bool | None,
+) -> bool:
+    if experiment_id is not None and row.get("experiment_id") != experiment_id:
+        return False
+    if tool_id is not None and row.get("tool_id") != tool_id:
+        return False
+    if status is not None and row.get("status") != status:
+        return False
+    if dry_run is not None and bool(row.get("dry_run")) is not dry_run:
+        return False
+    return True
+
+
+def _comparison_row(row: dict[str, Any]) -> dict[str, Any]:
+    report = row.get("report") if isinstance(row.get("report"), dict) else {}
+    metrics = _normalized_metrics(row.get("metrics"), report, Path(str(row["run_dir"])))
+    return {
+        "run_id": str(row["run_id"]),
+        "experiment_id": str(row["experiment_id"]),
+        "tool_id": str(row["tool_id"]),
+        "status": str(row["status"]),
+        "dry_run": bool(row["dry_run"]),
+        "started_at": str(row.get("started_at") or ""),
+        "finished_at": str(row.get("finished_at") or ""),
+        "duration_seconds": metrics["duration_seconds"],
+        "artifact_count": metrics["artifact_count"],
+        "success": metrics["success"],
+        "metrics": metrics,
+        "run_dir": str(row["run_dir"]),
+        "report_path": str(row["report_path"]),
+    }
+
+
+def _comparison_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    durations = [float(row["duration_seconds"]) for row in rows]
+    status_counts = Counter(str(row["status"]) for row in rows)
+    return {
+        "run_count": len(rows),
+        "experiment_count": len({row["experiment_id"] for row in rows}),
+        "tool_count": len({row["tool_id"] for row in rows}),
+        "status_counts": dict(sorted(status_counts.items())),
+        "dry_run_count": sum(1 for row in rows if row["dry_run"]),
+        "success_count": sum(1 for row in rows if row["success"]),
+        "total_artifacts": sum(int(row["artifact_count"]) for row in rows),
+        "average_duration_seconds": round(sum(durations) / len(durations), 6)
+        if durations
+        else 0.0,
     }
 
 
@@ -321,6 +435,66 @@ def _validate_experiment_tool_id(
 def _experiment_cli_command(spec: ExperimentSpec, *, dry_run: bool) -> str:
     mode_flag = "--dry-run" if dry_run else "--no-dry-run"
     return f"python -m simtools experiments run {spec.id} {mode_flag}"
+
+
+def _build_metrics(
+    *,
+    status: str,
+    dry_run: bool,
+    duration_seconds: float,
+    artifacts: list[str],
+    stdout: str,
+    stderr: str,
+    max_steps: int,
+) -> dict[str, Any]:
+    return {
+        "schema_version": METRICS_SCHEMA_VERSION,
+        "success": status in SUCCESS_STATUSES,
+        "dry_run": dry_run,
+        "duration_seconds": float(duration_seconds),
+        "artifact_count": len(artifacts),
+        "stdout_bytes": len(stdout.encode("utf-8")),
+        "stderr_bytes": len(stderr.encode("utf-8")),
+        "max_steps": max_steps,
+    }
+
+
+def _report_with_metrics(report: dict[str, Any], run_dir: Path) -> dict[str, Any]:
+    return {**report, "metrics": _report_metrics(report, run_dir)}
+
+
+def _report_metrics(report: dict[str, Any], run_dir: Path) -> dict[str, Any]:
+    return _normalized_metrics(report.get("metrics"), report, run_dir)
+
+
+def _normalized_metrics(
+    metrics: Any,
+    report: dict[str, Any],
+    run_dir: Path,
+) -> dict[str, Any]:
+    if isinstance(metrics, dict):
+        normalized = dict(metrics)
+    else:
+        normalized = {}
+    artifacts = list(report.get("artifacts") or [])
+    stdout = _read_text(run_dir / "stdout.log")
+    stderr = _read_text(run_dir / "stderr.log")
+    normalized.setdefault("schema_version", METRICS_SCHEMA_VERSION)
+    normalized.setdefault("success", str(report.get("status") or "") in SUCCESS_STATUSES)
+    normalized.setdefault("dry_run", bool(report.get("dry_run", False)))
+    normalized.setdefault("duration_seconds", _coerce_float(report.get("duration_seconds", 0.0)))
+    normalized.setdefault("artifact_count", len(artifacts))
+    normalized.setdefault("stdout_bytes", len(stdout.encode("utf-8")))
+    normalized.setdefault("stderr_bytes", len(stderr.encode("utf-8")))
+    normalized.setdefault("max_steps", _coerce_int(report.get("max_steps", 0)))
+    normalized["duration_seconds"] = _coerce_float(normalized["duration_seconds"])
+    normalized["artifact_count"] = _coerce_int(normalized["artifact_count"])
+    normalized["stdout_bytes"] = _coerce_int(normalized["stdout_bytes"])
+    normalized["stderr_bytes"] = _coerce_int(normalized["stderr_bytes"])
+    normalized["max_steps"] = _coerce_int(normalized["max_steps"])
+    normalized["dry_run"] = bool(normalized["dry_run"])
+    normalized["success"] = bool(normalized["success"])
+    return normalized
 
 
 def _dry_run_result(spec: ExperimentSpec, manifest: ToolManifest) -> dict[str, Any]:
@@ -400,12 +574,32 @@ def _read_yaml(path: Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def _read_text(path: Path) -> str:
+    if not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
 def _coerce_log(value: Any) -> str:
     if value is None:
         return ""
     if isinstance(value, bytes):
         return value.decode("utf-8", errors="replace")
     return str(value)
+
+
+def _coerce_float(value: Any) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _coerce_int(value: Any) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
 
 
 def _experiment_id_from_run_id(run_id: str) -> str:

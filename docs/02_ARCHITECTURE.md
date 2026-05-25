@@ -7,8 +7,8 @@ SimTools uses a layered architecture:
 2. UI layer: Streamlit dashboard that reads the same registry, experiment
    library, and run history as the CLI.
 3. Core service layer: registry, config loading, environment inspection,
-   process planning, artifact storage, experiment runs, and capability matrix
-   generation.
+   process planning, artifact storage, experiment runs, run metrics/comparison,
+   and capability matrix generation.
 4. Adapter layer: one light adapter per simulator.
 5. Manifest/config layer: YAML manifests, profiles, and experiment specs.
 6. Artifact/log layer: `.simtools/` output for screenshots, logs, smoke reports,
@@ -21,8 +21,9 @@ SimTools uses a layered architecture:
 - `environment`: reports local Python, OS, executable, and selected env data.
 - `process_runner`: provides dry-run and subprocess execution helpers.
 - `artifact_store`: keeps outputs under `.simtools/artifacts/`.
-- `experiments`: loads experiment YAML, creates `.simtools/runs/` records, and
-  routes first-phase real runs through existing adapter paths.
+- `experiments`: loads experiment YAML, creates `.simtools/runs/` records,
+  records standard metrics, compares run history, and routes first-phase real
+  runs through existing adapter paths.
 - `capability_matrix`: converts manifests into comparison rows and markdown.
 - `status`: aggregates adapter diagnostics into local status views.
 - `readiness`: reports whether each registered tool has verified local smoke
@@ -52,6 +53,8 @@ To add a simulator:
 - Real readiness mode: strict release gate for local smoke and visualization.
 - Experiment mode: config-driven dry-runs and opt-in first-phase real runs with
   records under `.simtools/runs/`.
+- Metrics mode: repository-local run comparison without simulator imports or
+  adapter execution.
 - Benchmark mode: future metrics-oriented task execution and artifact capture.
 
 ## Risks

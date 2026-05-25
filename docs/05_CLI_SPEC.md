@@ -43,6 +43,11 @@ simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 simtools experiments run habitat_skokloster_visual_observation --no-dry-run
 simtools experiments report <run_id>
 simtools runs list
+simtools runs compare
+simtools runs compare --json
+simtools runs compare --tool ai2thor
+simtools runs compare --experiment ai2thor_floorplan1_navigation_smoke
+simtools runs compare --status planned --dry-run
 simtools validate
 simtools ui
 ```
@@ -66,6 +71,10 @@ simtools ui
   report path, command, duration, and artifact references.
 - `experiments report` reads `report.json` for a recorded run.
 - `runs list` reads repository-local run history.
+- `runs compare` summarizes standard run metrics from `.simtools/runs/` without
+  importing simulator packages or executing adapters.
+- `runs compare` supports filters for experiment id, tool id, status, and
+  dry-run state.
 - `view` is dry-run by default and requires `--execute` for GUI behavior.
 - `view --ui` starts a mouse-driven local UI when the adapter supports it.
 - `real-status` reports whether each registered tool is truly locally runnable

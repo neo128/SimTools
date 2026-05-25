@@ -10,7 +10,8 @@ inspection.
 2. Tool Matrix: the same comparison matrix used by the CLI.
 3. Real Readiness: local runnable and visualization verification gate.
 4. Experiment Library: experiment configs from `configs/experiments/`.
-5. Run History: run records from `.simtools/runs/`.
+5. Run History: run records from `.simtools/runs/`, with filters for tool,
+   experiment, status, and dry-run state plus comparison metrics summary.
 6. Run Detail: selected `report.json` content, run path, report path, artifact
    directory, and artifact references.
 7. Tool Detail: manifest summary, sample commands, install profiles, viewer
@@ -25,6 +26,7 @@ inspection.
 - The dashboard reads from the same registry/config as the CLI.
 - The dashboard reads run history through the same run-store helpers as the CLI.
 - Experiment Library uses the same experiment-loading helper as the CLI.
+- Run comparison uses the same metrics helper as `simtools runs compare`.
 - It must not import real simulators.
 - It must not launch viewers directly in tests.
 - If Streamlit is missing, `simtools ui` prints an install hint.

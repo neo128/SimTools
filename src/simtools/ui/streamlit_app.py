@@ -16,7 +16,7 @@ from simtools.core.artifact_store import ArtifactStore
 from simtools.core.capability_matrix import matrix_rows
 from simtools.core.config_loader import load_profiles
 from simtools.core.environment import collect_system_info
-from simtools.core.experiments import RunStore, load_experiments
+from simtools.core.experiments import RunStore, compare_runs, load_experiments
 from simtools.core.readiness import readiness_summary
 from simtools.core.registry import ToolRegistry
 
@@ -27,6 +27,7 @@ def load_dashboard_data() -> dict[str, Any]:
     artifacts = ArtifactStore().list_artifacts()
     experiments = load_experiment_library(registry=registry)
     runs = load_run_history()
+    run_comparison = load_run_comparison()
     category_counts: Counter[str] = Counter()
     install_counts: Counter[str] = Counter()
     for manifest in registry.all():
@@ -43,6 +44,7 @@ def load_dashboard_data() -> dict[str, Any]:
         "profiles": [profile.model_dump(mode="json") for profile in load_profiles()],
         "experiments": experiments,
         "runs": runs,
+        "run_comparison": run_comparison,
         "artifacts": artifacts,
         "artifact_summary": summarize_artifacts(artifacts),
         "readiness": readiness_summary(registry),
@@ -71,6 +73,24 @@ def load_experiment_library(
         experiment.model_dump(mode="json")
         for experiment in load_experiments(directory, registry=selected_registry)
     ]
+
+
+def load_run_comparison(
+    root: str | Path | None = None,
+    *,
+    experiment_id: str | None = None,
+    tool_id: str | None = None,
+    status: str | None = None,
+    dry_run: bool | None = None,
+) -> dict[str, Any]:
+    store = RunStore(Path(root) if root is not None else None)
+    return compare_runs(
+        store,
+        experiment_id=experiment_id,
+        tool_id=tool_id,
+        status=status,
+        dry_run=dry_run,
+    )
 
 
 def artifact_preview(path: str) -> dict[str, Any]:
@@ -152,7 +172,23 @@ def main() -> None:
 
     with run_history:
         if data["runs"]:
-            st.dataframe(data["runs"], use_container_width=True)
+            tool_options = ["all"] + sorted({run["tool_id"] for run in data["runs"]})
+            experiment_options = ["all"] + sorted({run["experiment_id"] for run in data["runs"]})
+            status_options = ["all"] + sorted({run["status"] for run in data["runs"]})
+            col1, col2, col3, col4 = st.columns(4)
+            selected_tool = col1.selectbox("Tool", tool_options)
+            selected_experiment = col2.selectbox("Experiment", experiment_options)
+            selected_status = col3.selectbox("Status", status_options)
+            selected_dry = col4.selectbox("Dry Run", ["all", "true", "false"])
+            comparison = load_run_comparison(
+                tool_id=None if selected_tool == "all" else selected_tool,
+                experiment_id=None if selected_experiment == "all" else selected_experiment,
+                status=None if selected_status == "all" else selected_status,
+                dry_run=None if selected_dry == "all" else selected_dry == "true",
+            )
+            st.dataframe(comparison["runs"], use_container_width=True)
+            st.subheader("Comparison Summary")
+            st.json(comparison["summary"])
         else:
             st.info("Experiment runs will appear under .simtools/runs.")
 

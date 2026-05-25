@@ -97,11 +97,23 @@ layer validates YAML ids and registry-backed `tool_id` values, writes
 repository-local run records, keeps dry-run as the default, and requires
 `--no-dry-run` before adapter-owned real execution paths are used.
 
+## Experiment Metrics v0.3
+
+- Standard `metrics` block in `report.json`
+- Legacy v0.2 report normalization on read
+- `simtools runs compare` with experiment, tool, status, and dry-run filters
+- Run comparison summary for counts, statuses, artifacts, success, and average
+  duration
+- Dashboard Run History filtering and comparison summary
+
+Status: complete for the first operational metrics and run comparison layer.
+Task-specific benchmark scoring remains a later layer.
+
 ## Later
 
 - Isaac Lab, MuJoCo/MJX, Gazebo, Webots, CoppeliaSim, CARLA, AirSim, Genesis,
   and Newton
-- Structured benchmark runner with metrics aggregation
+- Structured benchmark runner with task-specific metrics aggregation
 - Rich artifact viewer
 - Profile-specific environment creation
 - Per-tool environment validation reports

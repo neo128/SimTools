@@ -1,4 +1,4 @@
-# Experiment Workbench v0.2
+# Experiment Workbench v0.2/v0.3
 
 SimTools Experiment Workbench adds a lightweight experiment layer over the
 existing seven-tool registry. It does not install simulators, download assets,
@@ -59,9 +59,9 @@ Each experiment run creates:
 
 `report.json` is the primary machine-readable summary. It includes the run id,
 experiment id, tool id, scene, task, seed, max steps, dry-run flag, status,
-message, start/end timestamps, duration, CLI command, output expectations,
-notes, adapter result, and artifact references. Workbench v0.2 records artifact
-references instead of copying large files into the run directory.
+message, start/end timestamps, duration, CLI command, standard metrics, output
+expectations, notes, adapter result, and artifact references. Workbench records
+artifact references instead of copying large files into the run directory.
 
 Minimum `report.json` keys:
 
@@ -78,6 +78,10 @@ Minimum `report.json` keys:
 - `artifacts`
 - `command`
 - `message`
+- `metrics`
+
+`metrics.schema_version` is `simtools.metrics.v1`. See
+`docs/18_EXPERIMENT_METRICS.md` for the metrics and run-comparison contract.
 
 ## CLI
 
@@ -88,6 +92,7 @@ python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 python -m simtools experiments run habitat_skokloster_visual_observation --no-dry-run
 python -m simtools experiments report <run_id>
 python -m simtools runs list
+python -m simtools runs compare --json
 ```
 
 `experiments run` is dry-run by default. `--dry-run` writes the same
@@ -116,6 +121,8 @@ The Streamlit dashboard now includes:
 
 - Experiment Library: loaded configs from `configs/experiments/`.
 - Run History: run rows from `.simtools/runs/`.
+- Run History comparison: filters for tool, experiment, status, and dry-run
+  state plus standard metrics summary.
 - Run Detail: selected `report.json` content, run/report/artifact paths, and
   artifact references.
 
@@ -130,7 +137,7 @@ experiment references an unknown tool id.
 
 ## Limits
 
-- Workbench v0.2 does not define a benchmark metric schema yet.
+- Workbench v0.3 defines operational metrics, not benchmark scores.
 - It does not copy large simulator artifacts into `.simtools/runs/`; it records
   references so existing adapter artifact stores remain the source of truth.
 - It does not auto-install simulator packages, download datasets, accept EULAs,
