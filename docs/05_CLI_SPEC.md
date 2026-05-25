@@ -37,6 +37,12 @@ simtools view maniskill --dry-run
 simtools view omnigibson --dry-run
 simtools artifacts
 simtools artifacts ai2thor
+simtools experiments list
+simtools experiments info ai2thor_floorplan1_navigation_smoke
+simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
+simtools experiments run habitat_skokloster_visual_observation --no-dry-run
+simtools experiments report <run_id>
+simtools runs list
 simtools validate
 simtools ui
 ```
@@ -50,6 +56,16 @@ simtools ui
 - Missing simulator packages should produce clear installation next steps.
 - `install-plan` prints commands only and never executes installers.
 - `run` stores non-dry-run reports under `.simtools/artifacts/<tool_id>/`.
+- `experiments run` stores run records under
+  `.simtools/runs/<timestamp>_<experiment_id>/`.
+- `experiments run` is dry-run by default.
+- `experiments run --dry-run` must not call real adapter execution paths.
+- `experiments run --no-dry-run` opts in to real execution where Workbench v0.2
+  supports it.
+- `experiments run` prints JSON that includes the run id, status, dry-run flag,
+  report path, command, duration, and artifact references.
+- `experiments report` reads `report.json` for a recorded run.
+- `runs list` reads repository-local run history.
 - `view` is dry-run by default and requires `--execute` for GUI behavior.
 - `view --ui` starts a mouse-driven local UI when the adapter supports it.
 - `real-status` reports whether each registered tool is truly locally runnable

@@ -110,3 +110,40 @@ install_policy:
 
 Profiles document local assumptions and guardrails. They do not create
 environments by themselves.
+
+## Experiment Files
+
+Experiment specs live under `configs/experiments/` and are validated by
+`ExperimentSpec` in `src/simtools/core/experiments.py`.
+
+Required fields:
+
+- `id`: stable lowercase experiment id, matching the filename stem
+- `tool_id`: existing simulator id from the tool registry
+- `scene`: scene or environment name
+- `task`: task label
+- `seed`: integer seed recorded in the run report
+- `max_steps`: positive integer step budget
+- `output`: structured output expectations
+- `notes`: list of setup or interpretation notes
+
+The YAML filename stem must match `id`, and `tool_id` must exist in the same
+registry used by the CLI and dashboard. Loading errors include the config path
+and the invalid id so malformed experiments are easy to locate.
+
+Example:
+
+```yaml
+id: maniskill_pickcube_visual_rollout
+tool_id: maniskill
+scene: PickCube-v1
+task: visual_rollout
+seed: 0
+max_steps: 8
+output:
+  artifact_kinds:
+    - mp4
+  primary: rollout_video
+notes:
+  - Non-dry-run uses the existing ManiSkill visual rollout path.
+```

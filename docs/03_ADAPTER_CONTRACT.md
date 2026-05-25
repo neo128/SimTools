@@ -63,6 +63,15 @@ class SimToolAdapter(ABC):
 - Tests must not run real simulator smoke tests.
 - Any artifact must be written under `.simtools/artifacts/<tool_id>/`.
 
+## Experiment Rules
+
+- Experiment dry-runs must be satisfied by metadata and manifest commands, not
+  by real adapter execution.
+- Workbench v0.2 may route non-dry-run experiments to existing adapter methods:
+  AI2-THOR `smoke`, Habitat `launch_viewer`, and ManiSkill `launch_viewer`.
+- Adapter results should include `artifact` or `artifacts` paths when a real run
+  creates visual output, so the run report can record artifact references.
+
 ## Installation Profile Rules
 
 - Installation profiles live in manifests.

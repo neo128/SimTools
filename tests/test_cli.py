@@ -152,3 +152,15 @@ def test_cli_real_status_json_reports_all_tools_ready():
     assert '"omnigibson"' in result.output
     assert '"robocasa365"' in result.output
     assert '"not_ready_count": 0' in result.output
+
+
+def test_cli_ui_prints_hint_when_streamlit_is_missing(monkeypatch):
+    import simtools.cli.main as cli_main
+
+    monkeypatch.setattr(cli_main.importlib.util, "find_spec", lambda name: None)
+
+    result = runner.invoke(app, ["ui"])
+
+    assert result.exit_code == 0, result.output
+    assert "Streamlit is not installed" in result.output
+    assert "No dashboard process was started" in result.output

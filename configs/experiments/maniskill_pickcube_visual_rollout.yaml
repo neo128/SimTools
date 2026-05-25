@@ -1,0 +1,12 @@
+id: maniskill_pickcube_visual_rollout
+tool_id: maniskill
+scene: PickCube-v1
+task: visual_rollout
+seed: 0
+max_steps: 8
+output:
+  artifact_kinds:
+    - mp4
+  primary: rollout_video
+notes:
+  - Non-dry-run uses the existing ManiSkill visual rollout path when ManiSkill is installed.

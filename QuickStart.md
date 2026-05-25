@@ -71,11 +71,64 @@ python -m simtools artifacts
 python -m simtools artifacts ai2thor
 ```
 
+查看实验库和 run 历史：
+
+```bash
+python -m simtools experiments list
+python -m simtools experiments info ai2thor_floorplan1_navigation_smoke
+python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
+python -m simtools runs list
+```
+
 启动 SimTools dashboard：
 
 ```bash
 python -m simtools ui
 ```
+
+Dashboard 包含 Experiment Library、Run History 和 Run Detail，可读取
+`.simtools/runs/` 下的 `report.json` 并展示 artifact path。
+
+## Experiment Workbench v0.2
+
+实验配置位于 `configs/experiments/`，当前内置：
+
+| Experiment | Tool | 输出 |
+| --- | --- | --- |
+| `ai2thor_floorplan1_navigation_smoke` | AI2-THOR | PPM screenshot 引用 |
+| `habitat_skokloster_visual_observation` | Habitat | PNG artifact 引用 |
+| `maniskill_pickcube_visual_rollout` | ManiSkill | MP4 artifact 引用 |
+
+每次实验 run 会创建：
+
+```text
+.simtools/runs/<timestamp>_<experiment_id>/
+  run.yaml
+  manifest_snapshot.yaml
+  environment.json
+  stdout.log
+  stderr.log
+  report.json
+  artifacts/
+```
+
+其中 `report.json` 至少包含 `run_id`、`experiment_id`、`tool_id`、
+`scene`、`task`、`dry_run`、`status`、`started_at`、`finished_at`、
+`duration_seconds`、`artifacts`、`command` 和 `message`。Dashboard 的
+Run Detail 会显示 run 目录、report 路径和 artifact 目录。
+
+安全 dry-run：
+
+```bash
+python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
+python -m simtools experiments report <run_id>
+python -m simtools runs list
+```
+
+Workbench v0.2 默认 dry-run。真实 run 需要显式使用 `--no-dry-run`，
+第一阶段只复用已有路径：AI2-THOR 使用 smoke，Habitat 使用 visual render，
+ManiSkill 使用 visual rollout。RoboCasa365、MolmoSpaces、OmniGibson 和
+BEHAVIOR-1K 先记录实验 metadata 和 dry-run report。
 
 ## 工具总览
 
@@ -388,6 +441,9 @@ pytest
 python -m compileall -q src simtools tests
 python -m simtools validate --json
 python -m simtools real-status --strict
+python -m simtools experiments list
+python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
+python -m simtools runs list
 git diff --check
 ```
 

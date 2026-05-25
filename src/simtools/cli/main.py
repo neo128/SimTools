@@ -10,6 +10,7 @@ from typing import Optional
 import typer
 from rich.console import Console
 from rich.panel import Panel
+from rich.table import Table
 from rich.text import Text
 
 from simtools.adapters import get_adapter_for_tool
@@ -27,6 +28,12 @@ from simtools.core.artifact_store import ArtifactStore
 from simtools.core.capability_matrix import matrix_markdown
 from simtools.core.config_loader import load_profiles, repo_root
 from simtools.core.errors import ConfigError, ToolNotFoundError
+from simtools.core.experiments import (
+    RunStore,
+    get_experiment,
+    load_experiments,
+    run_experiment,
+)
 from simtools.core.registry import ToolRegistry
 from simtools.core.readiness import readiness_summary
 from simtools.core.status import tool_status_rows
@@ -34,6 +41,8 @@ from simtools.core.validation import validate_repository
 
 console = Console()
 app = typer.Typer(no_args_is_help=True, help="SimTools simulator management CLI.")
+experiments_app = typer.Typer(no_args_is_help=True, help="Experiment workbench commands.")
+runs_app = typer.Typer(no_args_is_help=True, help="Run history commands.")
 
 
 def registry_or_exit() -> ToolRegistry:
@@ -46,6 +55,48 @@ def registry_or_exit() -> ToolRegistry:
 
 def handle_tool_error(exc: ToolNotFoundError) -> None:
     console.print(f"[red]{exc}[/red]")
+
+
+def handle_config_error(exc: ConfigError) -> None:
+    console.print(f"[red]Config error:[/red] {exc}")
+
+
+def build_experiments_table(experiments: list[object]) -> Table:
+    table = Table(title="Experiment Library")
+    table.add_column("ID", style="cyan", no_wrap=True)
+    table.add_column("Tool")
+    table.add_column("Scene")
+    table.add_column("Task")
+    table.add_column("Max Steps", justify="right")
+    for experiment in experiments:
+        table.add_row(
+            str(getattr(experiment, "id")),
+            str(getattr(experiment, "tool_id")),
+            str(getattr(experiment, "scene")),
+            str(getattr(experiment, "task")),
+            str(getattr(experiment, "max_steps")),
+        )
+    return table
+
+
+def build_runs_table(runs: list[dict[str, object]]) -> Table:
+    table = Table(title="Run History")
+    table.add_column("Run ID", style="cyan", no_wrap=True)
+    table.add_column("Experiment")
+    table.add_column("Tool")
+    table.add_column("Status")
+    table.add_column("Dry Run")
+    table.add_column("Started")
+    for run in runs:
+        table.add_row(
+            str(run["run_id"]),
+            str(run["experiment_id"]),
+            str(run["tool_id"]),
+            str(run["status"]),
+            str(run["dry_run"]),
+            str(run["started_at"]),
+        )
+    return table
 
 
 @app.command("list")
@@ -303,6 +354,94 @@ def artifacts(
     console.print(build_artifacts_table(rows))
 
 
+@experiments_app.command("list")
+def experiments_list(
+    json_output: bool = typer.Option(False, "--json", help="Print JSON instead of a table."),
+) -> None:
+    """List experiment configurations."""
+
+    try:
+        experiments = load_experiments()
+    except ConfigError as exc:
+        handle_config_error(exc)
+        raise typer.Exit(code=2) from exc
+    if json_output:
+        console.print_json(
+            data={
+                "experiments": [
+                    experiment.model_dump(mode="json")
+                    for experiment in experiments
+                ]
+            }
+        )
+        return
+    console.print(build_experiments_table(experiments))
+
+
+@experiments_app.command("info")
+def experiments_info(
+    experiment_id: str = typer.Argument(..., help="Experiment id."),
+) -> None:
+    """Show one experiment configuration."""
+
+    try:
+        experiment = get_experiment(experiment_id)
+    except ConfigError as exc:
+        handle_config_error(exc)
+        raise typer.Exit(code=2) from exc
+    console.print_json(data=experiment.model_dump(mode="json"))
+
+
+@experiments_app.command("run")
+def experiments_run(
+    experiment_id: str = typer.Argument(..., help="Experiment id."),
+    dry_run: bool = typer.Option(
+        True,
+        "--dry-run/--no-dry-run",
+        help="Record a plan without executing, or opt in to real execution.",
+    ),
+) -> None:
+    """Run or dry-run an experiment and record a run directory."""
+
+    registry = registry_or_exit()
+    try:
+        result = run_experiment(experiment_id, registry=registry, dry_run=dry_run)
+    except (ConfigError, ToolNotFoundError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=2) from exc
+    console.print_json(data=result)
+
+
+@experiments_app.command("report")
+def experiments_report(
+    run_id: str = typer.Argument(..., help="Run id under .simtools/runs."),
+) -> None:
+    """Show a recorded experiment report."""
+
+    try:
+        report = RunStore().load_report(run_id)
+    except ConfigError as exc:
+        handle_config_error(exc)
+        raise typer.Exit(code=2) from exc
+    console.print_json(data=report)
+
+
+@runs_app.command("list")
+def runs_list(
+    json_output: bool = typer.Option(False, "--json", help="Print JSON instead of a table."),
+) -> None:
+    """List recorded experiment runs."""
+
+    runs = RunStore().list_runs()
+    if json_output:
+        console.print_json(data={"runs": runs})
+        return
+    if not runs:
+        console.print("No experiment runs found.")
+        return
+    console.print(build_runs_table(runs))
+
+
 @app.command()
 def validate(
     json_output: bool = typer.Option(False, "--json", help="Print JSON instead of text."),
@@ -367,6 +506,10 @@ def ui(
         ],
         check=False,
     )
+
+
+app.add_typer(experiments_app, name="experiments")
+app.add_typer(runs_app, name="runs")
 
 
 if __name__ == "__main__":

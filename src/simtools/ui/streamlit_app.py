@@ -16,6 +16,7 @@ from simtools.core.artifact_store import ArtifactStore
 from simtools.core.capability_matrix import matrix_rows
 from simtools.core.config_loader import load_profiles
 from simtools.core.environment import collect_system_info
+from simtools.core.experiments import RunStore, load_experiments
 from simtools.core.readiness import readiness_summary
 from simtools.core.registry import ToolRegistry
 
@@ -24,6 +25,8 @@ def load_dashboard_data() -> dict[str, Any]:
     registry = ToolRegistry.from_configs()
     rows = matrix_rows(registry)
     artifacts = ArtifactStore().list_artifacts()
+    experiments = load_experiment_library(registry=registry)
+    runs = load_run_history()
     category_counts: Counter[str] = Counter()
     install_counts: Counter[str] = Counter()
     for manifest in registry.all():
@@ -38,6 +41,8 @@ def load_dashboard_data() -> dict[str, Any]:
         "doctor": [adapter.doctor() for adapter in iter_adapters(registry)],
         "system": collect_system_info(),
         "profiles": [profile.model_dump(mode="json") for profile in load_profiles()],
+        "experiments": experiments,
+        "runs": runs,
         "artifacts": artifacts,
         "artifact_summary": summarize_artifacts(artifacts),
         "readiness": readiness_summary(registry),
@@ -49,6 +54,23 @@ def summarize_artifacts(artifacts: list[dict[str, Any]]) -> dict[str, int]:
     for artifact in artifacts:
         counts[str(artifact["tool_id"])] += 1
     return dict(sorted(counts.items()))
+
+
+def load_run_history(root: str | Path | None = None) -> list[dict[str, Any]]:
+    return RunStore(Path(root) if root is not None else None).list_runs(include_report=True)
+
+
+def load_experiment_library(
+    experiments_dir: str | Path | None = None,
+    *,
+    registry: ToolRegistry | None = None,
+) -> list[dict[str, Any]]:
+    selected_registry = registry or ToolRegistry.from_configs()
+    directory = Path(experiments_dir) if experiments_dir is not None else None
+    return [
+        experiment.model_dump(mode="json")
+        for experiment in load_experiments(directory, registry=selected_registry)
+    ]
 
 
 def artifact_preview(path: str) -> dict[str, Any]:
@@ -74,11 +96,25 @@ def main() -> None:
     st.set_page_config(page_title="SimTools", layout="wide")
     st.title("SimTools")
 
-    overview, matrix, readiness, detail, doctor, artifacts, profiles = st.tabs(
+    (
+        overview,
+        matrix,
+        readiness,
+        experiments,
+        run_history,
+        run_detail,
+        detail,
+        doctor,
+        artifacts,
+        profiles,
+    ) = st.tabs(
         [
             "Overview",
             "Tool Matrix",
             "Real Readiness",
+            "Experiment Library",
+            "Run History",
+            "Run Detail",
             "Tool Detail",
             "Doctor Preview",
             "Artifacts",
@@ -97,6 +133,8 @@ def main() -> None:
         st.json(data["install_levels"])
         st.subheader("Artifacts")
         st.json(data["artifact_summary"])
+        st.subheader("Runs")
+        st.metric("Recorded Runs", len(data["runs"]))
 
     with matrix:
         st.dataframe(data["matrix"], use_container_width=True)
@@ -108,6 +146,39 @@ def main() -> None:
         col2.metric("Not Ready", summary["not_ready_count"])
         col3.metric("Total", summary["tool_count"])
         st.dataframe(summary["tools"], use_container_width=True)
+
+    with experiments:
+        st.dataframe(data["experiments"], use_container_width=True)
+
+    with run_history:
+        if data["runs"]:
+            st.dataframe(data["runs"], use_container_width=True)
+        else:
+            st.info("Experiment runs will appear under .simtools/runs.")
+
+    with run_detail:
+        if data["runs"]:
+            run_options = [run["run_id"] for run in data["runs"]]
+            selected_run_id = st.selectbox("Run", run_options)
+            selected_run = next(run for run in data["runs"] if run["run_id"] == selected_run_id)
+            selected_report = selected_run["report"]
+            st.subheader("Paths")
+            st.json(
+                {
+                    "run_dir": selected_run["run_dir"],
+                    "report_path": selected_run["report_path"],
+                    "artifacts_dir": selected_report.get("artifacts_dir", ""),
+                }
+            )
+            st.subheader("Report")
+            st.json(selected_run["report"])
+            st.subheader("Artifact References")
+            if selected_run["artifacts"]:
+                st.write(selected_run["artifacts"])
+            else:
+                st.write([])
+        else:
+            st.info("Run reports will appear after an experiment is executed or dry-run.")
 
     with detail:
         tool_names = {tool["name"]: tool for tool in data["tools"]}

@@ -1,0 +1,12 @@
+id: habitat_skokloster_visual_observation
+tool_id: habitat
+scene: skokloster-castle
+task: visual_observation
+seed: 0
+max_steps: 1
+output:
+  artifact_kinds:
+    - png
+  primary: rgb_frame
+notes:
+  - Non-dry-run uses the existing Habitat visual render path when assets are already present.

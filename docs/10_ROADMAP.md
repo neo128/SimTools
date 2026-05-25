@@ -81,11 +81,27 @@ Hard gate: complete for the current seven-tool registry, while preserving the
 rule that SimTools must not auto-accept the BEHAVIOR Data Bundle EULA or launch
 real GUI viewers from pytest.
 
+## Experiment Workbench v0.2
+
+- `ExperimentSpec` typed model and YAML configs under `configs/experiments/`
+- Run records under `.simtools/runs/<timestamp>_<experiment_id>/`
+- CLI groups for `experiments` and `runs`
+- Dashboard Experiment Library, Run History, and Run Detail views
+- First-phase real execution for AI2-THOR smoke, Habitat PNG render, and
+  ManiSkill MP4 rollout through existing adapter paths
+- Dry-run and metadata reports for RoboCasa365, MolmoSpaces, OmniGibson, and
+  BEHAVIOR-1K
+
+Status: complete for the lightweight v0.2 workbench scope. The experiment
+layer validates YAML ids and registry-backed `tool_id` values, writes
+repository-local run records, keeps dry-run as the default, and requires
+`--no-dry-run` before adapter-owned real execution paths are used.
+
 ## Later
 
 - Isaac Lab, MuJoCo/MJX, Gazebo, Webots, CoppeliaSim, CARLA, AirSim, Genesis,
   and Newton
-- Structured benchmark runner
+- Structured benchmark runner with metrics aggregation
 - Rich artifact viewer
 - Profile-specific environment creation
 - Per-tool environment validation reports

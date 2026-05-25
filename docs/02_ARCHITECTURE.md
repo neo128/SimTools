@@ -3,14 +3,16 @@
 SimTools uses a layered architecture:
 
 1. CLI layer: Typer commands for list, info, status, profiles, compare, doctor,
-   run, view, artifacts, validate, ui, and install-plan.
-2. UI layer: Streamlit dashboard that reads the same registry as the CLI.
+   run, view, artifacts, experiments, runs, validate, ui, and install-plan.
+2. UI layer: Streamlit dashboard that reads the same registry, experiment
+   library, and run history as the CLI.
 3. Core service layer: registry, config loading, environment inspection,
-   process planning, artifact storage, and capability matrix generation.
+   process planning, artifact storage, experiment runs, and capability matrix
+   generation.
 4. Adapter layer: one light adapter per simulator.
-5. Manifest/config layer: YAML manifests and profiles.
+5. Manifest/config layer: YAML manifests, profiles, and experiment specs.
 6. Artifact/log layer: `.simtools/` output for screenshots, logs, smoke reports,
-   and future benchmark artifacts.
+   run records, and future benchmark artifacts.
 
 ## Module Responsibilities
 
@@ -19,11 +21,14 @@ SimTools uses a layered architecture:
 - `environment`: reports local Python, OS, executable, and selected env data.
 - `process_runner`: provides dry-run and subprocess execution helpers.
 - `artifact_store`: keeps outputs under `.simtools/artifacts/`.
+- `experiments`: loads experiment YAML, creates `.simtools/runs/` records, and
+  routes first-phase real runs through existing adapter paths.
 - `capability_matrix`: converts manifests into comparison rows and markdown.
 - `status`: aggregates adapter diagnostics into local status views.
 - `readiness`: reports whether each registered tool has verified local smoke
   and visualization.
-- `validation`: checks manifest/profile/adapter wiring without heavy imports.
+- `validation`: checks manifest/profile/experiment/adapter wiring without heavy
+  imports.
 
 ## Extension Mechanism
 
@@ -43,9 +48,11 @@ To add a simulator:
 - Metadata-only mode: list and compare tools without installed simulators.
 - Smoke mode: run a minimal non-destructive test when a simulator is installed.
 - Full install mode: future opt-in workflow that executes an install profile.
-- Viewer mode: future opt-in GUI launch, dry-run by default.
+- Viewer mode: opt-in GUI launch, dry-run by default.
 - Real readiness mode: strict release gate for local smoke and visualization.
-- Benchmark mode: future structured task execution and artifact capture.
+- Experiment mode: config-driven dry-runs and opt-in first-phase real runs with
+  records under `.simtools/runs/`.
+- Benchmark mode: future metrics-oriented task execution and artifact capture.
 
 ## Risks
 

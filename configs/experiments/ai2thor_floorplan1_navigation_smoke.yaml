@@ -1,0 +1,12 @@
+id: ai2thor_floorplan1_navigation_smoke
+tool_id: ai2thor
+scene: FloorPlan1
+task: navigation_smoke
+seed: 0
+max_steps: 1
+output:
+  artifact_kinds:
+    - ppm
+  primary: smoke_frame
+notes:
+  - Dry-run is the safe default; non-dry-run uses the existing AI2-THOR smoke path.

@@ -1,7 +1,9 @@
 # SimTools
 
 SimTools is a local management and comparison platform for embodied AI
-simulation tools.
+simulation tools. The v0.2 Experiment Workbench layer also lets you define,
+dry-run, record, and inspect small embodied AI experiments across the existing
+registry.
 
 It provides:
 
@@ -14,6 +16,7 @@ It provides:
 - local dashboard
 - comparison matrix
 - artifact/log management
+- experiment specs and run history
 
 ## Supported Tools
 
@@ -127,12 +130,41 @@ python -m simtools view ai2thor --dry-run
 python -m simtools view ai2thor --execute --scene FloorPlan1 --max-actions 0
 python -m simtools view maniskill --dry-run
 python -m simtools artifacts
+python -m simtools experiments list
+python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
+python -m simtools runs list
 python -m simtools validate
 ```
 
 `run` writes non-dry-run reports under `.simtools/artifacts/<tool_id>/`.
+`experiments run` writes run records under
+`.simtools/runs/<timestamp>_<experiment_id>/` with `run.yaml`,
+`manifest_snapshot.yaml`, `environment.json`, `stdout.log`, `stderr.log`,
+`report.json`, and `artifacts/` or artifact references. The report includes
+the CLI command, start/end timestamps, duration, dry-run flag, status, message,
+and artifact paths.
 `real-status --strict` is expected to pass when every registered simulator has
 a verified local smoke path and real visualization path.
+
+## Experiment Workbench
+
+Experiment specs live in `configs/experiments/` and are loaded through the same
+core config layer used by the CLI and dashboard.
+
+```bash
+python -m simtools experiments list
+python -m simtools experiments info ai2thor_floorplan1_navigation_smoke
+python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
+python -m simtools experiments report <run_id>
+python -m simtools runs list
+```
+
+Workbench v0.2 can call the existing real paths for AI2-THOR, Habitat, and
+ManiSkill when run with `--no-dry-run`. The other four tools support
+experiment dry-run and metadata reports first. See
+`docs/17_EXPERIMENT_WORKBENCH.md` for the schema and run directory contract.
+The dashboard exposes the same data through Experiment Library, Run History,
+and Run Detail tabs.
 
 To run the local verification suite:
 

@@ -8,6 +8,7 @@ from typing import Any
 from simtools.adapters import get_adapter
 from simtools.adapters.base import SimToolAdapter
 from simtools.core.config_loader import load_global_config, load_profiles
+from simtools.core.experiments import load_experiments
 from simtools.core.registry import ToolRegistry
 
 
@@ -17,6 +18,7 @@ def validate_repository(registry: ToolRegistry | None = None) -> dict[str, Any]:
 
     load_global_config()
     profiles = load_profiles()
+    experiments = load_experiments(registry=registry)
 
     for manifest in registry.all():
         if "smoke" not in manifest.commands:
@@ -115,9 +117,21 @@ def validate_repository(registry: ToolRegistry | None = None) -> dict[str, Any]:
                 }
             )
 
+    tool_ids = set(registry.ids())
+    for experiment in experiments:
+        if experiment.tool_id not in tool_ids:
+            issues.append(
+                {
+                    "tool_id": experiment.tool_id,
+                    "level": "error",
+                    "message": f"experiment references unknown tool: {experiment.id}",
+                }
+            )
+
     return {
         "status": "passed" if not issues else "failed",
         "tool_count": len(registry),
         "profile_count": len(profiles),
+        "experiment_count": len(experiments),
         "issues": issues,
     }

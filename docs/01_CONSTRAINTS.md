@@ -19,6 +19,10 @@ These constraints are part of the architecture, not suggestions.
     `real_viewer` and the local smoke plus visualization commands are verified.
 12. Planned adapters may stay in the registry, but `real-status --strict` must
     fail until every registered tool is locally runnable and visually verified.
+13. Experiment dry-runs must write metadata only and must not call real adapter
+    execution paths.
+14. Experiment run records must stay under `.simtools/runs/` unless explicitly
+    configured for tests.
 
 ## Base Environment
 
@@ -29,6 +33,7 @@ MuJoCo, or Isaac Sim as required dependencies.
 
 ## Testing Boundary
 
-Unit tests validate manifests, registry behavior, capability matrices, adapter
-contracts, and command output. They do not require a GPU, simulator runtime,
-dataset, Unity process, Isaac Sim process, MuJoCo license, or GUI session.
+Unit tests validate manifests, experiment configs, registry behavior, capability
+matrices, adapter contracts, run metadata, dashboard helpers, and command
+output. They do not require a GPU, simulator runtime, dataset, Unity process,
+Isaac Sim process, MuJoCo license, or GUI session.

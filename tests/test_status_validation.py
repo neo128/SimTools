@@ -18,6 +18,7 @@ def test_validate_repository_passes_for_initial_scaffold():
     assert result["status"] == "passed"
     assert result["tool_count"] == 7
     assert result["profile_count"] == 4
+    assert result["experiment_count"] == 3
     assert result["issues"] == []
 
 
