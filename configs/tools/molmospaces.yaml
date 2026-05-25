@@ -40,7 +40,8 @@ requirements:
     recommended: false
   disk_gb_min: 20
   notes:
-    - Asset availability and install details should be verified before real integration.
+    - The local visual path uses MuJoCo EGL offscreen rendering.
+    - Official scene assets are stored under .simtools/molmospaces-assets.
     - "Official code and setup docs: https://github.com/allenai/molmospaces"
 install_profiles:
   minimal:
@@ -68,12 +69,15 @@ install_profiles:
       - The optional Filament renderer and cuRobo paths are intentionally omitted from the base plan.
 commands:
   smoke:
-    description: Dry-run MolmoSpaces metadata smoke test.
-    command: python -m simtools run molmospaces --mode smoke --dry-run
+    description: Import molmo_spaces, mujoco, and molmospaces_resources.
+    command: python -m simtools run molmospaces --mode smoke
   smoke_dry_run:
     description: Show the MolmoSpaces smoke plan without importing molmo_spaces.
     command: python -m simtools run molmospaces --mode smoke --dry-run
   view:
+    description: Render an iTHOR scene with MuJoCo EGL to a PNG artifact.
+    command: python -m simtools view molmospaces --execute --scene FloorPlan1
+  view_dry_run:
     description: Print the MolmoSpaces viewer plan.
     command: python -m simtools view molmospaces --dry-run
 adapter:
@@ -82,19 +86,20 @@ adapter:
   package_checks:
     - molmo_spaces
     - mujoco
+    - molmospaces_resources
 readiness:
-  stage: planned
-  local_environment: not-created
-  local_runnable: false
-  smoke_verified: false
-  visualization_verified: false
+  stage: real_viewer
+  local_environment: .venv-molmospaces
+  local_runnable: true
+  smoke_verified: true
+  visualization_verified: true
   validation_command: python -m simtools run molmospaces --mode smoke
-  viewer_command: python scripts/datagen/run_pipeline.py --viewer --seed 3
-  artifact_examples: []
-  blockers:
-    - MolmoSpaces is not installed in a dedicated local checkout/environment.
-    - Official debug viewer commands can auto-download assets.
-    - SimTools needs explicit cache and artifact policies before real viewer execution.
-  last_verified: null
+  viewer_command: python -m simtools view molmospaces --execute --scene FloorPlan1 --width 640 --height 480
+  artifact_examples:
+    - .simtools/artifacts/molmospaces/floorplan1_rgb_camera.png
+    - .simtools/artifacts/molmospaces/floorplan1_rgb.png
+  blockers: []
+  last_verified: "2026-05-22"
   notes:
-    - Prefer validating package imports before running data generation or benchmark jobs.
+    - Verified with .venv-molmospaces, molmo-spaces, MuJoCo, and one official iTHOR scene.
+    - Asset fetch was explicit and stored under .simtools/molmospaces-cache and .simtools/molmospaces-assets.

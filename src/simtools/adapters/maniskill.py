@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import subprocess
+import sys
+from datetime import datetime, timezone
 from typing import Any
 
 from simtools.adapters.base import ManifestOnlyAdapter
+from simtools.core.artifact_store import ArtifactStore
 
 
 class ManiSkillAdapter(ManifestOnlyAdapter):
@@ -43,7 +47,7 @@ class ManiSkillAdapter(ManifestOnlyAdapter):
             ),
             "notes": [
                 "Rendering may require Vulkan and a compatible GPU driver.",
-                "Assets and demonstrations should remain opt-in.",
+                "The SimTools viewer path renders a short PickCube-v1 MP4 artifact.",
             ],
         }
 
@@ -97,29 +101,100 @@ class ManiSkillAdapter(ManifestOnlyAdapter):
         execute: bool = False,
         **options: Any,
     ) -> dict[str, Any]:
-        command = "python -m simtools view maniskill --execute"
+        env_id = str(options.get("scene") or "PickCube-v1")
+        if env_id == "FloorPlan1":
+            env_id = "PickCube-v1"
+        artifact_dir = ArtifactStore().tool_dir(self.tool_id) / "videos"
+        command = (
+            f"python -m simtools view maniskill --execute --scene {env_id}"
+        )
+        demo_command = [
+            sys.executable,
+            "-m",
+            "mani_skill.examples.demo_random_action",
+            "-e",
+            env_id,
+            "--render-mode",
+            "rgb_array",
+            "--record-dir",
+            str(artifact_dir),
+            "--quiet",
+        ]
         if dry_run or not execute:
             return {
                 "tool_id": self.tool_id,
                 "status": "planned",
-                "message": "ManiSkill real viewer execution is not wired yet.",
+                "message": "ManiSkill viewer execution will render a short MP4 artifact.",
                 "commands": [
                     command,
-                    "python -m mani_skill.examples.demo_random_action -e PickCube-v1",
+                    " ".join(demo_command),
+                    f"python -m mani_skill.examples.demo_random_action -e {env_id} --render-mode human",
                 ],
                 "next_steps": [
                     "Install ManiSkill in an isolated environment.",
-                    "Use the official demo_random_action command for manual validation.",
-                    "Add an opt-in SimTools viewer adapter after Vulkan/rendering is verified.",
+                    "Run with --execute to create a visual MP4 artifact.",
                 ],
+            }
+        if not self.check_installed():
+            return {
+                "tool_id": self.tool_id,
+                "status": "skipped",
+                "message": "ManiSkill is not installed.",
+                "next_steps": [
+                    "Run: python -m simtools install-plan maniskill",
+                    "Install ManiSkill in an isolated environment.",
+                ],
+            }
+        before = {
+            path.resolve()
+            for path in artifact_dir.rglob("*")
+            if path.is_file()
+        } if artifact_dir.exists() else set()
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        started_at = datetime.now(timezone.utc).isoformat()
+        try:
+            completed = subprocess.run(
+                demo_command,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=180,
+            )
+        except subprocess.TimeoutExpired as exc:
+            return {
+                "tool_id": self.tool_id,
+                "status": "failed",
+                "message": "ManiSkill visual render timed out.",
+                "started_at": started_at,
+                "stdout": exc.stdout or "",
+                "stderr": exc.stderr or "",
+                "commands": [" ".join(demo_command)],
+            }
+        after = [
+            path.resolve()
+            for path in artifact_dir.rglob("*")
+            if path.is_file()
+        ]
+        new_artifacts = sorted(str(path) for path in after if path not in before)
+        if not new_artifacts:
+            new_artifacts = sorted(str(path) for path in after if path.suffix == ".mp4")
+        if completed.returncode != 0:
+            return {
+                "tool_id": self.tool_id,
+                "status": "failed",
+                "message": "ManiSkill visual render failed.",
+                "returncode": completed.returncode,
+                "stdout": completed.stdout,
+                "stderr": completed.stderr,
+                "commands": [" ".join(demo_command)],
             }
         return {
             "tool_id": self.tool_id,
-            "status": "skipped",
-            "message": "ManiSkill viewer execution is not implemented in SimTools yet.",
-            "commands": [command],
-            "next_steps": [
-                "Run with --dry-run for the current manual validation commands.",
-                "Keep GUI/rendering checks opt-in and outside base tests.",
-            ],
+            "status": "passed",
+            "message": "ManiSkill visual render completed.",
+            "env_id": env_id,
+            "artifacts": new_artifacts,
+            "stdout": completed.stdout,
+            "stderr": completed.stderr,
+            "commands": [" ".join(demo_command)],
         }

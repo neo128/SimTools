@@ -42,6 +42,7 @@ requirements:
   disk_gb_min: 50
   notes:
     - Isaac Sim and Omniverse dependencies are external to the base package.
+    - Local package/runtime probing uses .venv-omnigibson.
     - "Official BEHAVIOR setup docs: https://behavior.stanford.edu/getting_started/installation.html"
 install_profiles:
   minimal:
@@ -66,32 +67,37 @@ install_profiles:
       - Avoid --dataset until large asset downloads are approved.
 commands:
   smoke:
-    description: Dry-run OmniGibson metadata smoke test.
-    command: python -m simtools run omnigibson --mode smoke --dry-run
+    description: Probe OmniGibson, Isaac Sim, omni, and BDDL package metadata from .venv-omnigibson without launching Isaac or initializing CUDA.
+    command: python -m simtools run omnigibson --mode smoke
   smoke_dry_run:
     description: Show the OmniGibson smoke plan without importing omnigibson.
     command: python -m simtools run omnigibson --mode smoke --dry-run
   view:
-    description: Print the OmniGibson viewer plan.
-    command: python -m simtools view omnigibson --dry-run
+    description: Start the OmniGibson interactive viewer through the isolated .venv-omnigibson runtime.
+    command: python -m simtools view omnigibson --execute
 adapter:
   module: simtools.adapters.omnigibson
   class_name: OmniGibsonAdapter
   package_checks:
     - omnigibson
+    - isaacsim
+    - omni
+    - bddl
 readiness:
-  stage: planned
-  local_environment: not-created
-  local_runnable: false
-  smoke_verified: false
-  visualization_verified: false
+  stage: real_viewer
+  local_environment: .venv-omnigibson
+  local_runnable: true
+  smoke_verified: true
+  visualization_verified: true
   validation_command: python -m simtools run omnigibson --mode smoke
-  viewer_command: python -m omnigibson.examples.scenes.scene_selector
-  artifact_examples: []
-  blockers:
-    - OmniGibson is not installed in a dedicated local environment.
-    - Real execution depends on Isaac Sim / Omniverse, NVIDIA driver, display or headless mode, and assets.
-    - SimTools needs a safe opt-in Isaac startup check before running viewer commands.
-  last_verified: null
+  viewer_command: python -m simtools view omnigibson --execute
+  artifact_examples:
+    - .simtools/artifacts/omnigibson/viewer_launch_proof_20260525.json
+  blockers: []
+  last_verified: "2026-05-25"
   notes:
     - Do not import Omniverse/Isaac dependencies in base tests.
+    - "Verified package metadata: omnigibson 1.1.1, isaacsim 4.1.0.0, bddl 3.5.0."
+    - BEHAVIOR Data Bundle EULA was accepted by the user during the interactive 2026-05-25 run.
+    - Dataset and assets now exist under .venv-omnigibson/lib/python3.10/site-packages/omnigibson/data.
+    - Viewer reached the OmniGibson interactive control loop; SimTools stops verification after timeout once readiness markers appear.

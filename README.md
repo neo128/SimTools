@@ -104,6 +104,9 @@ It also has a mouse-driven browser UI:
 See `docs/14_QUICK_USE.md` for setup, launch commands, controls, artifacts,
 and troubleshooting. Future simulator quick-use notes should be added there.
 
+For the current local verification report, see
+`docs/16_VERIFICATION_REPORT_2026-05-25.md`.
+
 ## Core Commands
 
 ```bash
@@ -128,8 +131,8 @@ python -m simtools validate
 ```
 
 `run` writes non-dry-run reports under `.simtools/artifacts/<tool_id>/`.
-`real-status --strict` exits non-zero until every registered simulator has a
-verified local smoke path and real visualization path.
+`real-status --strict` is expected to pass when every registered simulator has
+a verified local smoke path and real visualization path.
 
 To run the local verification suite:
 
@@ -165,9 +168,19 @@ See `docs/11_SUPERPOWERS_WORKFLOW.md` for the current mapping.
 
 This is a complete local metamanager MVP. The registry, CLI, manifests, adapter
 stubs, tests, artifact listing, profile listing, validation, and dashboard MVP
-are present. AI2-THOR has the first opt-in real adapter path. Habitat and
-ManiSkill have package-only preparation paths. RoboCasa365, MolmoSpaces,
-OmniGibson, and BEHAVIOR-1K have dry-run install, smoke, and viewer plans.
-`python -m simtools real-status --strict` is the hard gate for the user's new
-requirement that every registered tool must be locally runnable and visually
-verified. SimTools does not automatically install any real simulator.
+are present. All seven registered tools now have real local smoke and
+visualization/readiness gates:
+
+- AI2-THOR
+- Habitat
+- ManiSkill
+- RoboCasa365
+- MolmoSpaces
+- OmniGibson
+- BEHAVIOR-1K
+
+OmniGibson and BEHAVIOR-1K use `.venv-omnigibson`; the licensed dataset/assets
+were installed after user EULA acceptance. BEHAVIOR-1K visualization is
+delegated to the verified OmniGibson viewer gate. SimTools still does not
+automatically install any real simulator, accept licenses, or launch GUI
+viewers from tests.

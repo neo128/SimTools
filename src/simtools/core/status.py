@@ -13,8 +13,15 @@ def summarize_tool_status(manifest: ToolManifest) -> dict[str, Any]:
     adapter = get_adapter(manifest)
     doctor = adapter.doctor()
     package_checks = doctor.get("package_checks", {})
+    external_checks = doctor.get("external_environment", {}).get("package_checks", {})
+    effective_checks = {
+        name: bool(installed) or bool(external_checks.get(name, False))
+        for name, installed in package_checks.items()
+    }
+    for name, installed in external_checks.items():
+        effective_checks.setdefault(name, bool(installed))
     missing_packages = [
-        name for name, installed in package_checks.items() if installed is False
+        name for name, installed in effective_checks.items() if installed is False
     ]
     return {
         "id": manifest.id,
@@ -24,6 +31,8 @@ def summarize_tool_status(manifest: ToolManifest) -> dict[str, Any]:
         "status": doctor.get("status", "unknown"),
         "installed": bool(doctor.get("installed", False)),
         "package_checks": package_checks,
+        "external_package_checks": external_checks,
+        "effective_package_checks": effective_checks,
         "missing_packages": missing_packages,
         "large_assets_required": manifest.capabilities.large_assets_required,
         "gpu": manifest.capabilities.supports_gpu,

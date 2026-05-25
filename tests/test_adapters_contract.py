@@ -1,5 +1,7 @@
 import importlib.util
+import subprocess
 import sys
+from pathlib import Path
 
 from simtools.adapters import get_adapter, iter_adapters
 from simtools.adapters.base import SimToolAdapter
@@ -122,6 +124,7 @@ def test_habitat_smoke_skips_when_not_installed(monkeypatch):
     registry = ToolRegistry.from_configs()
     adapter = get_adapter(registry.get("habitat"))
     original_find_spec = importlib.util.find_spec
+    monkeypatch.setattr(adapter, "_external_python", lambda: None)
 
     def fake_find_spec(name):
         if name in {"habitat", "habitat_sim"}:
@@ -150,12 +153,216 @@ def test_maniskill_smoke_skips_when_not_installed(monkeypatch):
     assert "install-plan maniskill" in " ".join(result["next_steps"])
 
 
+def test_robocasa365_smoke_skips_when_not_installed(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("robocasa365"))
+    original_find_spec = importlib.util.find_spec
+    monkeypatch.setattr(adapter, "_external_python", lambda: None)
+
+    def fake_find_spec(name):
+        if name in {"robocasa", "robosuite", "mujoco"}:
+            return None
+        return original_find_spec(name)
+
+    monkeypatch.setattr(importlib.util, "find_spec", fake_find_spec)
+    result = adapter.smoke()
+    assert result["status"] == "skipped"
+    assert "install-plan robocasa365" in " ".join(result["next_steps"])
+
+
+def test_molmospaces_smoke_skips_when_not_installed(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("molmospaces"))
+    original_find_spec = importlib.util.find_spec
+    monkeypatch.setattr(adapter, "_external_python", lambda: None)
+
+    def fake_find_spec(name):
+        if name in {"molmo_spaces", "mujoco", "molmospaces_resources"}:
+            return None
+        return original_find_spec(name)
+
+    monkeypatch.setattr(importlib.util, "find_spec", fake_find_spec)
+    result = adapter.smoke()
+    assert result["status"] == "skipped"
+    assert "install-plan molmospaces" in " ".join(result["next_steps"])
+
+
 def test_planned_heavy_adapters_stay_dry_run():
     registry = ToolRegistry.from_configs()
-    for tool_id in {"behavior1k", "molmospaces", "omnigibson", "robocasa365"}:
+    for tool_id in {"behavior1k", "omnigibson"}:
         adapter = get_adapter(registry.get(tool_id))
         smoke = adapter.smoke(dry_run=True)
         viewer = adapter.launch_viewer(dry_run=True)
         assert smoke["status"] == "planned"
         assert viewer["status"] == "planned"
         assert viewer["commands"]
+
+
+def test_omnigibson_smoke_uses_safe_package_probe(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("omnigibson"))
+    monkeypatch.setattr(adapter, "_external_python", lambda: Path("/fake/python"))
+    monkeypatch.setattr(
+        adapter,
+        "_external_package_status",
+        lambda: {
+            "installed": True,
+            "package_checks": {
+                "omnigibson": True,
+                "isaacsim": True,
+                "omni": True,
+                "bddl": True,
+            },
+        },
+    )
+    monkeypatch.setattr(
+        adapter,
+        "package_status",
+        lambda: {
+            "omnigibson": False,
+            "isaacsim": False,
+            "omni": False,
+            "bddl": False,
+        },
+    )
+
+    def fake_run(command, **kwargs):
+        script = command[2]
+        assert "importlib.metadata" in script
+        assert "import omnigibson" not in script
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            stdout='{"bddl": "3.5.0", "isaacsim": "4.1.0.0", "omnigibson": "1.1.1"}\n',
+            stderr="",
+        )
+
+    monkeypatch.setattr("simtools.adapters.omnigibson.subprocess.run", fake_run)
+    result = adapter.smoke()
+    assert result["status"] == "passed"
+    assert result["modules"]["omnigibson"] == "1.1.1"
+
+
+def test_omnigibson_viewer_timeout_counts_as_passed_after_ready_marker(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("omnigibson"))
+    monkeypatch.setattr(adapter, "_external_python", lambda: Path("/fake/python"))
+    monkeypatch.setattr(
+        adapter,
+        "_dataset_status",
+        lambda: {
+            "dataset_ready": True,
+            "scenes_exists": True,
+            "assets_exists": True,
+            "requires_eula": False,
+        },
+    )
+    monkeypatch.setattr(
+        adapter,
+        "package_status",
+        lambda: {
+            "omnigibson": False,
+            "isaacsim": False,
+            "omni": False,
+            "bddl": False,
+        },
+    )
+
+    def fake_run(command, **kwargs):
+        raise subprocess.TimeoutExpired(
+            command,
+            timeout=300,
+            output=(
+                "Simulation App Startup Complete\nPressed None. Action: []\n"
+                + ("log line after readiness\n" * 300)
+            ),
+            stderr="",
+        )
+
+    monkeypatch.setattr("simtools.adapters.omnigibson.subprocess.run", fake_run)
+    result = adapter.launch_viewer(dry_run=False, execute=True)
+    assert result["status"] == "passed"
+    assert result["timed_out"] is True
+
+
+def test_behavior1k_smoke_uses_safe_package_probe(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("behavior1k"))
+    monkeypatch.setattr(adapter, "_external_python", lambda: Path("/fake/python"))
+    monkeypatch.setattr(
+        adapter,
+        "_external_package_status",
+        lambda: {
+            "installed": True,
+            "package_checks": {
+                "bddl": True,
+                "omnigibson": True,
+                "isaacsim": True,
+            },
+        },
+    )
+    monkeypatch.setattr(
+        adapter,
+        "package_status",
+        lambda: {
+            "bddl": False,
+            "omnigibson": False,
+            "isaacsim": False,
+        },
+    )
+
+    def fake_run(command, **kwargs):
+        script = command[2]
+        assert "importlib.metadata" in script
+        assert "import omnigibson" not in script
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            stdout='{"bddl": "3.5.0", "isaacsim": "4.1.0.0", "omnigibson": "1.1.1"}\n',
+            stderr="",
+        )
+
+    monkeypatch.setattr("simtools.adapters.behavior1k.subprocess.run", fake_run)
+    result = adapter.smoke()
+    assert result["status"] == "passed"
+    assert result["modules"]["omnigibson"] == "1.1.1"
+
+
+def test_behavior1k_viewer_delegates_to_omnigibson_when_dataset_ready(monkeypatch):
+    registry = ToolRegistry.from_configs()
+    adapter = get_adapter(registry.get("behavior1k"))
+    monkeypatch.setattr(
+        adapter,
+        "_dataset_status",
+        lambda: {
+            "dataset_ready": True,
+            "scenes_exists": True,
+            "assets_exists": True,
+            "requires_eula": False,
+        },
+    )
+    monkeypatch.setattr(
+        adapter,
+        "_external_package_status",
+        lambda: {
+            "installed": True,
+            "package_checks": {
+                "bddl": True,
+                "omnigibson": True,
+                "isaacsim": True,
+            },
+        },
+    )
+    monkeypatch.setattr(
+        adapter,
+        "package_status",
+        lambda: {
+            "bddl": False,
+            "omnigibson": False,
+            "isaacsim": False,
+        },
+    )
+
+    result = adapter.launch_viewer(dry_run=False, execute=True)
+    assert result["status"] == "passed"
+    assert result["viewer_status"] == "delegated_to_omnigibson"

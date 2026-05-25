@@ -92,8 +92,34 @@ def test_cli_maniskill_plan_doctor_smoke_and_view():
         assert "maniskill" in result.output.lower()
 
 
+def test_cli_robocasa365_plan_doctor_smoke_and_view():
+    cases = (
+        ["install-plan", "robocasa365"],
+        ["doctor", "robocasa365"],
+        ["run", "robocasa365", "--mode", "smoke", "--dry-run", "--no-save-report"],
+        ["view", "robocasa365", "--dry-run"],
+    )
+    for args in cases:
+        result = runner.invoke(app, args)
+        assert result.exit_code == 0, result.output
+        assert "robocasa365" in result.output.lower()
+
+
+def test_cli_molmospaces_plan_doctor_smoke_and_view():
+    cases = (
+        ["install-plan", "molmospaces"],
+        ["doctor", "molmospaces"],
+        ["run", "molmospaces", "--mode", "smoke", "--dry-run", "--no-save-report"],
+        ["view", "molmospaces", "--dry-run"],
+    )
+    for args in cases:
+        result = runner.invoke(app, args)
+        assert result.exit_code == 0, result.output
+        assert "molmospaces" in result.output.lower()
+
+
 def test_cli_planned_heavy_tool_dry_runs():
-    for tool_id in ("behavior1k", "molmospaces", "omnigibson", "robocasa365"):
+    for tool_id in ("behavior1k", "omnigibson"):
         result = runner.invoke(
             app,
             ["run", tool_id, "--mode", "smoke", "--dry-run", "--no-save-report"],
@@ -108,15 +134,21 @@ def test_cli_install_plan_preserves_extras_markup():
     assert 'pip install -e ".[mujoco]"' in result.output
 
 
-def test_cli_real_status_strict_fails_until_all_viewers_verified():
+def test_cli_real_status_strict_passes_when_all_viewers_verified():
     result = runner.invoke(app, ["real-status", "--strict"])
-    assert result.exit_code == 2, result.output
-    assert "Not ready" in result.output
+    assert result.exit_code == 0, result.output
+    assert "Real-ready tools" in result.output
 
 
-def test_cli_real_status_json_reports_ai2_ready():
+def test_cli_real_status_json_reports_all_tools_ready():
     result = runner.invoke(app, ["real-status", "--json"])
     assert result.exit_code == 0, result.output
     assert '"ready_tools": [' in result.output
     assert '"ai2thor"' in result.output
-    assert '"not_ready_count": 6' in result.output
+    assert '"behavior1k"' in result.output
+    assert '"habitat"' in result.output
+    assert '"maniskill"' in result.output
+    assert '"molmospaces"' in result.output
+    assert '"omnigibson"' in result.output
+    assert '"robocasa365"' in result.output
+    assert '"not_ready_count": 0' in result.output

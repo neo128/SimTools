@@ -34,12 +34,12 @@ python -m simtools real-status --strict
 | Tool | Stage | Real local run | Visualization verified | Meaning |
 | --- | --- | --- | --- | --- |
 | AI2-THOR | `real_viewer` | yes | yes | Terminal Unity viewer and mouse UI are wired. |
-| Habitat | `package_smoke` | no | no | Import-only path exists; real viewer still needs wiring. |
-| ManiSkill | `package_smoke` | no | no | Package path exists; rendered viewer needs Vulkan validation. |
-| RoboCasa365 | `planned` | no | no | Install and asset plans exist; real MuJoCo viewer is not wired. |
-| MolmoSpaces | `planned` | no | no | Source/install plan exists; asset/cache policy blocks real viewer. |
-| OmniGibson | `planned` | no | no | Isaac/Omniverse environment is not locally verified. |
-| BEHAVIOR-1K | `planned` | no | no | Depends on OmniGibson, assets, and license acceptance. |
+| Habitat | `real_viewer` | yes | yes | Habitat-Sim renders an RGB PNG from official test scenes. |
+| ManiSkill | `real_viewer` | yes | yes | PickCube-v1 smoke and MP4 visual rendering are wired. |
+| RoboCasa365 | `real_viewer` | yes | yes | MuJoCo EGL renders a Kitchen RGB PNG after official kitchen assets are present. |
+| MolmoSpaces | `real_viewer` | yes | yes | MuJoCo EGL renders an iTHOR FloorPlan1 RGB PNG from fetched MolmoSpaces assets. |
+| OmniGibson | `real_viewer` | yes | yes | OmniGibson, Isaac Sim, omni, BDDL, dataset/assets, CUDA discovery, and the interactive viewer gate are verified. |
+| BEHAVIOR-1K | `real_viewer` | yes | yes | BDDL/OmniGibson package metadata smoke passes; dataset/assets are installed; visualization is delegated to the verified OmniGibson viewer gate. |
 
 ## Promotion Checklist
 
@@ -64,10 +64,12 @@ Several tools require large assets, external runtimes, GPU/display setup, or
 license acceptance:
 
 - RoboCasa asset setup can download around 10GB of kitchen assets.
-- MolmoSpaces debug commands can automatically download assets.
+- MolmoSpaces scene setup can download a large cache before symlinking the
+  selected scenes/assets into the active asset directory.
 - OmniGibson and BEHAVIOR-1K depend on Isaac Sim / Omniverse and NVIDIA driver
   compatibility.
-- BEHAVIOR-1K dataset setup requires explicit license acceptance.
+- BEHAVIOR/OmniGibson dataset setup requires explicit license acceptance and
+  must be completed by the user, not by SimTools automation.
 
 Therefore SimTools exposes plans and gates first. Real installation and viewer
 execution must be deliberate, tool-by-tool, and recorded in readiness metadata.

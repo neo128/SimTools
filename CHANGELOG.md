@@ -23,4 +23,19 @@ All notable changes to SimTools will be documented here.
 - Added planned dry-run adapters for RoboCasa365, MolmoSpaces, OmniGibson, and
   BEHAVIOR-1K.
 - Added real local run readiness metadata and `simtools real-status` gate.
+- Promoted ManiSkill to a real visual path that renders a PickCube-v1 MP4
+  artifact in `.venv-maniskill`.
+- Promoted Habitat to a real visual path that renders an RGB PNG from the
+  official Habitat test scenes in `.venv-habitat`.
+- Promoted RoboCasa365 to a real visual path that renders a Kitchen RGB PNG
+  through MuJoCo EGL after explicit kitchen asset setup.
+- Promoted MolmoSpaces to a real visual path that renders an iTHOR FloorPlan1
+  RGB PNG through MuJoCo EGL after explicit scene asset setup.
+- Added OmniGibson and BEHAVIOR-1K package/runtime verification through
+  `.venv-omnigibson`, with full viewer execution blocked on the user-accepted
+  BEHAVIOR Data Bundle EULA and dataset installation.
+- Promoted OmniGibson to `real_viewer` after dataset/assets, CUDA discovery,
+  and interactive viewer readiness markers were verified.
+- Promoted BEHAVIOR-1K to `real_viewer` with visualization delegated to the
+  verified OmniGibson viewer gate.
 - Improved dashboard artifact previews.

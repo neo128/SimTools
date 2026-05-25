@@ -28,55 +28,58 @@ install AI2-THOR automatically.
 ## v0.3 Habitat and ManiSkill
 
 - Habitat import-only smoke path
-- Habitat dry-run viewer plan
+- Habitat external `.venv-habitat` profile
+- Habitat test-scene RGB render path
 - ManiSkill manifest and adapter
 - ManiSkill package-only smoke path
-- ManiSkill dry-run viewer plan
+- ManiSkill MP4 visual render path
 
-Status: complete for safe planning and package-level validation. Next real work
-is choosing one opt-in rendered viewer path after confirming local GPU/display
-requirements.
+Status: ManiSkill is real-viewer ready through `.venv-maniskill` and the
+official `demo_random_action` renderer. Habitat is real-viewer ready through
+`.venv-habitat` and the official `habitat_test_scenes` package.
 
-Hard gate: neither tool is complete under the real-local requirement until
-`python -m simtools real-status --strict` can pass with both marked
-`real_viewer`.
+Global hard gate: all seven registered tools must remain at `real_viewer` for
+`python -m simtools real-status --strict` to pass.
 
 ## v0.4 RoboCasa365
 
 - RoboCasa365 manifest with minimal and asset profiles
-- Planned adapter with install, smoke, and viewer dry-runs
+- External `.venv-robocasa365` adapter with package smoke
+- MuJoCo EGL Kitchen RGB render path
 - Quick-use documentation that separates code install from asset download
 
-Status: complete for dry-run planning. A real adapter should first check
-`robocasa` and `robosuite` imports, then add a no-download smoke.
-
-Hard gate: not complete under the real-local requirement until code install,
-asset policy, smoke, and MuJoCo viewer are locally verified.
+Status: real-viewer ready. Kitchen assets were installed explicitly, and the
+verified artifact is `.simtools/artifacts/robocasa365/kitchen_rgb.png`.
 
 ## v0.5 MolmoSpaces
 
 - MolmoSpaces manifest with source and conda profiles
-- Planned adapter with MuJoCo/debug-viewer guidance
+- External `.venv-molmospaces` adapter with package smoke
+- Explicit iTHOR scene asset fetch policy
+- MuJoCo EGL FloorPlan1 RGB render path
 - Quick-use documentation that warns about automatic asset downloads
 
-Status: complete for dry-run planning. A real adapter should first validate
-`molmo_spaces` and `mujoco` imports, then add cache-directory checks.
-
-Hard gate: not complete under the real-local requirement until cache policy,
-smoke, and MuJoCo debug viewer are locally verified.
+Status: real-viewer ready for the fetched iTHOR scene. The verified artifact is
+`.simtools/artifacts/molmospaces/floorplan1_rgb.png`.
 
 ## v0.6 OmniGibson and BEHAVIOR-1K
 
 - OmniGibson and BEHAVIOR-1K manifests with source/headless plans
-- Planned adapters with Isaac/Omniverse viewer guidance
+- External `.venv-omnigibson` package smoke for OmniGibson, BDDL, and Isaac Sim
+- Isaac Sim pip installation path verified after fixing PATH/CONDA_PREFIX
 - License, GPU, display, and dataset-download constraints documented
+- BEHAVIOR/OmniGibson dataset/assets verified after user EULA acceptance
+- OmniGibson interactive viewer gate verified through readiness markers
+- BEHAVIOR-1K visualization delegated to the verified OmniGibson viewer gate
 
-Status: complete for dry-run planning. Real execution remains intentionally
-deferred until local hardware, Isaac Sim, license, and asset policies are
-confirmed.
+Status: real-viewer ready. `python -m simtools view omnigibson --execute`
+reaches the interactive OmniGibson loop and is stopped by the verification
+timeout after readiness markers appear. `python -m simtools view behavior1k
+--execute` reports `delegated_to_omnigibson`.
 
-Hard gate: not complete under the real-local requirement until Isaac/Omniverse,
-assets, smoke, and viewer commands are locally verified.
+Hard gate: complete for the current seven-tool registry, while preserving the
+rule that SimTools must not auto-accept the BEHAVIOR Data Bundle EULA or launch
+real GUI viewers from pytest.
 
 ## Later
 

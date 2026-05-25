@@ -86,21 +86,21 @@ adapter:
   package_checks:
     - mani_skill
 readiness:
-  stage: package_smoke
-  local_environment: not-created
-  local_runnable: false
-  smoke_verified: false
-  visualization_verified: false
+  stage: real_viewer
+  local_environment: .venv-maniskill
+  local_runnable: true
+  smoke_verified: true
+  visualization_verified: true
   validation_command: python -m simtools run maniskill --mode smoke
-  viewer_command: python -m mani_skill.examples.demo_random_action -e PickCube-v1
-  artifact_examples: []
-  blockers:
-    - ManiSkill is not installed in a dedicated local environment.
-    - Rendering needs Vulkan-compatible local drivers before viewer verification.
-    - SimTools still needs an opt-in rendered viewer path for artifact capture.
-  last_verified: null
+  viewer_command: .venv-maniskill/bin/python -m simtools view maniskill --execute --scene PickCube-v1
+  artifact_examples:
+    - .simtools/artifacts/maniskill/videos/0.mp4
+  blockers: []
+  last_verified: "2026-05-22"
   notes:
-    - State-based package smoke can be implemented before rendered viewer validation.
+    - ManiSkill 3.0.1 was installed in .venv-maniskill.
+    - The SimTools viewer path renders a PickCube-v1 MP4 artifact through the official demo_random_action script.
+    - Direct human viewer launch was attempted with timeout; MP4 rendering is the automated visual verification path.
 notes:
   - "Official installation docs: https://maniskill.readthedocs.io/en/v3.0.0b20/user_guide/getting_started/installation.html"
   - Official install docs recommend pip installing mani_skill and matching PyTorch separately.

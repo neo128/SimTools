@@ -47,34 +47,34 @@ install_profiles:
   minimal:
     manager: documentation
     commands:
-      - conda create -c conda-forge -n robocasa python=3.11
-      - conda activate robocasa
-      - git clone https://github.com/ARISE-Initiative/robosuite
-      - cd robosuite && pip install -e .
-      - cd .. && git clone https://github.com/robocasa/robocasa
-      - cd robocasa && pip install -e .
+      - uv venv --python 3.11 .venv-robocasa365
+      - git -c http.https://github.com.proxy= -c https.https://github.com.proxy= clone --depth 1 https://github.com/ARISE-Initiative/robosuite.git .simtools/external/robosuite
+      - git -c http.https://github.com.proxy= -c https.https://github.com.proxy= clone --depth 1 https://github.com/robocasa/robocasa.git .simtools/external/robocasa
+      - uv pip install --python .venv-robocasa365/bin/python -e .simtools/external/robosuite
+      - uv pip install --python .venv-robocasa365/bin/python -e .simtools/external/robocasa
+      - .venv-robocasa365/bin/python .simtools/external/robosuite/robosuite/scripts/setup_macros.py
+      - .venv-robocasa365/bin/python .simtools/external/robocasa/robocasa/scripts/setup_macros.py
     notes:
-      - Plan only. SimTools does not execute these commands.
+      - This profile matches the locally verified source checkout path.
       - Official docs currently install robosuite from the master branch.
       - Kitchen assets are a separate opt-in download.
   assets:
     manager: documentation
     commands:
-      - python -m robocasa.scripts.setup_macros
-      - python -m robocasa.scripts.download_kitchen_assets
+      - printf 'y\n' | .venv-robocasa365/bin/python .simtools/external/robocasa/robocasa/scripts/download_kitchen_assets.py --type all
     notes:
       - Opt-in only. Official docs note kitchen assets are around 10GB.
-      - Confirm asset storage location before running.
+      - The verified path stores assets in `.simtools/external/robocasa/robocasa/models/assets`.
 commands:
   smoke:
-    description: Dry-run RoboCasa365 metadata smoke test.
-    command: python -m simtools run robocasa365 --mode smoke --dry-run
+    description: Import smoke test for robocasa, robosuite, and mujoco.
+    command: python -m simtools run robocasa365 --mode smoke
   smoke_dry_run:
     description: Show the RoboCasa365 smoke plan without importing robocasa.
     command: python -m simtools run robocasa365 --mode smoke --dry-run
   view:
-    description: Print the RoboCasa365 viewer plan.
-    command: python -m simtools view robocasa365 --dry-run
+    description: Render one MuJoCo RGB frame from the RoboCasa Kitchen scene.
+    command: python -m simtools view robocasa365 --execute --scene Kitchen
 adapter:
   module: simtools.adapters.robocasa365
   class_name: RoboCasa365Adapter
@@ -82,18 +82,18 @@ adapter:
     - robocasa
     - robosuite
 readiness:
-  stage: planned
-  local_environment: not-created
-  local_runnable: false
-  smoke_verified: false
-  visualization_verified: false
+  stage: real_viewer
+  local_environment: .venv-robocasa365
+  local_runnable: true
+  smoke_verified: true
+  visualization_verified: true
   validation_command: python -m simtools run robocasa365 --mode smoke
-  viewer_command: python -m robocasa.demos.demo_random_action
-  artifact_examples: []
-  blockers:
-    - RoboCasa365 and robosuite are not installed in a dedicated local environment.
-    - Kitchen assets are an explicit download step and are around 10GB in official docs.
-    - A no-download smoke and an opt-in MuJoCo viewer adapter must be implemented.
-  last_verified: null
+  viewer_command: python -m simtools view robocasa365 --execute --scene Kitchen --width 640 --height 480
+  artifact_examples:
+    - .simtools/artifacts/robocasa365/kitchen_rgb.png
+  blockers: []
+  last_verified: "2026-05-22"
   notes:
-    - Keep the asset profile separate from the code installation profile.
+    - RoboCasa365 1.0.1, robosuite 1.5.2, and MuJoCo 3.3.1 were verified in `.venv-robocasa365`.
+    - The real viewer path uses MuJoCo EGL offscreen rendering and the `Kitchen` scene.
+    - Kitchen assets were downloaded through the official asset script into the local checkout.

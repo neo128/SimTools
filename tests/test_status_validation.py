@@ -24,6 +24,14 @@ def test_validate_repository_passes_for_initial_scaffold():
 def test_real_readiness_summary_is_strict_about_viewers():
     registry = ToolRegistry.from_configs()
     result = readiness_summary(registry)
-    assert result["status"] == "failed"
-    assert result["ready_tools"] == ["ai2thor"]
-    assert set(result["not_ready_tools"]) == set(registry.ids()) - {"ai2thor"}
+    assert result["status"] == "passed"
+    assert result["ready_tools"] == [
+        "ai2thor",
+        "behavior1k",
+        "habitat",
+        "maniskill",
+        "molmospaces",
+        "omnigibson",
+        "robocasa365",
+    ]
+    assert result["not_ready_tools"] == []

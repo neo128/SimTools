@@ -54,10 +54,23 @@ install_profiles:
   conda:
     manager: conda
     commands:
-      - conda create -n simtools-habitat python=3.11 -y
-      - conda run -n simtools-habitat pip install habitat-sim habitat-lab
+      - conda create -p ./.venv-habitat python=3.9 cmake=3.14.0 -y
+      - conda install -p ./.venv-habitat habitat-sim withbullet -c conda-forge -c aihabitat -y
+      - .venv-habitat/bin/python -m pip install habitat-lab
+      - .venv-habitat/bin/python -m pip install pillow==10.4.0
     notes:
-      - Treat this as a planning template; verify wheel availability for your platform.
+      - This profile matches the locally verified Habitat-Sim 0.3.3 path.
+      - Habitat-Sim currently uses Python 3.9 in this conda package path, so SimTools launches it through the external profile.
+  assets:
+    manager: habitat-sim
+    commands:
+      - conda install -p ./.venv-habitat git-lfs -c conda-forge -y
+      - PATH="$PWD/.venv-habitat/bin:$PATH" .venv-habitat/bin/python -m habitat_sim.utils.datasets_download --uids habitat_test_scenes --data-path .simtools/habitat-data --no-replace
+      - PATH="$PWD/.venv-habitat/bin:$PATH" git -C .simtools/habitat-data/versioned_data/habitat_test_scenes lfs install --local
+      - PATH="$PWD/.venv-habitat/bin:$PATH" git -C .simtools/habitat-data/versioned_data/habitat_test_scenes lfs pull
+    notes:
+      - Downloads only the official Habitat test scenes into `.simtools/habitat-data`.
+      - Full HM3D/ReplicaCAD datasets are intentionally not part of this profile.
   source:
     manager: documentation
     commands:
@@ -73,10 +86,10 @@ commands:
     description: Show the Habitat import-only smoke plan.
     command: python -m simtools run habitat --mode smoke --dry-run
   view:
-    description: Print the Habitat viewer plan.
-    command: python -m simtools view habitat --dry-run
+    description: Render one RGB frame from the official Habitat test scene.
+    command: python -m simtools view habitat --execute --scene skokloster-castle
   view_dry_run:
-    description: Show manual Habitat viewer examples without launching GUI.
+    description: Show the Habitat visual render plan.
     command: python -m simtools view habitat --dry-run
 adapter:
   module: simtools.adapters.habitat
@@ -85,18 +98,18 @@ adapter:
     - habitat
     - habitat_sim
 readiness:
-  stage: package_smoke
-  local_environment: not-created
-  local_runnable: false
-  smoke_verified: false
-  visualization_verified: false
+  stage: real_viewer
+  local_environment: .venv-habitat
+  local_runnable: true
+  smoke_verified: true
+  visualization_verified: true
   validation_command: python -m simtools run habitat --mode smoke
-  viewer_command: python -m simtools view habitat --dry-run
-  artifact_examples: []
-  blockers:
-    - Habitat and Habitat-Sim are not installed in a dedicated local environment.
-    - A real viewer adapter must be wired to an official Habitat viewer/example.
-    - Dataset-backed scenes must be selected without adding large downloads to base tests.
-  last_verified: null
+  viewer_command: python -m simtools view habitat --execute --scene skokloster-castle --width 640 --height 480
+  artifact_examples:
+    - .simtools/artifacts/habitat/skokloster-castle_rgb.png
+  blockers: []
+  last_verified: "2026-05-22"
   notes:
-    - Current adapter supports package checks and import-only smoke only.
+    - Habitat-Sim 0.3.3 and Habitat-Lab 0.3.3 were verified in `.venv-habitat`.
+    - SimTools launches the Python 3.9 Habitat profile externally because the base package targets Python 3.11+.
+    - Visualization renders one RGB PNG from `habitat_test_scenes/skokloster-castle.glb`.

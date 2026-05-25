@@ -24,8 +24,8 @@ python -m simtools real-status
 python -m simtools real-status --strict
 ```
 
-The strict command is expected to fail until every registered tool has a real
-local smoke and visualization proof. See
+The strict command should pass when all registered tools keep their
+`real_viewer` readiness metadata current. See
 `docs/15_REAL_LOCAL_RUN_REQUIREMENTS.md`.
 
 ## AI2-THOR
@@ -332,40 +332,97 @@ If the mouse UI does not start:
 
 ## Habitat
 
-Status: package-level preparation path. The current Habitat adapter can check
-imports and print viewer guidance, but it does not launch Habitat-Sim yet.
+Status: real local visual path. Habitat-Sim and Habitat-Lab are installed in
+`.venv-habitat`, the adapter can run an external import smoke, and SimTools can
+render one RGB PNG from the official `habitat_test_scenes` asset package.
 
 ### Check Setup
 
 ```bash
 python -m simtools install-plan habitat
+python -m simtools install-plan habitat --profile conda
+python -m simtools install-plan habitat --profile assets
 python -m simtools doctor habitat
 python -m simtools run habitat --mode smoke --dry-run
 ```
 
-If Habitat and Habitat-Sim are installed in the active isolated environment, a
-non-dry-run smoke lazy imports those packages only:
+The local verified setup uses the official Habitat conda package path:
+
+```bash
+conda create -p ./.venv-habitat python=3.9 cmake=3.14.0 -y
+conda install -p ./.venv-habitat habitat-sim withbullet -c conda-forge -c aihabitat -y
+.venv-habitat/bin/python -m pip install habitat-lab
+.venv-habitat/bin/python -m pip install pillow==10.4.0
+conda install -p ./.venv-habitat git-lfs -c conda-forge -y
+```
+
+Download only the official small test scene package:
+
+```bash
+PATH="$PWD/.venv-habitat/bin:$PATH" .venv-habitat/bin/python -m habitat_sim.utils.datasets_download --uids habitat_test_scenes --data-path .simtools/habitat-data --no-replace
+PATH="$PWD/.venv-habitat/bin:$PATH" git -C .simtools/habitat-data/versioned_data/habitat_test_scenes lfs install --local
+PATH="$PWD/.venv-habitat/bin:$PATH" git -C .simtools/habitat-data/versioned_data/habitat_test_scenes lfs pull
+```
+
+Run the non-dry-run smoke:
 
 ```bash
 python -m simtools run habitat --mode smoke
 ```
 
-### Viewer Plan
+Expected result:
+
+```json
+{
+  "tool_id": "habitat",
+  "status": "passed",
+  "message": "Habitat external import-only smoke completed."
+}
+```
+
+### Render RGB Artifact
 
 ```bash
 python -m simtools view habitat --dry-run
+python -m simtools view habitat --execute --scene skokloster-castle --width 640 --height 480
 ```
 
-Use official Habitat examples manually until SimTools gets a dedicated opt-in
-viewer. Dataset-backed scenes must be downloaded outside base tests.
+The execute command writes:
+
+```text
+.simtools/artifacts/habitat/skokloster-castle_rgb.png
+```
+
+The verified artifact is a 640 x 480 PNG rendered by Habitat-Sim on the local
+NVIDIA GPU. Semantic warnings for `skokloster-castle.scn` are expected because
+the test scene is used here for RGB visualization, not semantic annotations.
+
+### Switch Scene
+
+The downloaded Habitat test package includes:
+
+| Scene | Command value |
+| --- | --- |
+| Skokloster castle | `skokloster-castle` |
+| Apartment | `apartment_1` |
+| Van Gogh room | `van-gogh-room` |
+
+Switch scenes with `--scene`:
+
+```bash
+python -m simtools view habitat --execute --scene apartment_1
+python -m simtools view habitat --execute --scene van-gogh-room
+```
+
+Base pytest does not run Habitat rendering. GUI/interactivity can be added later
+on top of this verified image-render path.
 
 Source: <https://aihabitat.org/docs/habitat-lab/quickstart>
 
 ## ManiSkill
 
-Status: package-level preparation path. ManiSkill is useful as the next real
-viewer candidate because it is lighter than Isaac/Omniverse stacks but still
-gives manipulation tasks.
+Status: real local visual path. ManiSkill is installed in `.venv-maniskill`,
+package smoke passes, and SimTools can render a PickCube-v1 MP4 artifact.
 
 ### Check Setup
 
@@ -379,30 +436,38 @@ If ManiSkill is installed in the active isolated environment, a non-dry-run
 smoke lazy imports `mani_skill` only:
 
 ```bash
-python -m simtools run maniskill --mode smoke
+.venv-maniskill/bin/python -m simtools run maniskill --mode smoke
 ```
 
 ### Viewer Plan
 
 ```bash
-python -m simtools view maniskill --dry-run
+.venv-maniskill/bin/python -m simtools view maniskill --dry-run
+.venv-maniskill/bin/python -m simtools view maniskill --execute --scene PickCube-v1
 ```
 
-Manual official validation command after installation:
+The execute command writes an MP4 under:
+
+```text
+.simtools/artifacts/maniskill/videos/0.mp4
+```
+
+Manual official GUI command after installation:
 
 ```bash
-python -m mani_skill.examples.demo_random_action -e PickCube-v1
+.venv-maniskill/bin/python -m mani_skill.examples.demo_random_action -e PickCube-v1 --render-mode human
 ```
 
-Rendering may require Vulkan and compatible GPU drivers. Keep rendered viewer
-tests opt-in and outside base pytest.
+Rendering may require Vulkan and compatible GPU drivers. Base pytest still does
+not run the real renderer.
 
 Source: <https://maniskill.readthedocs.io/en/v3.0.0b20/user_guide/getting_started/installation.html>
 
 ## RoboCasa365
 
-Status: dry-run planning. Keep RoboCasa365 in its own environment and avoid
-downloading kitchen assets by default.
+Status: real local visual path. RoboCasa365, robosuite, MuJoCo, and official
+kitchen assets are installed under `.venv-robocasa365` / `.simtools/external`.
+SimTools can render one Kitchen RGB PNG through MuJoCo EGL.
 
 ### Check Setup
 
@@ -410,6 +475,7 @@ downloading kitchen assets by default.
 python -m simtools install-plan robocasa365
 python -m simtools doctor robocasa365
 python -m simtools run robocasa365 --mode smoke --dry-run
+python -m simtools run robocasa365 --mode smoke
 ```
 
 ### Asset Plan
@@ -419,21 +485,32 @@ python -m simtools install-plan robocasa365 --profile assets
 ```
 
 This profile is separated because official docs note kitchen assets are around
-10GB. SimTools only prints the plan.
+10GB. In the verified local setup, the asset script was run explicitly:
 
-### Viewer Plan
+```bash
+printf 'y\n' | .venv-robocasa365/bin/python .simtools/external/robocasa/robocasa/scripts/download_kitchen_assets.py --type all
+```
+
+### Render RGB Artifact
 
 ```bash
 python -m simtools view robocasa365 --dry-run
+python -m simtools view robocasa365 --execute --scene Kitchen --width 640 --height 480
+```
+
+The execute command writes:
+
+```text
+.simtools/artifacts/robocasa365/kitchen_rgb.png
 ```
 
 Source: <https://robocasa.ai/docs/build/html/introduction/installation.html>
 
 ## MolmoSpaces
 
-Status: dry-run planning. MolmoSpaces can use MuJoCo and provides assets usable
-across MuJoCo, Isaac, and ManiSkill, but official debug commands can trigger
-asset downloads.
+Status: real local visual path. MolmoSpaces is installed in `.venv-molmospaces`,
+one official iTHOR scene has been fetched into `.simtools/molmospaces-assets`,
+and SimTools can render a MuJoCo EGL PNG.
 
 ### Check Setup
 
@@ -442,12 +519,31 @@ python -m simtools install-plan molmospaces
 python -m simtools install-plan molmospaces --profile conda
 python -m simtools doctor molmospaces
 python -m simtools run molmospaces --mode smoke --dry-run
+python -m simtools run molmospaces --mode smoke
 ```
 
-### Viewer Plan
+### Asset Fetch
+
+The verified local setup fetched iTHOR `FloorPlan1` explicitly:
+
+```bash
+MLSPACES_CACHE_DIR="$PWD/.simtools/molmospaces-cache" \
+MLSPACES_ASSETS_DIR="$PWD/.simtools/molmospaces-assets" \
+MLSPACES_FORCE_INSTALL=True \
+.venv-molmospaces/bin/python .simtools/external/molmospaces/scripts/datagen/fetch_assets.py scene ithor 1 --split train
+```
+
+### Render RGB Artifact
 
 ```bash
 python -m simtools view molmospaces --dry-run
+python -m simtools view molmospaces --execute --scene FloorPlan1 --width 640 --height 480
+```
+
+The execute command writes:
+
+```text
+.simtools/artifacts/molmospaces/floorplan1_rgb.png
 ```
 
 Manual official debug viewer commands after installation:
@@ -463,8 +559,13 @@ Source: <https://github.com/allenai/molmospaces>
 
 ## OmniGibson
 
-Status: dry-run planning. Real viewer support requires explicit Isaac Sim /
-Omniverse environment guidance.
+Status: real local viewer verified. OmniGibson, BDDL, and Isaac Sim are
+installed in `.venv-omnigibson`; the SimTools smoke path verifies package
+discovery and distribution metadata without importing top-level OmniGibson in
+the base environment. The BEHAVIOR/OmniGibson dataset and assets were installed
+after user EULA acceptance. On 2026-05-25, the viewer reached the interactive
+OmniGibson control loop and was stopped by the SimTools verification timeout
+after readiness markers appeared.
 
 ### Check Setup
 
@@ -473,30 +574,74 @@ python -m simtools install-plan omnigibson
 python -m simtools install-plan omnigibson --profile source
 python -m simtools doctor omnigibson
 python -m simtools run omnigibson --mode smoke --dry-run
+python -m simtools run omnigibson --mode smoke
 ```
 
-### Viewer Plan
+### Viewer Gate
 
 ```bash
 python -m simtools view omnigibson --dry-run
+python -m simtools view omnigibson --execute
 ```
 
-Manual official examples after installation:
+Expected verified result:
+
+```text
+status: passed
+message: OmniGibson viewer reached the interactive loop and was stopped after the verification timeout.
+timed_out: true
+```
+
+The verification command starts the real OmniGibson viewer. Because the
+official quickstart viewer is interactive and does not exit by itself, SimTools
+uses readiness markers such as `Simulation App Startup Complete` and
+`Pressed None. Action:` as proof that the viewer has entered the control loop.
+
+### Dataset Command
+
+The data installer prints the BEHAVIOR Data Bundle EULA. Do not run it unless
+you personally intend to answer the license prompt:
 
 ```bash
-python -m omnigibson.examples.robots.robot_control_example --quickstart
-python -m omnigibson.examples.scenes.scene_selector
+PYTHONNOUSERSITE=1 \
+CONDA_PREFIX="$PWD/.venv-omnigibson" \
+PATH="$PWD/.venv-omnigibson/bin:$PATH" \
+.venv-omnigibson/bin/python -s -m omnigibson.download_datasets
 ```
 
-Confirm NVIDIA driver, Isaac Sim, display/headless mode, and asset locations
-before executing.
+The current local repository already has the dataset and assets installed under
+`.venv-omnigibson/lib/python3.10/site-packages/omnigibson/data` after user
+EULA acceptance.
+
+### GPU Check
+
+Run the viewer from a local shell where these pass:
+
+```bash
+nvidia-smi
+PYTHONNOUSERSITE=1 CONDA_PREFIX="$PWD/.venv-omnigibson" PATH="$PWD/.venv-omnigibson/bin:$PATH" \
+.venv-omnigibson/bin/python -s -c "import torch; print(torch.cuda.is_available(), torch.cuda.device_count())"
+```
+
+If Isaac logs many `errno=28` watch errors, check:
+
+```bash
+cat /proc/sys/fs/inotify/max_user_watches
+cat /proc/sys/fs/inotify/max_user_instances
+```
+
+Raising those limits is a host-level operation and is not performed by
+SimTools.
 
 Source: <https://behavior.stanford.edu/getting_started/installation.html>
 
 ## BEHAVIOR-1K
 
-Status: dry-run planning. Real usage depends on OmniGibson and large assets, so
-it must remain opt-in.
+Status: real local viewer verified through OmniGibson delegation. BEHAVIOR-1K
+uses BDDL and OmniGibson; package discovery and distribution metadata pass
+through `.venv-omnigibson`, and the licensed BEHAVIOR data is installed.
+BEHAVIOR-1K does not maintain a separate SimTools viewer surface in this
+adapter; visualization is delegated to the verified OmniGibson viewer gate.
 
 ### Check Setup
 
@@ -505,16 +650,46 @@ python -m simtools install-plan behavior1k
 python -m simtools install-plan behavior1k --profile source
 python -m simtools doctor behavior1k
 python -m simtools run behavior1k --mode smoke --dry-run
+python -m simtools run behavior1k --mode smoke
 ```
 
-### Viewer Plan
+### Viewer Gate
 
 ```bash
 python -m simtools view behavior1k --dry-run
+python -m simtools view behavior1k --execute
 ```
 
-Dataset-backed setup must remain explicit because it can accept licenses,
-download Isaac Sim, and download BEHAVIOR datasets.
+Expected verified result:
+
+```text
+status: passed
+viewer_status: delegated_to_omnigibson
+```
+
+To inspect the delegated runtime viewer directly:
+
+```bash
+python -m simtools view omnigibson --execute
+```
+
+If a fresh machine lacks the dataset, the user must personally run:
+
+```bash
+PYTHONNOUSERSITE=1 \
+CONDA_PREFIX="$PWD/.venv-omnigibson" \
+PATH="$PWD/.venv-omnigibson/bin:$PATH" \
+.venv-omnigibson/bin/python -s -m omnigibson.download_datasets
+```
+
+Read the BEHAVIOR Data Bundle EULA in that prompt and accept or reject it
+yourself. If you accept and the dataset installs, re-run:
+
+```bash
+python -m simtools run behavior1k --mode smoke
+python -m simtools view behavior1k --execute
+python -m simtools view omnigibson --execute
+```
 
 Source: <https://behavior.stanford.edu/getting_started/installation.html>
 
