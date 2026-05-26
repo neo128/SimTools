@@ -28,6 +28,9 @@ real simulator installed.
 - Experiment Workbench v0.2 records experiment runs under `.simtools/runs/`.
 - Experiment Metrics v0.3 adds `simtools.metrics.v1` and
   `simtools.run_comparison.v1`.
+- Benchmark Runner v0.4 adds metadata-only `simtools.task_metrics.v1`,
+  `simtools.benchmark_result.v1`, `simtools.reproducibility.v1`, and
+  `simtools.run_export.v1`.
 - CLI and dashboard views read shared registry, experiment, run-store, and
   comparison helpers.
 
@@ -45,7 +48,8 @@ The original v0.1 goal was to build a reproducible local metamanager MVP:
 - tests that pass without real simulators installed
 
 That foundation now includes real-viewer readiness for the current seven-tool
-registry and a lightweight experiment/metrics layer.
+registry, a lightweight experiment/metrics layer, and a metadata/report-driven
+benchmark export layer.
 
 ## Non-goals
 
@@ -58,7 +62,7 @@ registry and a lightweight experiment/metrics layer.
 ## Current Evaluation
 
 See `docs/19_PROJECT_EVALUATION.md` for the current engineering assessment,
-risks, documentation map, and next development priorities. The next planned
-engineering slice is `plans/008-benchmark-runner-v0.4.md`, which keeps
-benchmark work metadata/report-driven before adding task-specific real
-simulator execution.
+risks, documentation map, and next development priorities. Benchmark Runner
+v0.4 is implemented as the current metadata/report-driven benchmark slice; the
+remaining benchmark work is task-specific scoring, real benchmark execution,
+artifact previews, and aggregation policy.

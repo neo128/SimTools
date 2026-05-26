@@ -122,10 +122,10 @@ For the current local verification report, see
 - `docs/18_EXPERIMENT_METRICS.md`: metrics and run comparison schema.
 - `docs/19_PROJECT_EVALUATION.md`: current assessment, risks, and next
   priorities.
-- `docs/20_BENCHMARK_RUNNER.md`: planned benchmark schemas, boundaries, and
-  export/dashboard direction.
-- `plans/008-benchmark-runner-v0.4.md`: next Benchmark Runner implementation
-  plan.
+- `docs/20_BENCHMARK_RUNNER.md`: implemented v0.4 benchmark metadata,
+  reproducibility, run export, and future scoring boundary.
+- `plans/008-benchmark-runner-v0.4.md`: completed Benchmark Runner v0.4
+  implementation plan.
 
 ## Core Commands
 
@@ -198,6 +198,20 @@ python -m simtools runs export --format csv
 See `docs/18_EXPERIMENT_METRICS.md` for the metrics schema and comparison
 payload. See `docs/20_BENCHMARK_RUNNER.md` for the v0.4 benchmark metadata and
 export boundary.
+
+Benchmark Runner v0.4 adds metadata-only benchmark fields and export helpers to
+new run reports. It writes `benchmark_result` with `simtools.task_metrics.v1`,
+adds `simtools.reproducibility.v1`, and exposes read-only JSON/CSV exports:
+
+```bash
+python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
+python -m simtools experiments report <run_id>
+python -m simtools runs export --format json
+python -m simtools runs export --format csv
+```
+
+This layer does not execute new benchmark tasks, download assets, launch GUI
+viewers, or import heavyweight simulator packages.
 
 To run the local verification suite:
 

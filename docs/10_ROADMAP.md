@@ -109,22 +109,27 @@ repository-local run records, keeps dry-run as the default, and requires
 Status: complete for the first operational metrics and run comparison layer.
 Task-specific benchmark scoring remains a later layer.
 
-## Next: Benchmark Runner v0.4
+## Benchmark Runner v0.4
 
-- Benchmark Runner v0.4 as described in `docs/20_BENCHMARK_RUNNER.md` and
-  planned in `plans/008-benchmark-runner-v0.4.md`: `task_metrics`,
-  `benchmark_result`, run export, reproducibility metadata, and dashboard
-  metrics/artifact inspection without new real simulator execution.
+- `task_metrics` schema for future task-specific benchmark values
+- `benchmark_result` schema with `not_scored` as the metadata-only default
+- Reproducibility metadata in new run reports
+- `simtools runs export --format json`
+- `simtools runs export --format csv`
+- Dashboard benchmark/metrics summaries for recorded runs
+- Release-hardening boundary that keeps benchmark work metadata/report-driven
+  without new real simulator execution
 
-Status: first metadata/report-driven slice implemented locally. It does not
-download assets, launch GUI viewers, import heavyweight simulator packages, or
-add real benchmark task execution.
+Status: implemented for the first metadata/report-driven benchmark slice. It
+does not download assets, launch GUI viewers, import heavyweight simulator
+packages, or add real benchmark task execution.
 
 ## Later
 
 - Isaac Lab, MuJoCo/MJX, Gazebo, Webots, CoppeliaSim, CARLA, AirSim, Genesis,
   and Newton
-- Structured benchmark runner with real task execution and aggregation
+- Structured benchmark runner with task-specific scoring, real task execution,
+  and aggregation
 - Rich artifact viewer
 - Profile-specific environment creation
 - Per-tool environment validation reports

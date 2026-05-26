@@ -1,20 +1,22 @@
 # Project Evaluation
 
 This evaluation summarizes the current SimTools state after the seven-tool
-real-viewer baseline, Experiment Workbench v0.2, and Experiment Metrics v0.3.
+real-viewer baseline, Experiment Workbench v0.2, Experiment Metrics v0.3, and
+the metadata/report-driven Benchmark Runner v0.4 slice.
 
 ## Executive Summary
 
 SimTools is now a usable local metamanager for embodied AI simulator tooling.
 The project has a stable manifest + adapter architecture, a shared registry for
 CLI and dashboard views, real local readiness metadata for seven tools, and a
-lightweight experiment layer that records dry-runs and opt-in real runs without
-pulling simulator dependencies into the base package.
+lightweight experiment layer that records dry-runs, opt-in real runs,
+operational metrics, benchmark metadata, reproducibility metadata, and
+read-only exports without pulling simulator dependencies into the base package.
 
 The strongest next move is not adding another simulator immediately. The
-highest leverage work is to harden the experiment layer into a benchmark-ready
-workflow: task-specific metrics, richer artifact inspection, comparison
-exports, and stronger reproducibility metadata.
+highest leverage work is to build on the now-implemented v0.4 metadata layer:
+define task-specific scoring semantics, add richer artifact inspection, and
+design aggregation policies before adding real benchmark execution.
 
 ## Current Capabilities
 
@@ -71,9 +73,11 @@ The documentation set is now broadly aligned with the implementation:
 - `docs/20_BENCHMARK_RUNNER.md`: benchmark metadata, export commands, and
   future scoring boundary.
 
-The remaining benchmark gap is semantic scoring. The project has benchmark
-metadata slots and exports, but it does not yet define task-specific success
-criteria, real benchmark task execution, or aggregation policies.
+The remaining benchmark gap is semantic scoring and execution policy. The
+project has benchmark metadata slots, reproducibility metadata, read-only run
+exports, and dashboard inspection, but it does not yet define task-specific
+success criteria, real benchmark task execution, artifact preview workflows, or
+aggregation policies.
 
 ## Risks
 
@@ -103,7 +107,7 @@ criteria, real benchmark task execution, or aggregation policies.
 6. Keep new simulator integrations behind the same manifest + adapter + test +
    docs contract.
 
-The active implementation plan is `plans/008-benchmark-runner-v0.4.md`; the
+The completed implementation plan is `plans/008-benchmark-runner-v0.4.md`; the
 design boundary is summarized in `docs/20_BENCHMARK_RUNNER.md`. It intentionally
 keeps the first Benchmark Runner slice metadata/report-driven: no new real
 simulator execution, no asset downloads, no GUI launches, and no heavyweight
@@ -120,6 +124,8 @@ python -m simtools validate --json
 python -m simtools real-status --strict
 python -m simtools experiments list
 python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
+python -m simtools experiments report <run_id>
+python -m simtools runs list
 python -m simtools runs compare --json
 python -m simtools runs export --format json
 python -m simtools runs export --format csv

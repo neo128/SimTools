@@ -25,7 +25,7 @@ git diff --check
 ## Documentation Checks
 
 - `README.md` quick start is current.
-- `docs/10_ROADMAP.md` reflects the next target.
+- `docs/10_ROADMAP.md` reflects implemented milestones and the next target.
 - `docs/17_EXPERIMENT_WORKBENCH.md` reflects the current run contract.
 - `docs/18_EXPERIMENT_METRICS.md` reflects the current metrics and comparison
   schemas.

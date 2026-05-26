@@ -17,6 +17,10 @@ comparison, export, or dashboard inspection.
 **Tech Stack:** Python 3.11+, Pydantic v2, PyYAML, Typer, Rich, pytest,
 standard-library `csv` and `json`.
 
+**Status:** Implemented on main as the first metadata/report-driven Benchmark
+Runner slice. Remaining benchmark work is future task-specific scoring,
+adapter-owned benchmark execution, artifact preview, and aggregation policy.
+
 ---
 
 ## Scope
