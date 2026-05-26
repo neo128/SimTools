@@ -44,6 +44,7 @@ def load_dashboard_data() -> dict[str, Any]:
         "profiles": [profile.model_dump(mode="json") for profile in load_profiles()],
         "experiments": experiments,
         "runs": runs,
+        "run_summaries": [run_metric_summary(run) for run in runs],
         "run_comparison": run_comparison,
         "artifacts": artifacts,
         "artifact_summary": summarize_artifacts(artifacts),
@@ -56,6 +57,26 @@ def summarize_artifacts(artifacts: list[dict[str, Any]]) -> dict[str, int]:
     for artifact in artifacts:
         counts[str(artifact["tool_id"])] += 1
     return dict(sorted(counts.items()))
+
+
+def run_metric_summary(run_or_report: dict[str, Any]) -> dict[str, Any]:
+    report = run_or_report.get("report")
+    source = report if isinstance(report, dict) else run_or_report
+    metrics = source.get("metrics") if isinstance(source.get("metrics"), dict) else {}
+    benchmark = (
+        source.get("benchmark_result")
+        if isinstance(source.get("benchmark_result"), dict)
+        else {}
+    )
+    artifact_count = metrics.get("artifact_count")
+    if artifact_count is None:
+        artifact_count = len(source.get("artifacts") or [])
+    return {
+        "metrics_schema": str(metrics.get("schema_version") or ""),
+        "artifact_count": int(artifact_count),
+        "benchmark_status": str(benchmark.get("status") or ""),
+        "report_path": str(run_or_report.get("report_path") or source.get("report_path") or ""),
+    }
 
 
 def load_run_history(root: str | Path | None = None) -> list[dict[str, Any]]:
@@ -198,6 +219,8 @@ def main() -> None:
             selected_run_id = st.selectbox("Run", run_options)
             selected_run = next(run for run in data["runs"] if run["run_id"] == selected_run_id)
             selected_report = selected_run["report"]
+            st.subheader("Benchmark Summary")
+            st.json(run_metric_summary(selected_run))
             st.subheader("Paths")
             st.json(
                 {

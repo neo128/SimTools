@@ -151,6 +151,7 @@ python -m simtools experiments list
 python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 python -m simtools runs list
 python -m simtools runs compare --json
+python -m simtools runs export --format json
 python -m simtools validate
 ```
 
@@ -160,7 +161,7 @@ python -m simtools validate
 `manifest_snapshot.yaml`, `environment.json`, `stdout.log`, `stderr.log`,
 `report.json`, and `artifacts/` or artifact references. The report includes
 the CLI command, start/end timestamps, duration, dry-run flag, status, message,
-and artifact paths.
+artifact paths, metrics, benchmark status, and reproducibility metadata.
 `real-status --strict` is expected to pass when every registered simulator has
 a verified local smoke path and real visualization path.
 
@@ -190,10 +191,13 @@ Experiment Metrics v0.3 adds a standard `metrics` block to each new
 ```bash
 python -m simtools runs compare
 python -m simtools runs compare --tool ai2thor --json
+python -m simtools runs export --format json
+python -m simtools runs export --format csv
 ```
 
 See `docs/18_EXPERIMENT_METRICS.md` for the metrics schema and comparison
-payload.
+payload. See `docs/20_BENCHMARK_RUNNER.md` for the v0.4 benchmark metadata and
+export boundary.
 
 To run the local verification suite:
 

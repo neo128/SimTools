@@ -48,6 +48,8 @@ simtools runs compare --json
 simtools runs compare --tool ai2thor
 simtools runs compare --experiment ai2thor_floorplan1_navigation_smoke
 simtools runs compare --status planned --dry-run
+simtools runs export --format json
+simtools runs export --format csv
 simtools validate
 simtools ui
 ```
@@ -75,6 +77,12 @@ simtools ui
   importing simulator packages or executing adapters.
 - `runs compare` supports filters for experiment id, tool id, status, and
   dry-run state.
+- `runs export` reads `.simtools/runs/` and writes JSON or CSV summaries without
+  executing experiments, calling adapters, launching viewers, or mutating
+  artifacts.
+- `runs export --format json` returns `simtools.run_export.v1`.
+- `runs export --format csv` includes run id, experiment id, tool id, status,
+  dry-run flag, metrics schema, benchmark status, and report path.
 - `view` is dry-run by default and requires `--execute` for GUI behavior.
 - `view --ui` starts a mouse-driven local UI when the adapter supports it.
 - `real-status` reports whether each registered tool is truly locally runnable

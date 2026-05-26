@@ -171,6 +171,8 @@ Minimum `report.json` keys:
 - `duration_seconds`
 - `command`
 - `metrics`
+- `benchmark_result`
+- `reproducibility`
 - `artifacts`
 - `output`
 - `notes`
@@ -194,6 +196,42 @@ Minimum `report.json` keys:
 Older reports without `metrics` are normalized on read by the run-store helpers
 so `simtools runs compare` and the dashboard can still inspect historical runs.
 
+`benchmark_result` uses schema version `simtools.benchmark_result.v1`. The
+default metadata-only form is:
+
+```json
+{
+  "schema_version": "simtools.benchmark_result.v1",
+  "status": "not_scored",
+  "task_metrics": {
+    "schema_version": "simtools.task_metrics.v1",
+    "success": null,
+    "score": null,
+    "steps_completed": null,
+    "collisions": null,
+    "custom": {}
+  }
+}
+```
+
+`task_metrics` is reserved for future task-specific scoring. The v0.4 default
+does not treat operational run status, artifact count, or dry-run success as a
+benchmark score.
+
+`reproducibility` uses schema version `simtools.reproducibility.v1` and records
+local, non-mutating provenance:
+
+```json
+{
+  "schema_version": "simtools.reproducibility.v1",
+  "python": "3.11.x",
+  "executable": "/path/to/python",
+  "platform": "Linux-...",
+  "git_commit": "<commit-or-empty>",
+  "simtools_version": "0.1.0"
+}
+```
+
 ## Run Comparison Payload
 
 `simtools runs compare --json` returns schema version
@@ -202,7 +240,33 @@ so `simtools runs compare` and the dashboard can still inspect historical runs.
 - `filters`: selected experiment, tool, status, and dry-run filters
 - `summary`: run count, experiment count, tool count, status counts, dry-run
   count, success count, total artifact count, and average duration
-- `runs`: normalized run rows with metrics, paths, status, and artifact counts
+- `runs`: normalized run rows with metrics, benchmark status, paths, status,
+  and artifact counts
 
 Run comparison is read-only. It uses `.simtools/runs/` metadata and must not
 launch adapters or import heavyweight simulator packages.
+
+## Run Export Payload
+
+`simtools runs export --format json` returns schema version
+`simtools.run_export.v1` and wraps the same read-only comparison payload:
+
+```json
+{
+  "schema_version": "simtools.run_export.v1",
+  "comparison": {
+    "schema_version": "simtools.run_comparison.v1"
+  }
+}
+```
+
+`simtools runs export --format csv` writes an in-memory CSV snapshot with these
+columns:
+
+```text
+run_id,experiment_id,tool_id,status,dry_run,duration_seconds,artifact_count,success,metrics_schema,benchmark_status,report_path
+```
+
+Exports read `.simtools/runs/` only. They do not execute experiments, call
+adapters, launch viewers, mutate artifacts, or import heavyweight simulator
+packages.

@@ -161,6 +161,36 @@ def test_dry_run_experiment_creates_required_run_files(tmp_path):
     assert report["metrics"]["success"] is False
 
 
+def test_dry_run_report_includes_benchmark_and_reproducibility_metadata(tmp_path):
+    store = RunStore(root=tmp_path / "runs")
+
+    result = run_experiment(
+        get_experiment("ai2thor_floorplan1_navigation_smoke"),
+        run_store=store,
+        dry_run=True,
+    )
+
+    report = store.load_report(result["run_id"])
+    assert report["benchmark_result"] == {
+        "schema_version": "simtools.benchmark_result.v1",
+        "status": "not_scored",
+        "task_metrics": {
+            "schema_version": "simtools.task_metrics.v1",
+            "success": None,
+            "score": None,
+            "steps_completed": None,
+            "collisions": None,
+            "custom": {},
+        },
+    }
+    assert report["reproducibility"]["schema_version"] == "simtools.reproducibility.v1"
+    assert "python" in report["reproducibility"]
+    assert "executable" in report["reproducibility"]
+    assert "platform" in report["reproducibility"]
+    assert "git_commit" in report["reproducibility"]
+    assert "simtools_version" in report["reproducibility"]
+
+
 def test_run_store_lists_and_loads_reports(tmp_path):
     store = RunStore(root=tmp_path / "runs")
     experiment = get_experiment("habitat_skokloster_visual_observation")
@@ -203,6 +233,40 @@ def test_run_store_comparison_summarizes_and_filters_runs(tmp_path):
     assert filtered["filters"]["tool_id"] == "ai2thor"
     assert filtered["summary"]["run_count"] == 1
     assert filtered["runs"][0]["experiment_id"] == ai2thor.id
+
+
+def test_legacy_run_report_without_v04_fields_still_loads_and_compares(tmp_path):
+    run_dir = tmp_path / "runs" / "20260526T000000000000Z_legacy_experiment"
+    run_dir.mkdir(parents=True)
+    (run_dir / "stdout.log").write_text("", encoding="utf-8")
+    (run_dir / "stderr.log").write_text("", encoding="utf-8")
+    (run_dir / "report.json").write_text(
+        json.dumps(
+            {
+                "experiment_id": "legacy_experiment",
+                "tool_id": "ai2thor",
+                "status": "planned",
+                "dry_run": True,
+                "started_at": "2026-05-26T00:00:00+00:00",
+                "finished_at": "2026-05-26T00:00:00+00:00",
+                "duration_seconds": 0.0,
+                "command": "python -m simtools experiments run legacy_experiment --dry-run",
+                "artifacts": [],
+                "max_steps": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+    store = RunStore(root=tmp_path / "runs")
+
+    report = store.load_report(run_dir.name)
+    comparison = compare_runs(store)
+
+    assert report["metrics"]["schema_version"] == "simtools.metrics.v1"
+    assert report["experiment_id"] == "legacy_experiment"
+    assert comparison["summary"]["run_count"] == 1
+    assert comparison["runs"][0]["experiment_id"] == "legacy_experiment"
+    assert comparison["runs"][0]["metrics"]["schema_version"] == "simtools.metrics.v1"
 
 
 def test_experiment_dry_run_does_not_call_real_adapter_paths(tmp_path, monkeypatch):
@@ -298,6 +362,31 @@ def test_cli_experiments_and_runs_dry_run(tmp_path, monkeypatch):
     compare_payload = json.loads(compare_result.output)
     assert compare_payload["summary"]["run_count"] == 1
     assert compare_payload["runs"][0]["metrics"]["schema_version"] == "simtools.metrics.v1"
+
+
+def test_cli_runs_export_json_and_csv(tmp_path, monkeypatch):
+    monkeypatch.setenv("SIMTOOLS_RUNS_DIR", str(tmp_path / "runs"))
+
+    run_result = runner.invoke(
+        app,
+        ["experiments", "run", "ai2thor_floorplan1_navigation_smoke"],
+    )
+    assert run_result.exit_code == 0, run_result.output
+
+    json_result = runner.invoke(app, ["runs", "export", "--format", "json"])
+    assert json_result.exit_code == 0, json_result.output
+    json_payload = json.loads(json_result.output)
+    assert json_payload["schema_version"] == "simtools.run_export.v1"
+    assert json_payload["comparison"]["schema_version"] == "simtools.run_comparison.v1"
+    assert json_payload["comparison"]["summary"]["run_count"] == 1
+
+    csv_result = runner.invoke(app, ["runs", "export", "--format", "csv"])
+    assert csv_result.exit_code == 0, csv_result.output
+    assert csv_result.output.splitlines()[0] == (
+        "run_id,experiment_id,tool_id,status,dry_run,duration_seconds,"
+        "artifact_count,success,metrics_schema,benchmark_status,report_path"
+    )
+    assert "ai2thor_floorplan1_navigation_smoke" in csv_result.output
 
 
 def test_cli_experiment_run_defaults_to_dry_run_for_safety(tmp_path, monkeypatch):

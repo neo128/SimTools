@@ -76,6 +76,9 @@ class SimToolAdapter(ABC):
   such as log byte counts and artifact count from the recorded run files.
 - Run comparison must never call adapter methods. It reads normalized
   `report.json`, logs, and artifact references from `.simtools/runs/`.
+- Benchmark Runner v0.4 metadata and export paths must never call adapter
+  methods. They read `benchmark_result`, `task_metrics`, reproducibility, and
+  metrics fields from recorded reports only.
 
 ## Installation Profile Rules
 

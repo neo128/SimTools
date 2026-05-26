@@ -60,8 +60,9 @@ Each experiment run creates:
 `report.json` is the primary machine-readable summary. It includes the run id,
 experiment id, tool id, scene, task, seed, max steps, dry-run flag, status,
 message, start/end timestamps, duration, CLI command, standard metrics, output
-expectations, notes, adapter result, and artifact references. Workbench records
-artifact references instead of copying large files into the run directory.
+expectations, notes, adapter result, benchmark metadata, reproducibility
+metadata, and artifact references. Workbench records artifact references
+instead of copying large files into the run directory.
 
 Minimum `report.json` keys:
 
@@ -79,9 +80,13 @@ Minimum `report.json` keys:
 - `command`
 - `message`
 - `metrics`
+- `benchmark_result`
+- `reproducibility`
 
 `metrics.schema_version` is `simtools.metrics.v1`. See
 `docs/18_EXPERIMENT_METRICS.md` for the metrics and run-comparison contract.
+`benchmark_result.schema_version` is `simtools.benchmark_result.v1`. See
+`docs/20_BENCHMARK_RUNNER.md` for the benchmark metadata and export boundary.
 
 ## CLI
 
@@ -93,6 +98,8 @@ python -m simtools experiments run habitat_skokloster_visual_observation --no-dr
 python -m simtools experiments report <run_id>
 python -m simtools runs list
 python -m simtools runs compare --json
+python -m simtools runs export --format json
+python -m simtools runs export --format csv
 ```
 
 `experiments run` is dry-run by default. `--dry-run` writes the same

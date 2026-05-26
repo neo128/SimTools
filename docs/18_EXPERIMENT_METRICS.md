@@ -61,7 +61,8 @@ Rules:
 ```
 
 Comparison rows include run id, experiment id, tool id, status, dry-run flag,
-duration, artifact count, success flag, metrics, run directory, and report path.
+duration, artifact count, success flag, metrics, benchmark status, run
+directory, and report path.
 
 ## CLI
 

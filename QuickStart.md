@@ -81,6 +81,8 @@ python -m simtools experiments info ai2thor_floorplan1_navigation_smoke
 python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 python -m simtools runs list
 python -m simtools runs compare --json
+python -m simtools runs export --format json
+python -m simtools runs export --format csv
 ```
 
 启动 SimTools dashboard：
@@ -117,8 +119,10 @@ Dashboard 包含 Experiment Library、Run History 和 Run Detail，可读取
 
 其中 `report.json` 至少包含 `run_id`、`experiment_id`、`tool_id`、
 `scene`、`task`、`dry_run`、`status`、`started_at`、`finished_at`、
-`duration_seconds`、`artifacts`、`command`、`message` 和 `metrics`。
-Dashboard 的 Run Detail 会显示 run 目录、report 路径和 artifact 目录。
+`duration_seconds`、`artifacts`、`command`、`message`、`metrics`、
+`benchmark_result` 和 `reproducibility`。Dashboard 的 Run Detail 会显示 run
+目录、report 路径、artifact 目录、metrics schema、artifact count 和 benchmark
+status。
 
 v0.3 的 `metrics` 使用 `simtools.metrics.v1`，包含 duration、artifact
 count、stdout/stderr bytes、max steps、dry-run 和 success 标记。比较 run：
@@ -127,6 +131,8 @@ count、stdout/stderr bytes、max steps、dry-run 和 success 标记。比较 ru
 python -m simtools runs compare
 python -m simtools runs compare --tool ai2thor --json
 python -m simtools runs compare --status planned --dry-run
+python -m simtools runs export --format json
+python -m simtools runs export --format csv
 ```
 
 安全 dry-run：
@@ -143,10 +149,10 @@ Workbench v0.2 默认 dry-run。真实 run 需要显式使用 `--no-dry-run`，
 ManiSkill 使用 visual rollout。RoboCasa365、MolmoSpaces、OmniGibson 和
 BEHAVIOR-1K 先记录实验 metadata 和 dry-run report。
 
-Benchmark Runner v0.4 的下一步是 metadata/report-driven：增加
-`task_metrics`、`benchmark_result`、reproducibility metadata、run export 和
-dashboard inspection。它不是新的真实 simulator 执行器，不下载资产，不启动
-GUI，不引入重型依赖。
+Benchmark Runner v0.4 是 metadata/report-driven：增加 `task_metrics`、
+`benchmark_result`、reproducibility metadata、run export 和 dashboard
+inspection。它不是新的真实 simulator 执行器，不下载资产，不启动 GUI，不引入
+重型依赖。
 
 ## 工具总览
 

@@ -25,6 +25,7 @@ from simtools.cli.commands_run import run_tool
 from simtools.cli.commands_status import build_status_table
 from simtools.cli.commands_view import view_tool
 from simtools.core.artifact_store import ArtifactStore
+from simtools.core.benchmarking import export_runs_csv, export_runs_json
 from simtools.core.capability_matrix import matrix_markdown
 from simtools.core.config_loader import load_profiles, repo_root
 from simtools.core.errors import ConfigError, ToolNotFoundError
@@ -498,6 +499,28 @@ def runs_compare(
         return
     console.print(build_run_comparison_table(comparison))
     console.print_json(data=comparison["summary"])
+
+
+@runs_app.command("export")
+def runs_export(
+    output_format: str = typer.Option(
+        "json",
+        "--format",
+        "-f",
+        help="Output format: json or csv.",
+    ),
+) -> None:
+    """Export recorded run summaries without executing simulators."""
+
+    comparison = compare_runs(RunStore())
+    if output_format == "json":
+        console.print_json(data=export_runs_json(comparison))
+        return
+    if output_format == "csv":
+        sys.stdout.write(export_runs_csv(comparison))
+        return
+    console.print("[red]Unsupported format. Use json or csv.[/red]")
+    raise typer.Exit(code=2)
 
 
 @app.command()

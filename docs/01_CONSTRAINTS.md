@@ -26,6 +26,8 @@ These constraints are part of the architecture, not suggestions.
 15. Run comparison and metrics aggregation must read recorded metadata only;
     they must not import simulator packages, call adapters, launch viewers, or
     mutate artifacts.
+16. Benchmark metadata and run export helpers must stay report-driven until
+    explicit future work adds opt-in adapter-owned benchmark execution.
 
 ## Base Environment
 

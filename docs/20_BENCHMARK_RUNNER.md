@@ -1,8 +1,8 @@
 # Benchmark Runner v0.4
 
-Benchmark Runner v0.4 is the planned next layer after Experiment Workbench v0.2
-and Experiment Metrics v0.3. It is intentionally metadata/report-driven first:
-it prepares benchmark-ready schemas, exports, and dashboard inspection without
+Benchmark Runner v0.4 is the next layer after Experiment Workbench v0.2 and
+Experiment Metrics v0.3. It is intentionally metadata/report-driven first: it
+prepares benchmark-ready schemas, exports, and dashboard inspection without
 executing new real simulator tasks.
 
 The implementation plan is `plans/008-benchmark-runner-v0.4.md`.
@@ -29,12 +29,11 @@ Benchmark Runner v0.4 must not:
 It should read existing run records, normalize benchmark metadata, export run
 snapshots, and help the dashboard inspect benchmark fields.
 
-## Planned Schemas
+## Schemas
 
 ### `task_metrics`
 
-`task_metrics` will hold task-specific measurements. The default unscored form
-is:
+`task_metrics` holds task-specific measurements. The default unscored form is:
 
 ```json
 {
@@ -52,7 +51,7 @@ belong in the common schema.
 
 ### `benchmark_result`
 
-`benchmark_result` will describe benchmark state for a run:
+`benchmark_result` describes benchmark state for a run:
 
 ```json
 {
@@ -69,7 +68,7 @@ belong in the common schema.
 }
 ```
 
-Initial statuses should stay simple:
+Initial statuses stay simple:
 
 - `not_scored`: metadata exists, but no benchmark scoring has run
 - `scored`: task metrics were computed
@@ -77,7 +76,7 @@ Initial statuses should stay simple:
 
 ### `reproducibility`
 
-`reproducibility` will record local, non-mutating provenance:
+`reproducibility` records local, non-mutating provenance:
 
 ```json
 {
@@ -93,23 +92,25 @@ Initial statuses should stay simple:
 This metadata should come from local process state and existing helper data. It
 must not call external package managers or real simulator code.
 
-## Planned CLI
+## CLI
 
 `runs compare` remains the interactive summary command. Benchmark Runner v0.4
-will add export commands:
+adds export commands:
 
 ```bash
 python -m simtools runs export --format json
 python -m simtools runs export --format csv
 ```
 
-`runs export` should read `.simtools/runs/` only. It should not execute
-experiments, call adapters, launch viewers, or mutate artifacts.
+`runs export` reads `.simtools/runs/` only. It does not execute experiments,
+call adapters, launch viewers, or mutate artifacts. JSON output uses
+`simtools.run_export.v1`; CSV output includes run identity, status, metrics
+schema, benchmark status, and report path.
 
-## Planned Dashboard Behavior
+## Dashboard Behavior
 
-The dashboard should expose benchmark-oriented fields in Run Detail and Run
-History without importing Streamlit at module import time:
+The dashboard exposes benchmark-oriented fields in Run Detail and Run History
+without importing Streamlit at module import time:
 
 - metrics schema
 - artifact count
@@ -123,8 +124,8 @@ simulator outputs.
 
 ## Module Split
 
-Future benchmark logic should not keep growing
-`src/simtools/core/experiments.py`. The intended split is:
+Benchmark logic should not keep growing `src/simtools/core/experiments.py`.
+The split is:
 
 - `experiments.py`: experiment config loading, run creation, run-store helpers
 - `benchmarking.py`: task metrics, benchmark result, reproducibility metadata,

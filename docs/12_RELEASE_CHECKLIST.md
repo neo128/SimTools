@@ -20,6 +20,7 @@ git diff --check
 - Artifacts remain under `.simtools/artifacts/`.
 - Experiment runs remain under `.simtools/runs/`.
 - Run comparison and dashboard metrics read recorded metadata only.
+- Benchmark metadata and run exports read recorded reports only.
 
 ## Documentation Checks
 
@@ -29,8 +30,8 @@ git diff --check
 - `docs/18_EXPERIMENT_METRICS.md` reflects the current metrics and comparison
   schemas.
 - `docs/19_PROJECT_EVALUATION.md` reflects current risks and next priorities.
-- `docs/20_BENCHMARK_RUNNER.md` reflects planned benchmark boundaries before
-  implementation starts.
+- `docs/20_BENCHMARK_RUNNER.md` reflects implemented benchmark metadata,
+  export commands, and the no-new-simulator-execution boundary.
 - `docs/07_TOOL_MATRIX.md` and `docs/08_INSTALLATION_PROFILES.md` match
   manifests.
 

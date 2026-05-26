@@ -13,6 +13,10 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from simtools.adapters import get_adapter
+from simtools.core.benchmarking import (
+    build_benchmark_result,
+    collect_reproducibility_metadata,
+)
 from simtools.core.config_loader import load_yaml, repo_root
 from simtools.core.environment import collect_system_info
 from simtools.core.errors import ConfigError, ToolNotFoundError
@@ -264,6 +268,8 @@ def run_experiment(
         stderr=stderr,
         max_steps=spec.max_steps,
     )
+    benchmark_result = build_benchmark_result()
+    reproducibility = collect_reproducibility_metadata(repo_root())
     report: dict[str, Any] = {
         "run_id": run_dir.name,
         "experiment_id": spec.id,
@@ -280,6 +286,8 @@ def run_experiment(
         "duration_seconds": duration_seconds,
         "command": _experiment_cli_command(spec, dry_run=dry_run),
         "metrics": metrics,
+        "benchmark_result": benchmark_result,
+        "reproducibility": reproducibility,
         "run_dir": str(run_dir),
         "artifacts_dir": str(run_dir / "artifacts"),
         "artifacts": artifacts,
@@ -300,6 +308,8 @@ def run_experiment(
         "duration_seconds": duration_seconds,
         "command": report["command"],
         "metrics": metrics,
+        "benchmark_result": benchmark_result,
+        "reproducibility": reproducibility,
         "experiment": spec.model_dump(mode="json"),
         "files": {
             "manifest_snapshot": "manifest_snapshot.yaml",
@@ -383,6 +393,10 @@ def _run_matches_filters(
 def _comparison_row(row: dict[str, Any]) -> dict[str, Any]:
     report = row.get("report") if isinstance(row.get("report"), dict) else {}
     metrics = _normalized_metrics(row.get("metrics"), report, Path(str(row["run_dir"])))
+    benchmark_result = report.get("benchmark_result")
+    benchmark_status = ""
+    if isinstance(benchmark_result, dict):
+        benchmark_status = str(benchmark_result.get("status") or "")
     return {
         "run_id": str(row["run_id"]),
         "experiment_id": str(row["experiment_id"]),
@@ -395,6 +409,7 @@ def _comparison_row(row: dict[str, Any]) -> dict[str, Any]:
         "artifact_count": metrics["artifact_count"],
         "success": metrics["success"],
         "metrics": metrics,
+        "benchmark_status": benchmark_status,
         "run_dir": str(row["run_dir"]),
         "report_path": str(row["report_path"]),
     }

@@ -25,10 +25,14 @@ exports, and stronger reproducibility metadata.
 - Experiment specs live under `configs/experiments/`.
 - Runs are written under `.simtools/runs/<run_id>/`.
 - New run reports include `simtools.metrics.v1`.
+- New run reports include `simtools.benchmark_result.v1` and
+  `simtools.reproducibility.v1`.
 - `simtools runs compare` returns `simtools.run_comparison.v1`.
+- `simtools runs export` returns `simtools.run_export.v1` JSON or CSV
+  snapshots.
 - Dashboard helpers can read tools, experiments, runs, metrics, and comparison
-  summaries without importing Streamlit or heavy simulator packages at module
-  import time.
+  summaries, including benchmark status inspection, without importing
+  Streamlit or heavy simulator packages at module import time.
 
 ## Architecture Assessment
 
@@ -64,10 +68,12 @@ The documentation set is now broadly aligned with the implementation:
 - `docs/10_ROADMAP.md`: completed milestones and later work.
 - `docs/17_EXPERIMENT_WORKBENCH.md`: experiment/run directory contract.
 - `docs/18_EXPERIMENT_METRICS.md`: metrics and run comparison contract.
+- `docs/20_BENCHMARK_RUNNER.md`: benchmark metadata, export commands, and
+  future scoring boundary.
 
-The remaining documentation gap is benchmark semantics. The project documents
-operational metrics, but it does not yet define task-specific benchmark scores,
-success criteria, or aggregation policies.
+The remaining benchmark gap is semantic scoring. The project has benchmark
+metadata slots and exports, but it does not yet define task-specific success
+criteria, real benchmark task execution, or aggregation policies.
 
 ## Risks
 
@@ -80,27 +86,28 @@ success criteria, or aggregation policies.
 - Run artifacts are referenced rather than copied into `.simtools/runs/`; this
   keeps the core lightweight but limits portable replay packages.
 - Dashboard views are inspection-oriented. They do not yet provide rich
-  artifact previews, comparison exports, or benchmark report generation.
+  artifact previews, benchmark report generation, or leaderboard-style
+  aggregation.
 
 ## Recommended Next Priorities
 
-1. Define `benchmark_result` or `task_metrics` for task-specific scoring.
-2. Split experiment concerns into focused modules before adding benchmark
-   runners.
-3. Add `simtools runs export` for JSON/CSV comparison snapshots.
-4. Add dashboard comparison filters for time windows and experiment groups.
-5. Add richer artifact previews for run-linked screenshots, videos, logs, and
+1. Define task-specific scoring semantics on top of the existing
+   `task_metrics` and `benchmark_result` schemas.
+2. Continue splitting experiment concerns into focused modules before adding
+   real benchmark runners.
+3. Add dashboard comparison filters for time windows and experiment groups.
+4. Add richer artifact previews for run-linked screenshots, videos, logs, and
    metadata.
-6. Add reproducibility metadata such as git commit, SimTools version, active
-   profile, and adapter readiness snapshot to run reports.
-7. Keep new simulator integrations behind the same manifest + adapter + test +
+5. Extend reproducibility metadata with active profile and adapter readiness
+   snapshots.
+6. Keep new simulator integrations behind the same manifest + adapter + test +
    docs contract.
 
-The concrete next implementation plan is
-`plans/008-benchmark-runner-v0.4.md`; the design boundary is summarized in
-`docs/20_BENCHMARK_RUNNER.md`. It intentionally keeps the first Benchmark
-Runner slice metadata/report-driven: no new real simulator execution, no asset
-downloads, no GUI launches, and no heavyweight imports in the base environment.
+The active implementation plan is `plans/008-benchmark-runner-v0.4.md`; the
+design boundary is summarized in `docs/20_BENCHMARK_RUNNER.md`. It intentionally
+keeps the first Benchmark Runner slice metadata/report-driven: no new real
+simulator execution, no asset downloads, no GUI launches, and no heavyweight
+imports in the base environment.
 
 ## Release Gates
 
@@ -114,6 +121,8 @@ python -m simtools real-status --strict
 python -m simtools experiments list
 python -m simtools experiments run ai2thor_floorplan1_navigation_smoke --dry-run
 python -m simtools runs compare --json
+python -m simtools runs export --format json
+python -m simtools runs export --format csv
 git diff --check
 ```
 

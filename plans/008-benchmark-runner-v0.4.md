@@ -51,7 +51,7 @@ Out of scope:
 - Create: `tests/test_benchmarking.py`
 - Modify: `docs/04_CONFIG_SCHEMA.md`
 
-- [ ] **Step 1: Write failing tests for normalized task metrics**
+- [x] **Step 1: Write failing tests for normalized task metrics**
 
 ```python
 from simtools.core.benchmarking import normalize_task_metrics
@@ -78,7 +78,7 @@ pytest tests/test_benchmarking.py::test_task_metrics_defaults_to_unscored_result
 
 Expected: fail because `simtools.core.benchmarking` does not exist.
 
-- [ ] **Step 2: Implement minimal schema helpers**
+- [x] **Step 2: Implement minimal schema helpers**
 
 Add:
 
@@ -87,13 +87,13 @@ Add:
 - `normalize_task_metrics(payload: dict[str, object]) -> dict[str, object]`
 - `build_benchmark_result(status: str, task_metrics: dict[str, object] | None)`
 
-- [ ] **Step 3: Verify targeted tests pass**
+- [x] **Step 3: Verify targeted tests pass**
 
 ```bash
 pytest tests/test_benchmarking.py -q
 ```
 
-- [ ] **Step 4: Document the schema**
+- [x] **Step 4: Document the schema**
 
 Add `task_metrics` and `benchmark_result` examples to
 `docs/04_CONFIG_SCHEMA.md`.
@@ -106,7 +106,7 @@ Add `task_metrics` and `benchmark_result` examples to
 - Modify: `src/simtools/core/experiments.py`
 - Test: `tests/test_experiments.py`
 
-- [ ] **Step 1: Write a failing dry-run report test**
+- [x] **Step 1: Write a failing dry-run report test**
 
 ```python
 def test_dry_run_report_includes_reproducibility_metadata(tmp_path):
@@ -126,7 +126,7 @@ def test_dry_run_report_includes_reproducibility_metadata(tmp_path):
 
 Expected: fail because reports do not include these fields.
 
-- [ ] **Step 2: Implement lightweight metadata collection**
+- [x] **Step 2: Implement lightweight metadata collection**
 
 Use existing environment data where possible. Add only local, non-mutating
 fields:
@@ -137,7 +137,7 @@ fields:
 - current git commit or empty string if unavailable
 - SimTools package version if available
 
-- [ ] **Step 3: Verify experiment tests**
+- [x] **Step 3: Verify experiment tests**
 
 ```bash
 pytest tests/test_experiments.py tests/test_benchmarking.py -q
@@ -152,7 +152,7 @@ pytest tests/test_experiments.py tests/test_benchmarking.py -q
 - Test: `tests/test_experiments.py` or `tests/test_cli.py`
 - Docs: `docs/05_CLI_SPEC.md`
 
-- [ ] **Step 1: Write failing CLI tests for JSON and CSV export**
+- [x] **Step 1: Write failing CLI tests for JSON and CSV export**
 
 ```python
 def test_runs_export_json_and_csv(tmp_path, monkeypatch):
@@ -171,7 +171,7 @@ def test_runs_export_json_and_csv(tmp_path, monkeypatch):
 
 Expected: fail because `runs export` does not exist.
 
-- [ ] **Step 2: Implement export helpers**
+- [x] **Step 2: Implement export helpers**
 
 Add:
 
@@ -181,7 +181,7 @@ Add:
 
 CSV must use only standard-library `csv` and in-memory `io.StringIO`.
 
-- [ ] **Step 3: Add CLI command**
+- [x] **Step 3: Add CLI command**
 
 Add:
 
@@ -200,7 +200,7 @@ The command must read `.simtools/runs/` only.
 - Test: `tests/test_dashboard.py`
 - Docs: `docs/06_DASHBOARD_SPEC.md`
 
-- [ ] **Step 1: Write helper tests**
+- [x] **Step 1: Write helper tests**
 
 ```python
 from simtools.ui.streamlit_app import run_metric_summary
@@ -217,7 +217,7 @@ def test_run_metric_summary_extracts_benchmark_fields():
     assert summary["benchmark_status"] == "not_scored"
 ```
 
-- [ ] **Step 2: Add dashboard helper and view wiring**
+- [x] **Step 2: Add dashboard helper and view wiring**
 
 Expose benchmark status, metrics schema, artifact count, and report path in Run
 Detail without importing Streamlit at module import time.
@@ -232,13 +232,13 @@ Detail without importing Streamlit at module import time.
 - Modify: `docs/10_ROADMAP.md`
 - Modify: `docs/12_RELEASE_CHECKLIST.md`
 
-- [ ] **Step 1: Keep the benchmark boundary current**
+- [x] **Step 1: Keep the benchmark boundary current**
 
 Update `docs/20_BENCHMARK_RUNNER.md` with any schema or command changes made
 during implementation. It must continue to state that v0.4 is
 metadata/report-driven and does not execute new real simulator tasks.
 
-- [ ] **Step 2: Run full verification**
+- [x] **Step 2: Run full verification**
 
 ```bash
 pytest

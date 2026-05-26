@@ -1,4 +1,9 @@
-from simtools.ui.streamlit_app import artifact_preview, load_dashboard_data, summarize_artifacts
+from simtools.ui.streamlit_app import (
+    artifact_preview,
+    load_dashboard_data,
+    run_metric_summary,
+    summarize_artifacts,
+)
 
 
 def test_dashboard_data_loads_from_registry():
@@ -26,6 +31,27 @@ def test_artifact_summary_counts_by_tool():
         ]
     )
     assert summary == {"ai2thor": 2, "habitat": 1}
+
+
+def test_run_metric_summary_extracts_benchmark_fields():
+    summary = run_metric_summary(
+        {
+            "report_path": "/tmp/report.json",
+            "artifacts": ["frame.ppm", "metadata.json"],
+            "metrics": {
+                "schema_version": "simtools.metrics.v1",
+                "artifact_count": 2,
+            },
+            "benchmark_result": {"status": "not_scored"},
+        }
+    )
+
+    assert summary == {
+        "metrics_schema": "simtools.metrics.v1",
+        "artifact_count": 2,
+        "benchmark_status": "not_scored",
+        "report_path": "/tmp/report.json",
+    }
 
 
 def test_artifact_preview_reads_json(tmp_path):

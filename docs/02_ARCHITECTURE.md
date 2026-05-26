@@ -24,6 +24,8 @@ SimTools uses a layered architecture:
 - `experiments`: loads experiment YAML, creates `.simtools/runs/` records,
   records standard metrics, compares run history, and routes first-phase real
   runs through existing adapter paths.
+- `benchmarking`: normalizes task metrics, benchmark result metadata,
+  reproducibility metadata, and run export payloads without simulator imports.
 - `capability_matrix`: converts manifests into comparison rows and markdown.
 - `status`: aggregates adapter diagnostics into local status views.
 - `readiness`: reports whether each registered tool has verified local smoke
@@ -55,7 +57,8 @@ To add a simulator:
   records under `.simtools/runs/`.
 - Metrics mode: repository-local run comparison without simulator imports or
   adapter execution.
-- Benchmark mode: future metrics-oriented task execution and artifact capture.
+- Benchmark mode: metadata/report-driven task metrics, reproducibility fields,
+  and run exports first; future task execution remains opt-in and adapter-owned.
 
 ## Risks
 
