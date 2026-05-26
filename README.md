@@ -110,6 +110,21 @@ and troubleshooting. Future simulator quick-use notes should be added there.
 For the current local verification report, see
 `docs/16_VERIFICATION_REPORT_2026-05-25.md`.
 
+## Documentation Map
+
+- `docs/00_PROJECT_BRIEF.md`: current project baseline and non-goals.
+- `docs/01_CONSTRAINTS.md`: hard architecture and testing constraints.
+- `docs/02_ARCHITECTURE.md`: system layers and module responsibilities.
+- `docs/05_CLI_SPEC.md`: command surface.
+- `docs/06_DASHBOARD_SPEC.md`: dashboard views and helper boundaries.
+- `docs/17_EXPERIMENT_WORKBENCH.md`: experiment spec and run directory
+  contract.
+- `docs/18_EXPERIMENT_METRICS.md`: metrics and run comparison schema.
+- `docs/19_PROJECT_EVALUATION.md`: current assessment, risks, and next
+  priorities.
+- `plans/008-benchmark-runner-v0.4.md`: next Benchmark Runner implementation
+  plan.
+
 ## Core Commands
 
 ```bash

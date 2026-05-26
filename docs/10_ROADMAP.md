@@ -111,6 +111,10 @@ Task-specific benchmark scoring remains a later layer.
 
 ## Later
 
+- Benchmark Runner v0.4 as planned in
+  `plans/008-benchmark-runner-v0.4.md`: task-specific metrics schema,
+  benchmark result metadata, run export, reproducibility metadata, and dashboard
+  metrics/artifact inspection without new real simulator execution.
 - Isaac Lab, MuJoCo/MJX, Gazebo, Webots, CoppeliaSim, CARLA, AirSim, Genesis,
   and Newton
 - Structured benchmark runner with task-specific metrics aggregation
