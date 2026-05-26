@@ -90,7 +90,7 @@ python -m simtools ui
 Dashboard 包含 Experiment Library、Run History 和 Run Detail，可读取
 `.simtools/runs/` 下的 `report.json` 并展示 artifact path。
 
-## Experiment Workbench v0.2
+## Experiment Workbench v0.2/v0.3
 
 实验配置位于 `configs/experiments/`，当前内置：
 

@@ -1,8 +1,8 @@
 # SimTools
 
 SimTools is a local management and comparison platform for embodied AI
-simulation tools. The v0.2 Experiment Workbench layer also lets you define,
-dry-run, record, and inspect small embodied AI experiments across the existing
+simulation tools. The Experiment Workbench lets you define, dry-run, record,
+inspect, and compare small embodied AI experiments across the existing
 registry.
 
 It provides:

@@ -147,3 +147,62 @@ output:
 notes:
   - Non-dry-run uses the existing ManiSkill visual rollout path.
 ```
+
+## Run Report Files
+
+Experiment run reports are generated under `.simtools/runs/<run_id>/`; they are
+not user-authored config files, but they are a stable machine-readable contract
+for CLI and dashboard views.
+
+Minimum `report.json` keys:
+
+- `run_id`
+- `experiment_id`
+- `tool_id`
+- `scene`
+- `task`
+- `seed`
+- `max_steps`
+- `dry_run`
+- `status`
+- `message`
+- `started_at`
+- `finished_at`
+- `duration_seconds`
+- `command`
+- `metrics`
+- `artifacts`
+- `output`
+- `notes`
+- `adapter_result`
+
+`metrics` uses schema version `simtools.metrics.v1`:
+
+```json
+{
+  "schema_version": "simtools.metrics.v1",
+  "success": false,
+  "dry_run": true,
+  "duration_seconds": 0.002,
+  "artifact_count": 0,
+  "stdout_bytes": 0,
+  "stderr_bytes": 0,
+  "max_steps": 1
+}
+```
+
+Older reports without `metrics` are normalized on read by the run-store helpers
+so `simtools runs compare` and the dashboard can still inspect historical runs.
+
+## Run Comparison Payload
+
+`simtools runs compare --json` returns schema version
+`simtools.run_comparison.v1`. The payload contains:
+
+- `filters`: selected experiment, tool, status, and dry-run filters
+- `summary`: run count, experiment count, tool count, status counts, dry-run
+  count, success count, total artifact count, and average duration
+- `runs`: normalized run rows with metrics, paths, status, and artifact counts
+
+Run comparison is read-only. It uses `.simtools/runs/` metadata and must not
+launch adapters or import heavyweight simulator packages.

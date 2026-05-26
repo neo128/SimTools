@@ -23,6 +23,9 @@ These constraints are part of the architecture, not suggestions.
     execution paths.
 14. Experiment run records must stay under `.simtools/runs/` unless explicitly
     configured for tests.
+15. Run comparison and metrics aggregation must read recorded metadata only;
+    they must not import simulator packages, call adapters, launch viewers, or
+    mutate artifacts.
 
 ## Base Environment
 
@@ -34,6 +37,6 @@ MuJoCo, or Isaac Sim as required dependencies.
 ## Testing Boundary
 
 Unit tests validate manifests, experiment configs, registry behavior, capability
-matrices, adapter contracts, run metadata, dashboard helpers, and command
-output. They do not require a GPU, simulator runtime, dataset, Unity process,
-Isaac Sim process, MuJoCo license, or GUI session.
+matrices, adapter contracts, run metadata, metrics normalization, dashboard
+helpers, and command output. They do not require a GPU, simulator runtime,
+dataset, Unity process, Isaac Sim process, MuJoCo license, or GUI session.

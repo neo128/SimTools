@@ -71,6 +71,11 @@ class SimToolAdapter(ABC):
   AI2-THOR `smoke`, Habitat `launch_viewer`, and ManiSkill `launch_viewer`.
 - Adapter results should include `artifact` or `artifacts` paths when a real run
   creates visual output, so the run report can record artifact references.
+- Adapter results may include `stdout` and `stderr` strings. Workbench v0.3
+  writes these to `stdout.log` and `stderr.log`, then derives standard metrics
+  such as log byte counts and artifact count from the recorded run files.
+- Run comparison must never call adapter methods. It reads normalized
+  `report.json`, logs, and artifact references from `.simtools/runs/`.
 
 ## Installation Profile Rules
 

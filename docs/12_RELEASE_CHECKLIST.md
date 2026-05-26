@@ -18,12 +18,16 @@ git diff --check
 - No tests launch GUI viewers.
 - Install plans print commands only.
 - Artifacts remain under `.simtools/artifacts/`.
+- Experiment runs remain under `.simtools/runs/`.
+- Run comparison and dashboard metrics read recorded metadata only.
 
 ## Documentation Checks
 
 - `README.md` quick start is current.
-- `CHANGELOG.md` has the release entry.
 - `docs/10_ROADMAP.md` reflects the next target.
+- `docs/17_EXPERIMENT_WORKBENCH.md` reflects the current run contract.
+- `docs/18_EXPERIMENT_METRICS.md` reflects the current metrics and comparison
+  schemas.
 - `docs/07_TOOL_MATRIX.md` and `docs/08_INSTALLATION_PROFILES.md` match
   manifests.
 
