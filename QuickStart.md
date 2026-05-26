@@ -8,6 +8,7 @@
 - [docs/15_REAL_LOCAL_RUN_REQUIREMENTS.md](docs/15_REAL_LOCAL_RUN_REQUIREMENTS.md)
 - [docs/16_VERIFICATION_REPORT_2026-05-25.md](docs/16_VERIFICATION_REPORT_2026-05-25.md)
 - [docs/19_PROJECT_EVALUATION.md](docs/19_PROJECT_EVALUATION.md)
+- [docs/20_BENCHMARK_RUNNER.md](docs/20_BENCHMARK_RUNNER.md)
 
 ## 基本原则
 
@@ -141,6 +142,11 @@ Workbench v0.2 默认 dry-run。真实 run 需要显式使用 `--no-dry-run`，
 第一阶段只复用已有路径：AI2-THOR 使用 smoke，Habitat 使用 visual render，
 ManiSkill 使用 visual rollout。RoboCasa365、MolmoSpaces、OmniGibson 和
 BEHAVIOR-1K 先记录实验 metadata 和 dry-run report。
+
+Benchmark Runner v0.4 的下一步是 metadata/report-driven：增加
+`task_metrics`、`benchmark_result`、reproducibility metadata、run export 和
+dashboard inspection。它不是新的真实 simulator 执行器，不下载资产，不启动
+GUI，不引入重型依赖。
 
 ## 工具总览
 

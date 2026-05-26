@@ -28,6 +28,9 @@ git diff --check
 - `docs/17_EXPERIMENT_WORKBENCH.md` reflects the current run contract.
 - `docs/18_EXPERIMENT_METRICS.md` reflects the current metrics and comparison
   schemas.
+- `docs/19_PROJECT_EVALUATION.md` reflects current risks and next priorities.
+- `docs/20_BENCHMARK_RUNNER.md` reflects planned benchmark boundaries before
+  implementation starts.
 - `docs/07_TOOL_MATRIX.md` and `docs/08_INSTALLATION_PROFILES.md` match
   manifests.
 

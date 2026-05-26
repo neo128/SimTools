@@ -226,16 +226,17 @@ Detail without importing Streamlit at module import time.
 
 **Files:**
 
-- Create: `docs/20_BENCHMARK_RUNNER.md`
+- Modify: `docs/20_BENCHMARK_RUNNER.md`
 - Modify: `README.md`
 - Modify: `QuickStart.md`
 - Modify: `docs/10_ROADMAP.md`
 - Modify: `docs/12_RELEASE_CHECKLIST.md`
 
-- [ ] **Step 1: Document the benchmark boundary**
+- [ ] **Step 1: Keep the benchmark boundary current**
 
-State that v0.4 is metadata/report-driven and does not execute new real
-simulator tasks.
+Update `docs/20_BENCHMARK_RUNNER.md` with any schema or command changes made
+during implementation. It must continue to state that v0.4 is
+metadata/report-driven and does not execute new real simulator tasks.
 
 - [ ] **Step 2: Run full verification**
 

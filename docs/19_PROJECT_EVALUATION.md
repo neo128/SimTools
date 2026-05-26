@@ -97,10 +97,10 @@ success criteria, or aggregation policies.
    docs contract.
 
 The concrete next implementation plan is
-`plans/008-benchmark-runner-v0.4.md`. It intentionally keeps the first
-Benchmark Runner slice metadata/report-driven: no new real simulator execution,
-no asset downloads, no GUI launches, and no heavyweight imports in the base
-environment.
+`plans/008-benchmark-runner-v0.4.md`; the design boundary is summarized in
+`docs/20_BENCHMARK_RUNNER.md`. It intentionally keeps the first Benchmark
+Runner slice metadata/report-driven: no new real simulator execution, no asset
+downloads, no GUI launches, and no heavyweight imports in the base environment.
 
 ## Release Gates
 

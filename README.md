@@ -122,6 +122,8 @@ For the current local verification report, see
 - `docs/18_EXPERIMENT_METRICS.md`: metrics and run comparison schema.
 - `docs/19_PROJECT_EVALUATION.md`: current assessment, risks, and next
   priorities.
+- `docs/20_BENCHMARK_RUNNER.md`: planned benchmark schemas, boundaries, and
+  export/dashboard direction.
 - `plans/008-benchmark-runner-v0.4.md`: next Benchmark Runner implementation
   plan.
 
